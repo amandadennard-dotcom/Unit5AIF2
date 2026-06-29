@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Classroom Scenario: What is an API?</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;900&family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; min-height: 100%; font-family: 'Geist', sans-serif; background: #f5f5f7; color: #1a1a1a; }
+
+.sr-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+
+.skip-link { position: absolute; top: -999px; left: -999px; background: #4C42CF; color: #fff; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; z-index: 9999; text-decoration: none; }
+.skip-link:focus { top: 12px; left: 12px; }
+
+/* ── SCREENS ── */
+.screen { display: none; width: 100%; flex-direction: column; align-items: center; padding: 32px 20px 60px; overflow-y: auto; }
+.screen.active { display: flex; }
+.page { max-width: 660px; width: 100%; display: flex; flex-direction: column; gap: 18px; }
+
+/* ── HERO ── */
+.hero {
+  background: #4C42CF;
+  border-radius: 14px;
+  padding: 26px 28px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before { content: ''; position: absolute; top: -40px; right: -40px; width: 160px; height: 160px; background: rgba(255,255,255,0.06); border-radius: 50%; pointer-events: none; }
+.hero::after  { content: ''; position: absolute; bottom: -30px; left: 15%; width: 120px; height: 120px; background: rgba(255,255,255,0.04); border-radius: 50%; pointer-events: none; }
+.hero-eyebrow { font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 8px; position: relative; z-index: 1; }
+.hero-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; font-weight: 900; color: #fff; line-height: 1.2; margin-bottom: 8px; position: relative; z-index: 1; }
+.hero-sub { font-size: 0.82rem; color: rgba(255,255,255,0.78); line-height: 1.6; position: relative; z-index: 1; }
+
+/* ── SCENARIO CARD ── */
+.scenario-card { background: #fff; border: 1.5px solid #E4E2F8; border-radius: 14px; overflow: hidden; }
+.scenario-bar { background: #1F1976; padding: 9px 16px; display: flex; align-items: center; gap: 10px; }
+.scenario-bar-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+.scenario-bar-title { font-size: 0.8rem; font-weight: 700; color: #fff; }
+.scenario-body { padding: 18px; display: flex; gap: 16px; align-items: flex-start; }
+.student-avatar { width: 52px; height: 52px; border-radius: 10px; background: #E4E2F8; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+.scenario-text { flex: 1; }
+.student-name { font-size: 0.62rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #4C42CF; margin-bottom: 6px; }
+.student-quote { font-size: 0.88rem; color: #1a1a1a; line-height: 1.65; font-style: italic; border-left: 3px solid #4C42CF; padding-left: 12px; margin-bottom: 10px; }
+.scenario-context { font-size: 0.78rem; color: #555; line-height: 1.6; }
+.scenario-context strong { color: #1a1a1a; }
+
+/* ── PROMPT BOX ── */
+.prompt-box { background: #E4E2F8; border-radius: 10px; padding: 13px 16px; }
+.prompt-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #1F1976; margin-bottom: 6px; }
+.prompt-text { font-size: 0.85rem; color: #1F1976; line-height: 1.6; font-weight: 500; }
+
+/* ── CHOICE BUTTONS ── */
+.choices { display: flex; flex-direction: column; gap: 10px; }
+.choice-btn {
+  background: #fff;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 10px;
+  padding: 13px 16px;
+  font-family: 'Geist', sans-serif;
+  font-size: 0.82rem;
+  color: #1a1a1a;
+  line-height: 1.55;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.choice-btn:hover { border-color: #4C42CF; background: #faf9ff; }
+.choice-btn:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 2px; }
+.choice-btn.selected-best { border-color: #34BD43; background: #CCF1D0; }
+.choice-btn.selected-ok   { border-color: #FFA868; background: #FFE3CE; }
+.choice-btn.selected-miss { border-color: #FFA868; background: #FFE3CE; }
+.choice-btn:disabled { cursor: default; }
+.choice-letter {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: #E4E2F8; color: #1F1976;
+  font-size: 0.72rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+  font-family: 'Space Grotesk', sans-serif;
+}
+.choice-btn.selected-best .choice-letter { background: #34BD43; color: #fff; }
+.choice-btn.selected-ok   .choice-letter { background: #FFA868; color: #510000; }
+.choice-btn.selected-miss .choice-letter { background: #FFA868; color: #510000; }
+
+/* ── FEEDBACK BANNER ── */
+.feedback-banner {
+  display: none;
+  border-radius: 10px;
+  padding: 14px 16px;
+  gap: 12px;
+  align-items: flex-start;
+}
+.feedback-banner.show { display: flex; }
+.feedback-banner.best { background: #CCF1D0; border: 1.5px solid #7CDB87; }
+.feedback-banner.ok   { background: #FFE3CE; border: 1.5px solid #FFA868; }
+.feedback-banner.miss { background: #FFE3CE; border: 1.5px solid #FFA868; }
+.feedback-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+.feedback-content { flex: 1; }
+.feedback-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; }
+.feedback-banner.best .feedback-label { color: #003F25; }
+.feedback-banner.ok   .feedback-label { color: #510000; }
+.feedback-banner.miss .feedback-label { color: #510000; }
+.feedback-body { font-size: 0.8rem; line-height: 1.65; color: #1a1a1a; }
+.feedback-body code { font-family: 'Consolas', 'Courier New', monospace; font-size: 0.75rem; background: rgba(255,255,255,0.6); color: #1F1976; border-radius: 3px; padding: 1px 5px; }
+
+/* ── STUDENT REACTION ── */
+.reaction-card {
+  display: none;
+  background: #fff;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 10px;
+  padding: 13px 16px;
+  gap: 12px;
+  align-items: flex-start;
+}
+.reaction-card.show { display: flex; }
+.reaction-avatar { width: 36px; height: 36px; border-radius: 8px; background: #E4E2F8; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+.reaction-text { flex: 1; }
+.reaction-name { font-size: 0.6rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #ACA8EA; margin-bottom: 4px; }
+.reaction-quote { font-size: 0.8rem; color: #333; line-height: 1.55; font-style: italic; }
+
+/* ── NEXT BUTTON ── */
+.btn-next {
+  display: none;
+  background: #4C42CF;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-family: 'Geist', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.15s;
+}
+.btn-next.show { display: block; }
+.btn-next:hover { background: #1F1976; }
+.btn-next:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 3px; }
+
+/* ── SUMMARY SCREEN ── */
+.summary-hero {
+  background: #1F1976;
+  border-radius: 14px;
+  padding: 26px 28px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.summary-hero::before { content: ''; position: absolute; top: -40px; right: -40px; width: 160px; height: 160px; background: rgba(255,255,255,0.05); border-radius: 50%; pointer-events: none; }
+.summary-eyebrow { font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 8px; position: relative; z-index: 1; }
+.summary-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 900; color: #fff; line-height: 1.2; margin-bottom: 8px; position: relative; z-index: 1; }
+.summary-sub { font-size: 0.8rem; color: rgba(255,255,255,0.72); line-height: 1.6; position: relative; z-index: 1; }
+
+.takeaway-card { background: #fff; border: 1.5px solid #E4E2F8; border-radius: 14px; overflow: hidden; }
+.takeaway-bar { background: #1F1976; padding: 9px 16px; }
+.takeaway-bar-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+.takeaway-bar-title { font-size: 0.8rem; font-weight: 700; color: #fff; }
+.takeaway-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+
+.distinction-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+.distinction-col { flex: 1; min-width: 140px; border-radius: 8px; padding: 12px 14px; }
+.distinction-col.url { background: #FFE3CE; border: 1px solid #FFA868; }
+.distinction-col.api { background: #E4E2F8; border: 1px solid #ACA8EA; }
+.distinction-col-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+.distinction-col.url .distinction-col-label { color: #510000; }
+.distinction-col.api .distinction-col-label { color: #1F1976; }
+.distinction-col-text { font-size: 0.78rem; line-height: 1.55; }
+.distinction-col.url .distinction-col-text { color: #510000; }
+.distinction-col.api .distinction-col-text { color: #1F1976; }
+
+.takeaway-explanation { font-size: 0.8rem; color: #333; line-height: 1.65; }
+.takeaway-explanation code { font-family: 'Consolas', 'Courier New', monospace; font-size: 0.75rem; background: #E4E2F8; color: #1F1976; border-radius: 3px; padding: 1px 5px; }
+
+.classroom-box { background: #D5EFFF; border-radius: 10px; padding: 14px 16px; }
+.classroom-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #06338D; margin-bottom: 7px; }
+.classroom-text { font-size: 0.8rem; color: #06338D; line-height: 1.65; }
+.classroom-text strong { color: #06338D; font-weight: 700; }
+
+.btn-restart {
+  background: transparent;
+  border: 1.5px solid #ACA8EA;
+  color: #4C42CF;
+  border-radius: 8px;
+  padding: 11px 20px;
+  font-family: 'Geist', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-restart:hover { background: #E4E2F8; border-color: #4C42CF; }
+.btn-restart:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 3px; }
+.restart-note { text-align: center; font-size: 0.68rem; color: #ACA8EA; margin-top: -8px; }
+
+hr.divider { border: none; border-top: 1px solid #E4E2F8; margin: 2px 0; }
+</style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<div id="aria-live" class="sr-live" aria-live="polite" aria-atomic="true"></div>
+
+<!-- ══ SCREEN 1: INTRO ══ -->
+<div id="screen-intro" class="screen active" role="main">
+  <div class="page" id="main-content">
+
+    <div class="hero" role="region" aria-labelledby="hero-title">
+      <div class="hero-eyebrow">Classroom Scenario</div>
+      <h1 class="hero-title" id="hero-title">How would you respond?</h1>
+      <p class="hero-sub">A student just made a common connection about APIs. It's not wrong — but it's incomplete. Your response will shape how they understand the concept going forward.</p>
+    </div>
+
+    <div class="scenario-card" role="region" aria-label="The classroom scenario">
+      <div class="scenario-bar">
+        <div class="scenario-bar-label">Scenario</div>
+        <div class="scenario-bar-title">During the API Scavenger Hunt</div>
+      </div>
+      <div class="scenario-body">
+        <div class="student-avatar" aria-hidden="true">&#128104;&#8205;&#127891;</div>
+        <div class="scenario-text">
+          <div class="student-name">Jordan, one of your students</div>
+          <div class="student-quote" role="blockquote">"I found the API — it's just a URL, right? Like, the URL is the API?"</div>
+          <div class="scenario-context">Jordan is excited. He's been exploring the Network tab and found the endpoint his weather app calls. He's pointing at the URL in the browser and looking at you for confirmation. <strong>He's on the right track — but the distinction matters.</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="prompt-box" role="note">
+      <div class="prompt-label">Your move</div>
+      <div class="prompt-text">Jordan made a reasonable connection. How do you respond to build on what he found without letting the misconception stick?</div>
+    </div>
+
+    <button class="btn-next show" id="btn-start" onclick="startActivity()" style="margin-top:4px;">
+      See the response options &#8594;
+    </button>
+    <div class="restart-note">Where Data Comes From &middot; Unit 5, Lesson 1</div>
+
+  </div>
+</div>
+
+<!-- ══ SCREEN 2: CHOICES ══ -->
+<div id="screen-choices" class="screen" role="main" aria-label="Choose your response">
+  <div class="page">
+
+    <div class="prompt-box" role="note" aria-live="polite">
+      <div class="prompt-label">Jordan says</div>
+      <div class="prompt-text" style="font-style:italic;">"I found the API — it's just a URL, right? Like, the URL is the API?"</div>
+    </div>
+
+    <div>
+      <div style="font-size:0.72rem; font-weight:700; color:#ACA8EA; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:10px;">How do you respond?</div>
+      <div class="choices" role="group" aria-label="Response options">
+
+        <button class="choice-btn" id="choice-a" onclick="selectChoice('a')" aria-label="Option A: Yes, exactly">
+          <div class="choice-letter" aria-hidden="true">A</div>
+          <div>"Yes, exactly — the URL is how you access the API. Good find!"</div>
+        </button>
+
+        <button class="choice-btn" id="choice-b" onclick="selectChoice('b')" aria-label="Option B: Close — the URL is one address you use to reach the API">
+          <div class="choice-letter" aria-hidden="true">B</div>
+          <div>"Close — that URL is one address you use to reach the API. But the API is the whole system of rules behind it: what requests it accepts, what format it sends data back in, what parameters you can use. The URL is the door; the API is the building."</div>
+        </button>
+
+        <button class="choice-btn" id="choice-c" onclick="selectChoice('c')" aria-label="Option C: Not quite — an API is an Application Programming Interface">
+          <div class="choice-letter" aria-hidden="true">C</div>
+          <div>"Not quite — an API stands for Application Programming Interface. It's a set of rules that allows software to communicate. The URL is just one part of how you interact with it."</div>
+        </button>
+
+        <button class="choice-btn" id="choice-d" onclick="selectChoice('d')" aria-label="Option D: Good instinct — let's look at what else the API gives you">
+          <div class="choice-letter" aria-hidden="true">D</div>
+          <div>"Good instinct. Let's look at what else the API gives you beyond that one URL — open the documentation and tell me what other endpoints or parameters you see."</div>
+        </button>
+
+      </div>
+    </div>
+
+    <div class="feedback-banner" id="feedback-banner" role="alert" aria-live="assertive">
+      <div class="feedback-icon" id="feedback-icon" aria-hidden="true"></div>
+      <div class="feedback-content">
+        <div class="feedback-label" id="feedback-label"></div>
+        <div class="feedback-body" id="feedback-body"></div>
+      </div>
+    </div>
+
+    <div class="reaction-card" id="reaction-card" aria-live="polite">
+      <div class="reaction-avatar" aria-hidden="true">&#128104;&#8205;&#127891;</div>
+      <div class="reaction-text">
+        <div class="reaction-name">Jordan responds</div>
+        <div class="reaction-quote" id="reaction-quote"></div>
+      </div>
+    </div>
+
+    <button class="btn-next" id="btn-to-summary" onclick="showSummary()">See the teaching takeaway &#8594;</button>
+
+  </div>
+</div>
+
+<!-- ══ SCREEN 3: SUMMARY ══ -->
+<div id="screen-summary" class="screen" role="main" aria-label="Teaching takeaway">
+  <div class="page">
+
+    <div class="summary-hero" role="region" aria-labelledby="summary-title">
+      <div class="summary-eyebrow">Teaching Takeaway</div>
+      <h1 class="summary-title" id="summary-title" tabindex="-1">The URL is the door. The API is the building.</h1>
+      <p class="summary-sub">Jordan's instinct was right — the URL is how you reach the API. But the API is much more than any single address.</p>
+    </div>
+
+    <div class="takeaway-card" role="region" aria-label="The URL vs API distinction">
+      <div class="takeaway-bar">
+        <div class="takeaway-bar-label">The distinction</div>
+        <div class="takeaway-bar-title">What Jordan found vs. what the API actually is</div>
+      </div>
+      <div class="takeaway-body">
+        <div class="distinction-grid">
+          <div class="distinction-col url">
+            <div class="distinction-col-label">The URL Jordan found</div>
+            <div class="distinction-col-text">One specific address for one specific request — like <em>get weather for Seattle</em>. It's a way in, not the whole system.</div>
+          </div>
+          <div class="distinction-col api">
+            <div class="distinction-col-label">The API</div>
+            <div class="distinction-col-text">The full set of rules: what endpoints exist, what parameters they accept, what format data comes back in, what happens when something goes wrong.</div>
+          </div>
+        </div>
+        <div class="takeaway-explanation">
+          When your students modify their <code>fetch()</code> calls to request different data — a different city, a different Pokémon stat — they're discovering that the API has rules beyond the URL they first found. That's the concept clicking into place. Jordan's "just a URL" moment is actually a great entry point for that conversation.
+        </div>
+      </div>
+    </div>
+
+    <div class="takeaway-card" role="region" aria-label="Why option B was the strongest response">
+      <div class="takeaway-bar">
+        <div class="takeaway-bar-label">Why Option B worked best</div>
+        <div class="takeaway-bar-title">Build on what he found, then extend</div>
+      </div>
+      <div class="takeaway-body">
+        <div class="takeaway-explanation">Option B starts with <em>"Close"</em> — not a correction, not a yes. It validates Jordan's observation (the URL is real and relevant) before expanding the picture. The "door and building" analogy is concrete and doesn't require Jordan to abandon what he found — it reframes it. Options C and D aren't wrong, but C leads with a definition that may not land without the analogy, and D redirects without actually addressing the misconception.</div>
+      </div>
+    </div>
+
+    <div class="classroom-box" role="note" aria-label="Classroom connection">
+      <div class="classroom-label">Classroom connection</div>
+      <div class="classroom-text">When students say "I found the API," they've usually found one endpoint URL and stopped there. <strong>The follow-up question that works:</strong> "What else can that API do? Open the documentation and find two other things you could request." That sends them into the API as a system, not a single address — and the misconception resolves itself.</div>
+    </div>
+
+    <hr class="divider">
+
+    <button class="btn-restart" onclick="restartActivity()">&#8617; Try a different response</button>
+    <div class="restart-note">Where Data Comes From &middot; Unit 5, Lesson 1</div>
+
+  </div>
+</div>
+
+<script>
+  const liveRegion = document.getElementById('aria-live');
+
+  function announce(msg) {
+    liveRegion.textContent = '';
+    setTimeout(() => { liveRegion.textContent = msg; }, 60);
+  }
+
+  const CHOICES = {
+    a: {
+      type: 'miss',
+      icon: '&#128269;',
+      label: 'This one lets the misconception stick',
+      body: 'Confirming "yes, exactly" leaves Jordan thinking the URL and the API are the same thing. He\'ll carry that forward into Level 8 when he starts modifying <code>fetch()</code> parameters — and when something doesn\'t work, he won\'t know where to look. The observation deserved a "close, but" rather than a full confirm.',
+      reaction: 'Cool, so I just need to save the URL and I\'ve got the API. Easy.'
+    },
+    b: {
+      type: 'best',
+      icon: '&#128161;',
+      label: 'Strongest response — validates and extends',
+      body: '"Close" is doing a lot of work here. It honours what Jordan found without confirming the incomplete version. The door-and-building analogy is concrete: students can picture a building with multiple entrances, rules about who gets in, and what they\'re allowed to take. This keeps Jordan engaged rather than corrected — and sets up the documentation exploration that follows.',
+      reaction: 'Oh so the URL is like one specific door into the building. And the API tells you what all the doors are and what you\'re allowed to ask for?'
+    },
+    c: {
+      type: 'ok',
+      icon: '&#128270;',
+      label: 'Technically correct, but leads with the definition',
+      body: 'The definition of API is accurate and worth knowing. But leading with "Application Programming Interface" when Jordan is holding a URL in his hand may not land — it\'s abstract where he needs concrete. This response corrects the misconception but doesn\'t build on what Jordan actually found. Pairing the definition with an analogy or a follow-up question would make it stronger.',
+      reaction: 'Okay... so the URL is part of the interface? I think I get it. Sort of.'
+    },
+    d: {
+      type: 'ok',
+      icon: '&#128270;',
+      label: 'Good redirect, but the misconception goes unaddressed',
+      body: 'Sending Jordan into the documentation is a smart instructional move — discovery is better than explanation. But it sidesteps the misconception rather than addressing it. Jordan leaves this exchange still believing the URL is the API; the documentation exploration might resolve it, or it might not. A brief "close, but" before the redirect would make this much stronger.',
+      reaction: 'Sure! Let me look... oh wait, there are like ten different endpoints in here. So the API is all of these together?'
+    }
+  };
+
+  function startActivity() {
+    document.getElementById('screen-intro').classList.remove('active');
+    document.getElementById('screen-choices').classList.add('active');
+    announce('Response options are now visible. Choose how you would respond to Jordan.');
+  }
+
+  function selectChoice(key) {
+    // Disable all buttons
+    ['a','b','c','d'].forEach(k => {
+      const btn = document.getElementById('choice-' + k);
+      btn.disabled = true;
+    });
+
+    const choice = CHOICES[key];
+    const btn = document.getElementById('choice-' + key);
+    btn.classList.add('selected-' + choice.type);
+
+    // Feedback
+    const banner = document.getElementById('feedback-banner');
+    document.getElementById('feedback-icon').innerHTML = choice.icon;
+    document.getElementById('feedback-label').textContent = choice.label;
+    document.getElementById('feedback-body').innerHTML = choice.body;
+    banner.className = 'feedback-banner show ' + choice.type;
+
+    // Student reaction (delayed)
+    setTimeout(() => {
+      document.getElementById('reaction-quote').textContent = choice.reaction;
+      document.getElementById('reaction-card').classList.add('show');
+    }, 900);
+
+    // Next button (delayed)
+    setTimeout(() => {
+      document.getElementById('btn-to-summary').classList.add('show');
+      document.getElementById('btn-to-summary').focus();
+    }, 1400);
+
+    announce(choice.label + '. ' + choice.body.replace(/<[^>]*>/g, ''));
+  }
+
+  function showSummary() {
+    document.getElementById('screen-choices').classList.remove('active');
+    document.getElementById('screen-summary').classList.add('active');
+    announce('Teaching takeaway is now visible.');
+    setTimeout(() => document.getElementById('summary-title').focus(), 100);
+  }
+
+  function restartActivity() {
+    // Reset choices
+    ['a','b','c','d'].forEach(k => {
+      const btn = document.getElementById('choice-' + k);
+      btn.disabled = false;
+      btn.className = 'choice-btn';
+    });
+
+    // Reset feedback and reaction
+    const banner = document.getElementById('feedback-banner');
+    banner.className = 'feedback-banner';
+    document.getElementById('reaction-card').classList.remove('show');
+    document.getElementById('btn-to-summary').classList.remove('show');
+
+    document.getElementById('screen-summary').classList.remove('active');
+    document.getElementById('screen-choices').classList.add('active');
+    announce('Scenario reset. Choose a different response.');
+  }
+</script>
+</body>
+</html>
