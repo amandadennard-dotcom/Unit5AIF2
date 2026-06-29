@@ -18,7 +18,6 @@
       line-height: 1.5;
     }
 
-    /* ── ARIA live region ── */
     .sr-live {
       position: absolute;
       width: 1px; height: 1px;
@@ -27,7 +26,6 @@
       white-space: nowrap;
     }
 
-    /* ── Directions banner ── */
     .directions {
       background: #D5EFFF;
       border-radius: 10px;
@@ -40,7 +38,6 @@
     .directions ol { margin: 6px 0 0 1.1rem; padding: 0; }
     .directions li { margin-bottom: 3px; }
 
-    /* ── Section label ── */
     h1 {
       font-family: 'Space Grotesk', system-ui, sans-serif;
       font-size: 17px;
@@ -57,7 +54,6 @@
       margin-bottom: 8px;
     }
 
-    /* ── Code block ── */
     .code-block {
       background: #1F1976;
       border-radius: 10px;
@@ -98,7 +94,6 @@
     .fn  { color: #6FCAFF; }
     .op  { color: #ACA8EA; }
 
-    /* ── Step sections ── */
     .step-section {
       margin-bottom: 28px;
     }
@@ -125,7 +120,6 @@
       flex-shrink: 0;
     }
 
-    /* ── Run button ── */
     .run-btn {
       display: inline-flex;
       align-items: center;
@@ -148,7 +142,6 @@
     .run-btn svg { width: 13px; height: 13px; fill: #fff; }
     .run-btn:disabled { background: #ACA8EA; cursor: not-allowed; }
 
-    /* ── Result box ── */
     .result-box {
       border-radius: 10px;
       border: 1px solid #E4E2F8;
@@ -187,10 +180,10 @@
       transform: translateY(0);
     }
 
-    .result-value .key   { color: #4C42CF; font-weight: 700; }
+    .result-value .key   { color: #1F1976; font-weight: 700; }
     .result-value .val-s { color: #34BD43; }
     .result-value .val-n { color: #FFA868; }
-    .result-value .brace { color: #E4E2F8; }
+    .result-value .brace { color: #ACA8EA; }
 
     .empty-hint {
       font-size: 12.5px;
@@ -198,7 +191,6 @@
       font-style: italic;
     }
 
-    /* ── Verdict ── */
     .verdict {
       margin-top: 20px;
       padding: 14px 16px;
@@ -234,14 +226,12 @@
       padding: 1px 5px;
     }
 
-    /* ── Divider ── */
     hr.divider {
       border: none;
       border-top: 1px solid #E4E2F8;
       margin: 1.75rem 0;
     }
 
-    /* ── Reset ── */
     .reset-wrap { margin-top: 1.5rem; text-align: right; }
     .reset-btn {
       font-size: 12.5px;
@@ -276,7 +266,6 @@
     </ol>
   </div>
 
-  <!-- Full code block for reference -->
   <h2>The full fetch() chain</h2>
   <div class="code-block" role="img" aria-label="Three-line fetch chain: fetch API URL, then convert response to JSON, then update the UI with data">
     <div class="code-line"><span class="line-num">1</span><span><span class="fn">fetch</span>(<span class="str hl">API_URL</span>)</span></div>
@@ -360,6 +349,30 @@
       Run Step 3
     </button>
 
+    <!-- Mock UI card: appears only when Step 3 runs -->
+    <div id="ui-card" style="display:none; opacity:0; transition:opacity 0.4s;
+      background:#1F1976; border-radius:10px; padding:16px 18px; margin-bottom:14px;">
+      <div style="font-size:10px; font-weight:700; text-transform:uppercase;
+        letter-spacing:0.08em; color:#ACA8EA; margin-bottom:10px;">
+        What the user sees on screen
+      </div>
+      <div style="background:#fff; border-radius:8px; padding:14px 16px;
+        display:flex; align-items:center; gap:16px;">
+        <div style="font-size:28px;" aria-hidden="true">&#9925;</div>
+        <div>
+          <div style="font-size:13px; font-weight:700; color:#1F1976;
+            font-family:'Space Grotesk',system-ui,sans-serif;">Seattle</div>
+          <div style="font-size:24px; font-weight:700; color:#1a1a1a;
+            line-height:1.2;">75&#176;F</div>
+          <div style="font-size:12px; color:#555;">Sunny</div>
+        </div>
+        <div style="margin-left:auto; font-size:11px; color:#ACA8EA;
+          font-style:italic; text-align:right; line-height:1.5;">
+          "coordinates" key<br>not shown here
+        </div>
+      </div>
+    </div>
+
     <div class="result-box" id="result-step3" role="region" aria-label="Step 3 result">
       <div class="result-label">What appears on screen</div>
       <div class="result-value" id="val-step3"><span class="empty-hint">run step 2 first</span></div>
@@ -367,7 +380,7 @@
 
     <div class="verdict" id="verdict-step3" role="status">
       <div class="verdict-label">What just happened</div>
-      <code>data</code> is now the fully parsed JavaScript object from Step 2. <code>updateUI(data)</code> takes that object and writes specific values to the page — pulling <code>data.city</code>, <code>data.temperature</code>, or <code>data.description</code> and placing them into HTML elements. The JSON response had many keys; the app only displays the ones it needs. That's why your students will see a clean UI even though the raw JSON has a lot more in it.
+      <code>data</code> is now the fully parsed JavaScript object from Step 2. <code>updateUI(data)</code> takes that object and writes specific values to the page — pulling <code>data.city</code>, <code>data.temperature</code>, or <code>data.description</code> and placing them into HTML elements. The JSON response had four keys; the app only displays three. That's why your students will see a clean UI even though the raw JSON has more in it.
     </div>
   </section>
 
@@ -398,7 +411,7 @@
       setTimeout(() => { v.style.opacity = '1'; }, 20);
     }
 
-    function revealValue(id, html, ariaText) {
+    function revealValue(id, html) {
       const el = document.getElementById(id);
       el.innerHTML = html;
       setTimeout(() => el.classList.add('visible'), 30);
@@ -411,7 +424,7 @@
     function runStep1() {
       document.getElementById('btn-step1').disabled = true;
 
-      const html = `<span style="color:#ACA8EA;">GET </span><span class="val-s">https://api.openweathermap.org/data/2.5/weather?q=Seattle</span><br><span style="color:#ACA8EA; font-size:12px;">→ Request sent. Waiting for server response...</span>`;
+      const html = `<span style="color:#ACA8EA;">GET </span><span class="val-s">https://api.openweathermap.org/data/2.5/weather?q=Seattle</span><br><span style="color:#ACA8EA; font-size:12px;">&#8594; Request sent. Waiting for server response...</span>`;
       revealValue('val-step1', html);
       activateBox('result-step1');
       showVerdict('verdict-step1');
@@ -449,13 +462,18 @@
 
       const html = `<span style="color:#ACA8EA; font-size:12px;">// updateUI() reads from the data object and writes to the page</span><br>
 <span class="key">City:</span> <span class="val-s">Seattle</span><br>
-<span class="key">Temperature:</span> <span class="val-n">75°F</span><br>
+<span class="key">Temperature:</span> <span class="val-n">75&#176;F</span><br>
 <span class="key">Conditions:</span> <span class="val-s">Sunny</span><br>
-<span style="color:#ACA8EA; font-size:12px; margin-top:4px; display:block;">// "coordinates" not displayed — the app only shows what it needs</span>`;
+<span style="color:#ACA8EA; font-size:12px; margin-top:4px; display:block;">// "coordinates" not displayed &#8212; the app only shows what it needs</span>`;
 
       revealValue('val-step3', html);
       activateBox('result-step3');
       showVerdict('verdict-step3');
+
+      // Show the UI card
+      const card = document.getElementById('ui-card');
+      card.style.display = 'block';
+      setTimeout(() => { card.style.opacity = '1'; }, 50);
 
       setTimeout(() => {
         showVerdict('verdict-summary');
@@ -483,6 +501,11 @@
       ['result-step1', 'result-step2', 'result-step3'].forEach(id => {
         document.getElementById(id).classList.remove('active');
       });
+
+      // Hide UI card
+      const card = document.getElementById('ui-card');
+      card.style.opacity = '0';
+      card.style.display = 'none';
 
       // Reset verdicts
       ['verdict-step1', 'verdict-step2', 'verdict-step3', 'verdict-summary'].forEach(id => {
