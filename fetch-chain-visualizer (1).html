@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How fetch() Works</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Geist:wght@400;500;600;700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Geist', system-ui, sans-serif;
+      font-size: 15px;
+      background: #ffffff;
+      color: #1a1a1a;
+      padding: 1.25rem 1.5rem 2rem;
+      line-height: 1.5;
+    }
+
+    .sr-live {
+      position: absolute;
+      width: 1px; height: 1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+    }
+
+    .directions {
+      background: #D5EFFF;
+      border-radius: 10px;
+      padding: 13px 16px;
+      margin-bottom: 1.75rem;
+      font-size: 13.5px;
+      color: #06338D;
+      line-height: 1.6;
+    }
+    .directions ol { margin: 6px 0 0 1.1rem; padding: 0; }
+    .directions li { margin-bottom: 3px; }
+
+    h1 {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: #1F1976;
+      margin-bottom: 14px;
+    }
+
+    h2 {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: #1F1976;
+      margin-bottom: 8px;
+    }
+
+    .code-block {
+      background: #1F1976;
+      border-radius: 10px;
+      padding: 16px 18px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 13.5px;
+      color: #E4E2F8;
+      margin-bottom: 16px;
+      line-height: 2;
+      overflow-x: auto;
+    }
+
+    .code-line {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      position: relative;
+    }
+
+    .line-num {
+      color: #4C42CF;
+      user-select: none;
+      flex-shrink: 0;
+      font-size: 12px;
+      padding-top: 2px;
+      min-width: 16px;
+    }
+
+    .hl {
+      background: #4C42CF;
+      color: #ffffff;
+      border-radius: 3px;
+      padding: 1px 5px;
+      font-weight: 700;
+    }
+    .comment { color: #ACA8EA; font-style: italic; }
+    .str { color: #7CDB87; }
+    .fn  { color: #6FCAFF; }
+    .op  { color: #ACA8EA; }
+
+    .step-section {
+      margin-bottom: 28px;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .step-num {
+      background: #4C42CF;
+      color: #fff;
+      border-radius: 50%;
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .run-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 18px;
+      border-radius: 8px;
+      border: none;
+      background: #4C42CF;
+      color: #ffffff;
+      font-size: 13.5px;
+      font-weight: 600;
+      font-family: 'Geist', system-ui, sans-serif;
+      cursor: pointer;
+      margin-bottom: 14px;
+      transition: background 0.15s;
+    }
+    .run-btn:hover  { background: #1F1976; }
+    .run-btn:active { transform: scale(0.98); }
+    .run-btn:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 2px; }
+    .run-btn svg { width: 13px; height: 13px; fill: #fff; }
+    .run-btn:disabled { background: #ACA8EA; cursor: not-allowed; }
+
+    .result-box {
+      border-radius: 10px;
+      border: 1px solid #E4E2F8;
+      background: #fff;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      min-height: 56px;
+      transition: border-color 0.3s;
+    }
+
+    .result-box.active {
+      border-color: #4C42CF;
+    }
+
+    .result-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #ACA8EA;
+      margin-bottom: 6px;
+    }
+
+    .result-value {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 13px;
+      color: #1F1976;
+      line-height: 1.7;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .result-value.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .result-value .key   { color: #1F1976; font-weight: 700; }
+    .result-value .val-s { color: #34BD43; }
+    .result-value .val-n { color: #FFA868; }
+    .result-value .brace { color: #ACA8EA; }
+
+    .empty-hint {
+      font-size: 12.5px;
+      color: #ACA8EA;
+      font-style: italic;
+    }
+
+    .verdict {
+      margin-top: 20px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      background: #E4E2F8;
+      border: 1px solid #ACA8EA;
+      color: #1F1976;
+      font-size: 13.5px;
+      line-height: 1.6;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.35s;
+    }
+
+    .verdict.visible {
+      display: block;
+    }
+
+    .verdict .verdict-label {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: #1F1976;
+    }
+
+    code {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 12.5px;
+      background: #E4E2F8;
+      color: #1F1976;
+      border-radius: 3px;
+      padding: 1px 5px;
+    }
+
+    hr.divider {
+      border: none;
+      border-top: 1px solid #E4E2F8;
+      margin: 1.75rem 0;
+    }
+
+    .reset-wrap { margin-top: 1.5rem; text-align: right; }
+    .reset-btn {
+      font-size: 12.5px;
+      color: #4C42CF;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: inherit;
+      text-decoration: underline;
+      padding: 0;
+    }
+    .reset-btn:hover { color: #1F1976; }
+    .reset-btn:focus-visible { outline: 2px solid #ACA8EA; border-radius: 2px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .result-value, .verdict { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="aria-live" class="sr-live" aria-live="polite" aria-atomic="true"></div>
+
+  <h1>How fetch() Works: Step by Step</h1>
+
+  <div class="directions" role="note">
+    <strong>How to use this visualizer:</strong>
+    <ol>
+      <li>Look at the full fetch() chain at the top — three lines, three steps.</li>
+      <li>Run each step one at a time. Try to predict what each one produces before you click.</li>
+      <li>After all three steps, a summary explains how they connect.</li>
+    </ol>
+  </div>
+
+  <h2>The full fetch() chain</h2>
+  <div class="code-block" role="img" aria-label="Three-line fetch chain: fetch API URL, then convert response to JSON, then update the UI with data">
+    <div class="code-line"><span class="line-num">1</span><span><span class="fn">fetch</span>(<span class="str hl">API_URL</span>)</span></div>
+    <div class="code-line"><span class="line-num">2</span><span>&nbsp;&nbsp;.<span class="fn hl">then</span>(response <span class="op">=&gt;</span> response.<span class="fn">json</span>())</span></div>
+    <div class="code-line"><span class="line-num">3</span><span>&nbsp;&nbsp;.<span class="fn hl">then</span>(data <span class="op">=&gt;</span> <span class="fn">updateUI</span>(data));</span></div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Step 1 -->
+  <section class="step-section" aria-labelledby="step1-heading">
+    <div class="step-header">
+      <div class="step-num" aria-hidden="true">1</div>
+      <h2 id="step1-heading">fetch(API_URL) — Send the request</h2>
+    </div>
+
+    <div class="code-block" role="img" aria-label="Line 1: fetch called with API_URL sends a request to the server">
+      <div class="code-line"><span class="line-num">1</span><span><span class="fn">fetch</span>(<span class="str hl">API_URL</span>) <span class="comment">// send a request to the server</span></span></div>
+    </div>
+
+    <button class="run-btn" id="btn-step1" onclick="runStep1()" aria-controls="result-step1">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2l11 6-11 6V2z"/></svg>
+      Run Step 1
+    </button>
+
+    <div class="result-box" id="result-step1" role="region" aria-label="Step 1 result">
+      <div class="result-label">What the server receives</div>
+      <div class="result-value" id="val-step1"><span class="empty-hint">not run yet</span></div>
+    </div>
+
+    <div class="verdict" id="verdict-step1" role="status">
+      <div class="verdict-label">What just happened</div>
+      Your app sent an HTTP request to the API server at <code>API_URL</code>. The server got the request and started preparing a response. Nothing has come back yet — <code>fetch()</code> kicks off the process, but the response arrives asynchronously. Your app keeps running while it waits.
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Step 2 -->
+  <section class="step-section" aria-labelledby="step2-heading">
+    <div class="step-header">
+      <div class="step-num" aria-hidden="true">2</div>
+      <h2 id="step2-heading">.then(response => response.json()) — Parse the response</h2>
+    </div>
+
+    <div class="code-block" role="img" aria-label="Line 2: the first then converts the raw response into readable JSON">
+      <div class="code-line"><span class="line-num">2</span><span>&nbsp;&nbsp;.<span class="fn hl">then</span>(response <span class="op">=&gt;</span> response.<span class="fn">json</span>()) <span class="comment">// convert to readable JSON</span></span></div>
+    </div>
+
+    <button class="run-btn" id="btn-step2" onclick="runStep2()" disabled aria-controls="result-step2">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2l11 6-11 6V2z"/></svg>
+      Run Step 2
+    </button>
+
+    <div class="result-box" id="result-step2" role="region" aria-label="Step 2 result">
+      <div class="result-label">What response.json() returns</div>
+      <div class="result-value" id="val-step2"><span class="empty-hint">run step 1 first</span></div>
+    </div>
+
+    <div class="verdict" id="verdict-step2" role="status">
+      <div class="verdict-label">What just happened</div>
+      The server's raw response arrived as a stream of bytes — not yet usable as JavaScript. <code>response.json()</code> reads that stream and converts it into a JavaScript object. This is why there are two <code>.then()</code> calls: receiving the response and reading it as JSON are two separate steps. Think of it as: the first <code>.then()</code> opens the package; the second one uses what's inside.
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Step 3 -->
+  <section class="step-section" aria-labelledby="step3-heading">
+    <div class="step-header">
+      <div class="step-num" aria-hidden="true">3</div>
+      <h2 id="step3-heading">.then(data => updateUI(data)) — Use the data</h2>
+    </div>
+
+    <div class="code-block" role="img" aria-label="Line 3: the second then passes the parsed data to updateUI to display it on screen">
+      <div class="code-line"><span class="line-num">3</span><span>&nbsp;&nbsp;.<span class="fn hl">then</span>(data <span class="op">=&gt;</span> <span class="fn">updateUI</span>(data)); <span class="comment">// update what's on screen</span></span></div>
+    </div>
+
+    <button class="run-btn" id="btn-step3" onclick="runStep3()" disabled aria-controls="result-step3">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2l11 6-11 6V2z"/></svg>
+      Run Step 3
+    </button>
+
+    <!-- Mock UI card: appears only when Step 3 runs -->
+    <div id="ui-card" style="display:none; opacity:0; transition:opacity 0.4s;
+      background:#1F1976; border-radius:10px; padding:16px 18px; margin-bottom:14px;">
+      <div style="font-size:10px; font-weight:700; text-transform:uppercase;
+        letter-spacing:0.08em; color:#ACA8EA; margin-bottom:10px;">
+        What the user sees on screen
+      </div>
+      <div style="background:#fff; border-radius:8px; padding:14px 16px;
+        display:flex; align-items:center; gap:16px;">
+        <div style="font-size:28px;" aria-hidden="true">&#9925;</div>
+        <div>
+          <div style="font-size:13px; font-weight:700; color:#1F1976;
+            font-family:'Space Grotesk',system-ui,sans-serif;">Seattle</div>
+          <div style="font-size:24px; font-weight:700; color:#1a1a1a;
+            line-height:1.2;">75&#176;F</div>
+          <div style="font-size:12px; color:#555;">Sunny</div>
+        </div>
+        <div style="margin-left:auto; font-size:11px; color:#ACA8EA;
+          font-style:italic; text-align:right; line-height:1.5;">
+          "coordinates" key<br>not shown here
+        </div>
+      </div>
+    </div>
+
+    <div class="result-box" id="result-step3" role="region" aria-label="Step 3 result">
+      <div class="result-label">What appears on screen</div>
+      <div class="result-value" id="val-step3"><span class="empty-hint">run step 2 first</span></div>
+    </div>
+
+    <div class="verdict" id="verdict-step3" role="status">
+      <div class="verdict-label">What just happened</div>
+      <code>data</code> is now the fully parsed JavaScript object from Step 2. <code>updateUI(data)</code> takes that object and writes specific values to the page — pulling <code>data.city</code>, <code>data.temperature</code>, or <code>data.description</code> and placing them into HTML elements. The JSON response had four keys; the app only displays three. That's why your students will see a clean UI even though the raw JSON has more in it.
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Full chain summary -->
+  <div class="verdict" id="verdict-summary" role="status">
+    <div class="verdict-label">The full picture</div>
+    <p style="margin-bottom:8px;">The three-line fetch chain does one complete job: ask for data, receive and parse it, display it. Each step hands its result to the next — that's what <code>.then()</code> means: "when this is done, do this next."</p>
+    <p>When your students modify the code in Level 8 — changing a Pokémon's name to its height, for example — they're changing what <code>updateUI()</code> pulls from <code>data</code>. The fetch chain itself stays exactly the same.</p>
+  </div>
+
+  <div class="reset-wrap">
+    <button class="reset-btn" onclick="resetAll()">Reset visualizer</button>
+  </div>
+
+  <script>
+    const liveRegion = document.getElementById('aria-live');
+
+    function announce(msg) {
+      liveRegion.textContent = '';
+      setTimeout(() => { liveRegion.textContent = msg; }, 50);
+    }
+
+    function showVerdict(id) {
+      const v = document.getElementById(id);
+      v.classList.add('visible');
+      setTimeout(() => { v.style.opacity = '1'; }, 20);
+    }
+
+    function revealValue(id, html) {
+      const el = document.getElementById(id);
+      el.innerHTML = html;
+      setTimeout(() => el.classList.add('visible'), 30);
+    }
+
+    function activateBox(id) {
+      document.getElementById(id).classList.add('active');
+    }
+
+    function runStep1() {
+      document.getElementById('btn-step1').disabled = true;
+
+      const html = `<span style="color:#ACA8EA;">GET </span><span class="val-s">https://api.openweathermap.org/data/2.5/weather?q=Seattle</span><br><span style="color:#ACA8EA; font-size:12px;">&#8594; Request sent. Waiting for server response...</span>`;
+      revealValue('val-step1', html);
+      activateBox('result-step1');
+      showVerdict('verdict-step1');
+
+      setTimeout(() => {
+        document.getElementById('btn-step2').disabled = false;
+      }, 400);
+
+      announce('Step 1 complete. The fetch request was sent to the API server. Step 2 is now available.');
+    }
+
+    function runStep2() {
+      document.getElementById('btn-step2').disabled = true;
+
+      const html = `<span class="brace">{</span><br>
+&nbsp;&nbsp;<span class="key">"city"</span>: <span class="val-s">"Seattle"</span>,<br>
+&nbsp;&nbsp;<span class="key">"temperature"</span>: <span class="val-n">75</span>,<br>
+&nbsp;&nbsp;<span class="key">"description"</span>: <span class="val-s">"Sunny"</span>,<br>
+&nbsp;&nbsp;<span class="key">"coordinates"</span>: [<span class="val-n">47.60</span>, <span class="val-n">-122.33</span>]<br>
+<span class="brace">}</span>`;
+
+      revealValue('val-step2', html);
+      activateBox('result-step2');
+      showVerdict('verdict-step2');
+
+      setTimeout(() => {
+        document.getElementById('btn-step3').disabled = false;
+      }, 400);
+
+      announce('Step 2 complete. The raw response was parsed into a JavaScript object with four keys: city, temperature, description, and coordinates. Step 3 is now available.');
+    }
+
+    function runStep3() {
+      document.getElementById('btn-step3').disabled = true;
+
+      const html = `<span style="color:#ACA8EA; font-size:12px;">// updateUI() reads from the data object and writes to the page</span><br>
+<span class="key">City:</span> <span class="val-s">Seattle</span><br>
+<span class="key">Temperature:</span> <span class="val-n">75&#176;F</span><br>
+<span class="key">Conditions:</span> <span class="val-s">Sunny</span><br>
+<span style="color:#ACA8EA; font-size:12px; margin-top:4px; display:block;">// "coordinates" not displayed &#8212; the app only shows what it needs</span>`;
+
+      revealValue('val-step3', html);
+      activateBox('result-step3');
+      showVerdict('verdict-step3');
+
+      // Show the UI card
+      const card = document.getElementById('ui-card');
+      card.style.display = 'block';
+      setTimeout(() => { card.style.opacity = '1'; }, 50);
+
+      setTimeout(() => {
+        showVerdict('verdict-summary');
+        document.getElementById('verdict-summary').style.opacity = '1';
+      }, 500);
+
+      announce('Step 3 complete. The parsed data was passed to updateUI, which displayed city, temperature, and description on screen. The coordinates key was not used. The full fetch chain is now complete.');
+    }
+
+    function resetAll() {
+      // Reset buttons
+      document.getElementById('btn-step1').disabled = false;
+      document.getElementById('btn-step2').disabled = true;
+      document.getElementById('btn-step3').disabled = true;
+
+      // Reset result boxes
+      const vals = ['val-step1', 'val-step2', 'val-step3'];
+      const hints = ['not run yet', 'run step 1 first', 'run step 2 first'];
+      vals.forEach((id, i) => {
+        const el = document.getElementById(id);
+        el.classList.remove('visible');
+        el.innerHTML = `<span class="empty-hint">${hints[i]}</span>`;
+      });
+
+      ['result-step1', 'result-step2', 'result-step3'].forEach(id => {
+        document.getElementById(id).classList.remove('active');
+      });
+
+      // Hide UI card
+      const card = document.getElementById('ui-card');
+      card.style.opacity = '0';
+      card.style.display = 'none';
+
+      // Reset verdicts
+      ['verdict-step1', 'verdict-step2', 'verdict-step3', 'verdict-summary'].forEach(id => {
+        const v = document.getElementById(id);
+        v.classList.remove('visible');
+        v.style.opacity = '0';
+      });
+
+      announce('Visualizer reset. All steps ready to run again.');
+    }
+  </script>
+</body>
+</html>
