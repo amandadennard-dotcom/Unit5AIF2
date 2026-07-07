@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trace the Promise Chain</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #ffffff;
+    color: #1f2937;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  h3 {
+    color: #1F1976;
+    font-size: 16pt;
+    margin: 0 0 6px 0;
+  }
+  .instructions {
+    font-size: 14pt;
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+  #list {
+    list-style: none;
+    margin: 0 0 16px 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #ffffff;
+    border: 1px solid #d8d5f5;
+    border-left: 4px solid #4C42CF;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14pt;
+    line-height: 1.5;
+    cursor: grab;
+    box-shadow: 0 1px 3px rgba(31,25,118,0.08);
+    touch-action: none;
+    user-select: none;
+  }
+  .step.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+  }
+  .step.drag-over {
+    border-top: 3px solid #4C42CF;
+  }
+  .handle {
+    font-size: 16pt;
+    color: #9691e0;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .step code {
+    font-family: 'Fira Code', ui-monospace, Menlo, Consolas, monospace;
+    font-size: 12pt;
+    background: #f3f2fc;
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 13pt;
+    font-weight: 700;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+  }
+  #checkBtn {
+    background: #4C42CF;
+    color: #ffffff;
+  }
+  #checkBtn:hover { background: #1F1976; }
+  #resetBtn {
+    background: #ffffff;
+    color: #4C42CF;
+    border: 1px solid #4C42CF;
+  }
+  #resetBtn:hover { background: #f3f2fc; }
+  .banner {
+    display: none;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 14pt;
+    line-height: 1.6;
+    background: #6A62D9;
+    color: #ffffff;
+    margin-bottom: 10px;
+  }
+  .banner.show { display: block; }
+  .banner strong { font-weight: 800; }
+  .step.correct-pos {
+    border-left-color: #3fae56;
+  }
+  .step.wrong-pos {
+    border-left-color: #d9534f;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h3>Mini Checkpoint</h3>
+  <div class="instructions">
+    Drag the steps into timeline order. Then check your answer before moving on.
+  </div>
+
+  <div class="btn-row">
+    <button id="checkBtn">Check Order ✅</button>
+    <button id="resetBtn">Reset</button>
+  </div>
+
+  <div id="banner" class="banner"></div>
+
+  <ul id="list">
+    <li class="step" draggable="true" data-order="4">
+      <span class="handle">⠿</span>
+      <span>The <strong>second</strong> <code>.then()</code> runs with data</span>
+    </li>
+    <li class="step" draggable="true" data-order="2">
+      <span class="handle">⠿</span>
+      <span><code>fetch()</code> returns a pending Promise</span>
+    </li>
+    <li class="step" draggable="true" data-order="1">
+      <span class="handle">⠿</span>
+      <span>Button click starts the request</span>
+    </li>
+    <li class="step" draggable="true" data-order="5">
+      <span class="handle">⠿</span>
+      <span><code>.catch()</code> runs if there's an error</span>
+    </li>
+    <li class="step" draggable="true" data-order="3">
+      <span class="handle">⠿</span>
+      <span>The <strong>first</strong> <code>.then()</code> runs with a Response</span>
+    </li>
+  </ul>
+</div>
+
+<script>
+  const list = document.getElementById('list');
+  const banner = document.getElementById('banner');
+  const checkBtn = document.getElementById('checkBtn');
+  const resetBtn = document.getElementById('resetBtn');
+
+  const originalOrder = Array.from(list.children).map(li => li.outerHTML);
+
+  let dragEl = null;
+
+  function clearFeedbackStyles() {
+    Array.from(list.children).forEach(li => {
+      li.classList.remove('correct-pos', 'wrong-pos');
+    });
+    banner.classList.remove('show');
+  }
+
+  list.addEventListener('dragstart', (e) => {
+    dragEl = e.target.closest('.step');
+    dragEl.classList.add('dragging');
+    clearFeedbackStyles();
+  });
+
+  list.addEventListener('dragend', (e) => {
+    if (dragEl) dragEl.classList.remove('dragging');
+    dragEl = null;
+    Array.from(list.children).forEach(li => li.classList.remove('drag-over'));
+  });
+
+  list.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    const target = e.target.closest('.step');
+    if (!target || target === dragEl) return;
+    Array.from(list.children).forEach(li => li.classList.remove('drag-over'));
+    target.classList.add('drag-over');
+    const rect = target.getBoundingClientRect();
+    const before = (e.clientY - rect.top) < rect.height / 2;
+    list.insertBefore(dragEl, before ? target : target.nextSibling);
+  });
+
+  list.addEventListener('drop', (e) => {
+    e.preventDefault();
+    Array.from(list.children).forEach(li => li.classList.remove('drag-over'));
+  });
+
+  // Touch support (simple long-press-free reorder via touch move)
+  let touchStartY = 0;
+  list.addEventListener('touchstart', (e) => {
+    dragEl = e.target.closest('.step');
+    if (dragEl) {
+      dragEl.classList.add('dragging');
+      clearFeedbackStyles();
+    }
+  }, { passive: true });
+
+  list.addEventListener('touchmove', (e) => {
+    if (!dragEl) return;
+    const touch = e.touches[0];
+    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+    const stepTarget = target ? target.closest('.step') : null;
+    if (!stepTarget || stepTarget === dragEl) return;
+    const rect = stepTarget.getBoundingClientRect();
+    const before = (touch.clientY - rect.top) < rect.height / 2;
+    list.insertBefore(dragEl, before ? stepTarget : stepTarget.nextSibling);
+  }, { passive: true });
+
+  list.addEventListener('touchend', () => {
+    if (dragEl) dragEl.classList.remove('dragging');
+    dragEl = null;
+  });
+
+  checkBtn.addEventListener('click', () => {
+    const items = Array.from(list.children);
+    let allCorrect = true;
+    items.forEach((li, idx) => {
+      const correctPosition = Number(li.dataset.order) - 1;
+      if (idx === correctPosition) {
+        li.classList.add('correct-pos');
+        li.classList.remove('wrong-pos');
+      } else {
+        li.classList.add('wrong-pos');
+        li.classList.remove('correct-pos');
+        allCorrect = false;
+      }
+    });
+
+    banner.classList.add('show');
+    if (allCorrect) {
+      banner.innerHTML = '<strong>Correct!</strong> Button click → fetch returns Promise → first .then() gets Response → second .then() gets data → .catch() runs if error.';
+    } else {
+      banner.innerHTML = '<strong>Not quite yet.</strong> Green-edged steps are in the right spot. Drag the red-edged ones to fix the order and check again.';
+    }
+  });
+
+  resetBtn.addEventListener('click', () => {
+    list.innerHTML = '';
+    // shuffle back to original scrambled order
+    originalOrder.forEach(html => {
+      const temp = document.createElement('div');
+      temp.innerHTML = html;
+      list.appendChild(temp.firstElementChild);
+    });
+    clearFeedbackStyles();
+  });
+</script>
+</body>
+</html>
