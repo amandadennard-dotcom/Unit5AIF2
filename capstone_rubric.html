@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capstone Project Rubric</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Geist:wght@400;500;600&display=swap');
+
+  :root{
+    --purple:#4C42CF;
+    --purple-dark:#1F1976;
+    --purple-light:#E4E2F8;
+    --misconception:#ffe3ce;
+    --correct:#ccf1d0;
+    --correct-border:#5cb86b;
+    --ink:#211c3d;
+    --paper:#ffffff;
+    --row-alt:#faf9ff;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Geist', -apple-system, sans-serif;
+    background:var(--purple-light);
+    color:var(--ink);
+    padding:24px 12px 90px;
+  }
+  h1,h2,.heading{font-family:'Space Grotesk', sans-serif;}
+  .wrap{
+    max-width:980px;
+    margin:0 auto;
+  }
+  .card{
+    background:var(--paper);
+    border-radius:18px;
+    box-shadow:0 10px 40px rgba(31,25,118,0.12);
+    padding:28px 28px 32px;
+  }
+  .eyebrow{
+    display:inline-block;
+    background:var(--purple);
+    color:#fff;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:12px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    padding:5px 12px;
+    border-radius:100px;
+    margin-bottom:14px;
+  }
+  h1{
+    font-size:24px;
+    color:var(--purple-dark);
+    margin:0 0 8px;
+  }
+  .instructions{
+    font-size:14.5px;
+    line-height:1.55;
+    color:#4a457a;
+    margin:0 0 22px;
+    max-width:640px;
+  }
+
+  /* table */
+  .table-scroll{
+    overflow-x:auto;
+    border-radius:12px;
+    border:1px solid var(--purple-light);
+  }
+  table{
+    border-collapse:collapse;
+    width:100%;
+    min-width:820px;
+  }
+  thead th{
+    background:var(--purple-dark);
+    color:#fff;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:13px;
+    text-align:left;
+    padding:12px 14px;
+    position:sticky;
+    top:0;
+  }
+  thead th.criterion-header{
+    min-width:170px;
+  }
+  thead th .pts{
+    display:block;
+    font-weight:500;
+    font-size:11px;
+    opacity:0.85;
+    margin-top:2px;
+  }
+  tbody th{
+    text-align:left;
+    vertical-align:top;
+    padding:14px;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    color:var(--purple-dark);
+    background:var(--purple-light);
+    min-width:170px;
+  }
+  tbody tr:nth-child(even) td{background:var(--row-alt);}
+  td{
+    padding:8px;
+    vertical-align:top;
+    border-left:1px solid #eeecfa;
+  }
+  .score-btn{
+    width:100%;
+    height:100%;
+    min-height:96px;
+    text-align:left;
+    background:#fff;
+    border:2px solid var(--purple-light);
+    color:var(--ink);
+    padding:10px 12px;
+    border-radius:10px;
+    font-family:'Geist', sans-serif;
+    font-size:13px;
+    line-height:1.45;
+    cursor:pointer;
+    transition:border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+  }
+  .score-btn:hover{
+    border-color:var(--purple);
+    background:var(--purple-light);
+  }
+  .score-btn:focus-visible{
+    outline:3px solid var(--purple);
+    outline-offset:2px;
+  }
+  .score-btn.selected{
+    border-color:var(--correct-border);
+    background:var(--correct);
+    font-weight:500;
+  }
+  .score-btn .check{
+    display:inline-block;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    color:#3a9e4d;
+    margin-right:4px;
+  }
+
+  /* total bar */
+  .total-bar{
+    position:sticky;
+    bottom:0;
+    left:0;
+    right:0;
+    margin-top:22px;
+    background:var(--purple-dark);
+    color:#fff;
+    border-radius:14px;
+    padding:16px 22px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .total-score{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:20px;
+    font-weight:700;
+  }
+  .total-note{
+    font-size:13px;
+    opacity:0.85;
+    font-family:'Geist', sans-serif;
+  }
+  .reset-btn{
+    background:transparent;
+    color:#fff;
+    border:2px solid rgba(255,255,255,0.5);
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:13px;
+    padding:9px 18px;
+    border-radius:10px;
+    cursor:pointer;
+  }
+  .reset-btn:hover{
+    background:rgba(255,255,255,0.12);
+    border-color:#fff;
+  }
+  .sr-only{
+    position:absolute;
+    width:1px;height:1px;
+    padding:0;margin:-1px;
+    overflow:hidden;
+    clip:rect(0,0,0,0);
+    white-space:nowrap;
+    border:0;
+  }
+
+  @media (max-width:600px){
+    .card{padding:20px 16px 26px;}
+    h1{font-size:20px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <span class="eyebrow">Grading Practice</span>
+    <h1>Capstone Project Rubric</h1>
+    <p class="instructions">Read the sample project, then select the evidence level that best matches what you see for each criterion. Tab through the cells and press Enter or Space to select a score. Your running total updates below as you go.</p>
+
+    <div class="table-scroll">
+      <table id="rubric-table">
+        <thead>
+          <tr>
+            <th class="criterion-header">Criterion</th>
+            <th>No Evidence<span class="pts">1 pt</span></th>
+            <th>Limited Evidence<span class="pts">2 pts</span></th>
+            <th>Convincing Evidence<span class="pts">3 pts</span></th>
+            <th>Extensive Evidence<span class="pts">4 pts</span></th>
+          </tr>
+        </thead>
+        <tbody id="rubric-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="total-bar">
+    <div>
+      <div class="total-score" id="total-score">0 / 20 pts</div>
+      <div class="total-note" id="total-note">No selections yet</div>
+    </div>
+    <button class="reset-btn" id="reset-btn">Reset</button>
+  </div>
+  <div class="sr-only" aria-live="polite" id="live-region"></div>
+</div>
+
+<script>
+const rubric = [
+  {
+    name: "Project Planning & Intentional Design",
+    levels: [
+      "Purpose, audience, or scope is missing or incoherent.",
+      "Purpose or audience is vague, or scope is unclear or unrealistic. Little explanation of decisions.",
+      "Purpose and audience are clear. Scope is mostly realistic, with some explanation of decisions or changes made over time.",
+      "Clearly explains the project's purpose, audience, and problem. Scope decisions are realistic and intentional, with clear tradeoffs explained. Reflection shows how ideas or scope evolved over time."
+    ]
+  },
+  {
+    name: "Functionality & Technical Implementation",
+    levels: [
+      "App does not run or core functionality is missing.",
+      "App works inconsistently or only partially. Logic is unclear or does not align well with intended behavior. Code structure is difficult to follow.",
+      "App works for the main use case. Logic generally matches intended behavior and functions as expected. Code is mostly readable and organized.",
+      "App runs reliably and supports its intended purpose. Logic clearly matches the intended system behavior and correctly handles user input and data. Code is organized, readable, and modular."
+    ]
+  },
+  {
+    name: "User-Centered Design & Usability",
+    levels: [
+      "No clear attention to usability or user needs.",
+      "Design is confusing, inconsistent, or only loosely connected to user needs.",
+      "Design is generally clear and usable. Some evidence of considering user needs or feedback.",
+      "Design clearly supports the target audience. Interface choices improve clarity, usability, and trust. Feedback is reflected in design or interaction changes."
+    ]
+  },
+  {
+    name: "Responsible AI & Ethical Reflection",
+    levels: [
+      "No meaningful documentation of AI use or ethical thinking.",
+      "Mentions AI use or ethics superficially, with limited reasoning.",
+      "Describes how AI was used and includes some reflection on ethical or design implications.",
+      "Clearly explains how AI tools were used. Reflection shows strong judgment in accepting, modifying, or rejecting AI output. Thoughtfully considers ethics, inclusion, or unintended impacts."
+    ]
+  },
+  {
+    name: "Collaboration & Professional Practice",
+    levels: [
+      "Little or no evidence of collaboration or professional process.",
+      "Collaboration is uneven or unclear. Limited or inconsistent use of the Project Planning Board.",
+      "Demonstrates collaboration. Project Planning Board shows ongoing task tracking and iteration, with some evidence of shared ownership or communication.",
+      "Demonstrates effective collaboration and shared ownership. Project Planning Board shows ongoing task tracking, prioritization, and iteration, with clear communication and coordination over time."
+    ]
+  }
+];
+
+const maxScore = rubric.length * 4;
+const selections = new Array(rubric.length).fill(null);
+
+const tbody = document.getElementById('rubric-body');
+const totalScoreEl = document.getElementById('total-score');
+const totalNoteEl = document.getElementById('total-note');
+const liveRegion = document.getElementById('live-region');
+
+function buildTable(){
+  rubric.forEach((criterion, rowIdx) => {
+    const tr = document.createElement('tr');
+
+    const th = document.createElement('th');
+    th.scope = 'row';
+    th.textContent = criterion.name;
+    tr.appendChild(th);
+
+    criterion.levels.forEach((desc, levelIdx) => {
+      const td = document.createElement('td');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'score-btn';
+      btn.textContent = desc;
+      btn.setAttribute('aria-pressed', 'false');
+      btn.addEventListener('click', () => selectScore(rowIdx, levelIdx, btn, criterion.name));
+      td.appendChild(btn);
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+function selectScore(rowIdx, levelIdx, clickedBtn, criterionName){
+  selections[rowIdx] = levelIdx + 1;
+
+  const row = tbody.rows[rowIdx];
+  const buttons = row.querySelectorAll('.score-btn');
+  buttons.forEach((b) => {
+    b.classList.remove('selected');
+    b.setAttribute('aria-pressed', 'false');
+    b.innerHTML = b.textContent;
+  });
+  clickedBtn.classList.add('selected');
+  clickedBtn.setAttribute('aria-pressed', 'true');
+  clickedBtn.innerHTML = '<span class="check">&#10003;</span>' + clickedBtn.textContent;
+
+  updateTotal(criterionName, levelIdx + 1);
+}
+
+const levelNames = ["No Evidence", "Limited Evidence", "Convincing Evidence", "Extensive Evidence"];
+
+function updateTotal(criterionName, points){
+  const answered = selections.filter(s => s !== null).length;
+  const total = selections.reduce((sum, s) => sum + (s || 0), 0);
+
+  totalScoreEl.textContent = total + ' / ' + maxScore + ' pts';
+
+  if(answered === rubric.length){
+    totalNoteEl.textContent = 'All ' + rubric.length + ' criteria scored';
+  } else {
+    totalNoteEl.textContent = answered + ' of ' + rubric.length + ' criteria scored';
+  }
+
+  liveRegion.textContent = criterionName + ' set to ' + levelNames[points - 1] + ', ' + points + ' points. Total is now ' + total + ' out of ' + maxScore + '.';
+}
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+  for(let i = 0; i < selections.length; i++){ selections[i] = null; }
+  tbody.querySelectorAll('.score-btn').forEach((b) => {
+    b.classList.remove('selected');
+    b.setAttribute('aria-pressed', 'false');
+    b.innerHTML = b.textContent;
+  });
+  totalScoreEl.textContent = '0 / ' + maxScore + ' pts';
+  totalNoteEl.textContent = 'No selections yet';
+  liveRegion.textContent = 'Rubric reset. No selections yet.';
+});
+
+buildTable();
+</script>
+</body>
+</html>
