@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ares Base — Mission Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Geist:wght@400;500;600&display=swap');
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Geist', -apple-system, sans-serif;
+    background:radial-gradient(circle at 20% 10%, #2a1330 0%, #170a1f 45%, #0d0714 100%);
+    color:#f4ede6;
+    padding:28px 14px;
+    min-height:100vh;
+  }
+  .wrap{max-width:760px; margin:0 auto;}
+  h1,h2,.heading{font-family:'Space Grotesk', sans-serif;}
+
+  .header{
+    text-align:center;
+    margin-bottom:22px;
+  }
+  .header .tag{
+    display:inline-block;
+    background:rgba(230,126,34,0.18);
+    color:#f0a15f;
+    font-family:'Space Grotesk', sans-serif;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    padding:5px 14px;
+    border-radius:100px;
+    margin-bottom:12px;
+    border:1px solid rgba(240,161,95,0.35);
+  }
+  .header h1{
+    font-size:28px;
+    margin:0 0 6px;
+    background:linear-gradient(90deg, #f0a15f, #e8735a);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .header p{
+    color:#c9bfc4;
+    font-size:14.5px;
+    margin:0;
+  }
+
+  .status-badge{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    margin:20px auto 26px;
+    padding:12px 22px;
+    border-radius:100px;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    width:fit-content;
+    transition:background 0.4s ease, box-shadow 0.4s ease;
+    background:rgba(232,115,90,0.15);
+    border:1px solid rgba(232,115,90,0.4);
+    color:#f0a15f;
+  }
+  .status-badge.ready{
+    background:rgba(92,184,107,0.15);
+    border-color:rgba(92,184,107,0.5);
+    color:#7fd992;
+    box-shadow:0 0 24px rgba(92,184,107,0.25);
+  }
+  .status-dot{
+    width:9px;height:9px;
+    border-radius:50%;
+    background:currentColor;
+    animation:pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{opacity:1;}
+    50%{opacity:0.35;}
+  }
+
+  .countdown{
+    display:flex;
+    justify-content:center;
+    gap:14px;
+    margin-bottom:26px;
+  }
+  .countdown .unit{
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.09);
+    border-radius:12px;
+    padding:14px 16px;
+    text-align:center;
+    min-width:64px;
+  }
+  .countdown .num{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:24px;
+    font-weight:700;
+    color:#f0a15f;
+    display:block;
+  }
+  .countdown .label{
+    font-size:10.5px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:#a89aa1;
+  }
+
+  .panel{
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:16px;
+    padding:20px 22px;
+    margin-bottom:18px;
+    backdrop-filter:blur(2px);
+  }
+  .panel h2{
+    font-size:16px;
+    margin:0 0 4px;
+    color:#f4ede6;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .panel .sub{
+    font-size:13px;
+    color:#a89aa1;
+    margin:0 0 16px;
+  }
+
+  .progress-track{
+    height:8px;
+    border-radius:100px;
+    background:rgba(255,255,255,0.08);
+    overflow:hidden;
+    margin-bottom:16px;
+  }
+  .progress-fill{
+    height:100%;
+    background:linear-gradient(90deg, #f0a15f, #e8735a);
+    border-radius:100px;
+    width:0%;
+    transition:width 0.4s ease;
+  }
+
+  .checklist{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .checklist li{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:11px 14px;
+    border-radius:10px;
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.06);
+    cursor:pointer;
+    font-size:14px;
+    transition:background 0.15s ease, border-color 0.15s ease;
+  }
+  .checklist li:hover{
+    background:rgba(255,255,255,0.07);
+  }
+  .checklist li.done{
+    background:rgba(92,184,107,0.1);
+    border-color:rgba(92,184,107,0.35);
+    color:#a9e0b3;
+    text-decoration:line-through;
+    text-decoration-color:rgba(169,224,179,0.5);
+  }
+  .checkbox{
+    width:18px;height:18px;
+    border-radius:5px;
+    border:2px solid #a89aa1;
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:12px;
+    transition:all 0.15s ease;
+  }
+  .checklist li.done .checkbox{
+    border-color:#5cb86b;
+    background:#5cb86b;
+    color:#0d0714;
+  }
+
+  .habitat-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:10px;
+    margin-bottom:16px;
+  }
+  .habitat-card{
+    background:rgba(255,255,255,0.03);
+    border:2px solid rgba(255,255,255,0.08);
+    border-radius:12px;
+    padding:14px 10px;
+    text-align:center;
+    cursor:pointer;
+    transition:all 0.15s ease;
+  }
+  .habitat-card:hover{
+    border-color:rgba(240,161,95,0.5);
+  }
+  .habitat-card.selected{
+    border-color:#f0a15f;
+    background:rgba(240,161,95,0.1);
+  }
+  .habitat-card .icon{font-size:22px; display:block; margin-bottom:6px;}
+  .habitat-card .name{font-size:12.5px; font-weight:600; font-family:'Space Grotesk', sans-serif;}
+
+  .habitat-detail{
+    background:rgba(255,255,255,0.04);
+    border-radius:10px;
+    padding:14px 16px;
+    font-size:13.5px;
+    line-height:1.55;
+    color:#d8cfd3;
+    min-height:44px;
+  }
+
+  footer{
+    text-align:center;
+    font-size:12px;
+    color:#6f6570;
+    margin-top:24px;
+  }
+
+  @media (max-width:480px){
+    .countdown{gap:8px;}
+    .countdown .unit{min-width:52px; padding:10px 8px;}
+    .habitat-grid{gap:8px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <span class="tag">Ares Base &middot; Crew Dashboard</span>
+    <h1>Mission to Mars</h1>
+    <p>Everything your crew needs before launch, in one place.</p>
+  </div>
+
+  <div class="status-badge" id="status-badge">
+    <span class="status-dot"></span>
+    <span id="status-text">Preparing for launch</span>
+  </div>
+
+  <div class="countdown" id="countdown">
+    <div class="unit"><span class="num" id="cd-days">--</span><span class="label">Days</span></div>
+    <div class="unit"><span class="num" id="cd-hours">--</span><span class="label">Hours</span></div>
+    <div class="unit"><span class="num" id="cd-mins">--</span><span class="label">Mins</span></div>
+    <div class="unit"><span class="num" id="cd-secs">--</span><span class="label">Secs</span></div>
+  </div>
+
+  <div class="panel">
+    <h2>🚀 Crew Readiness</h2>
+    <p class="sub">Tap each item as your crew completes it.</p>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <ul class="checklist" id="checklist"></ul>
+  </div>
+
+  <div class="panel">
+    <h2>🏠 Habitat Selection</h2>
+    <p class="sub">Choose where your crew will live on the surface.</p>
+    <div class="habitat-grid" id="habitat-grid"></div>
+    <div class="habitat-detail" id="habitat-detail">Select a habitat to see details.</div>
+  </div>
+
+  <footer>Ares Base Dashboard &mdash; Crew Simulation</footer>
+</div>
+
+<script>
+  // Countdown to a fixed pretend launch date
+  const launchDate = new Date();
+  launchDate.setDate(launchDate.getDate() + 7);
+  launchDate.setHours(9, 0, 0, 0);
+
+  function updateCountdown(){
+    const now = new Date();
+    let diff = launchDate - now;
+    if(diff < 0) diff = 0;
+
+    const days = Math.floor(diff / (1000*60*60*24));
+    const hours = Math.floor((diff / (1000*60*60)) % 24);
+    const mins = Math.floor((diff / (1000*60)) % 60);
+    const secs = Math.floor((diff / 1000) % 60);
+
+    document.getElementById('cd-days').textContent = days;
+    document.getElementById('cd-hours').textContent = String(hours).padStart(2,'0');
+    document.getElementById('cd-mins').textContent = String(mins).padStart(2,'0');
+    document.getElementById('cd-secs').textContent = String(secs).padStart(2,'0');
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+
+  // Checklist
+  const checklistItems = [
+    "Life support systems checked",
+    "Crew health screenings complete",
+    "Rover systems calibrated",
+    "Habitat modules pressure-tested",
+    "Final supply manifest confirmed"
+  ];
+  let completedCount = 0;
+
+  const checklistEl = document.getElementById('checklist');
+  const progressFill = document.getElementById('progress-fill');
+  const statusBadge = document.getElementById('status-badge');
+  const statusText = document.getElementById('status-text');
+
+  checklistItems.forEach((text, idx) => {
+    const li = document.createElement('li');
+    li.innerHTML = '<span class="checkbox"></span><span>' + text + '</span>';
+    li.addEventListener('click', () => toggleItem(li));
+    checklistEl.appendChild(li);
+  });
+
+  function toggleItem(li){
+    li.classList.toggle('done');
+    const checkbox = li.querySelector('.checkbox');
+    checkbox.textContent = li.classList.contains('done') ? '✓' : '';
+
+    completedCount = checklistEl.querySelectorAll('li.done').length;
+    const pct = (completedCount / checklistItems.length) * 100;
+    progressFill.style.width = pct + '%';
+
+    if(completedCount === checklistItems.length){
+      statusBadge.classList.add('ready');
+      statusText.textContent = 'Ready for launch';
+    } else {
+      statusBadge.classList.remove('ready');
+      statusText.textContent = 'Preparing for launch';
+    }
+  }
+
+  // Habitat selector
+  const habitats = [
+    { id: 'dome', icon: '🏙️', name: 'Dome', detail: 'A large shared living space with natural light through reinforced dome panels. Spacious, but harder to insulate against Mars\' temperature swings.' },
+    { id: 'underground', icon: '⛏️', name: 'Underground', detail: 'Built into the terrain for the best protection from radiation and stable temperatures year-round. No natural light, and it can feel cramped.' },
+    { id: 'inflatable', icon: '⛺', name: 'Inflatable', detail: 'Lightweight and the fastest to set up, with room to expand later. Less durable than the other two options long-term.' }
+  ];
+
+  const habitatGrid = document.getElementById('habitat-grid');
+  const habitatDetail = document.getElementById('habitat-detail');
+
+  habitats.forEach((h) => {
+    const card = document.createElement('div');
+    card.className = 'habitat-card';
+    card.innerHTML = '<span class="icon">' + h.icon + '</span><span class="name">' + h.name + '</span>';
+    card.addEventListener('click', () => selectHabitat(h, card));
+    habitatGrid.appendChild(card);
+  });
+
+  function selectHabitat(h, card){
+    document.querySelectorAll('.habitat-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    habitatDetail.textContent = h.detail;
+  }
+</script>
+</body>
+</html>
