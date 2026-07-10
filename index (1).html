@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Decent Docent — Museum Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=Fira+Code:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --purple-deep: #241659;
+    --purple-mid: #4C2889;
+    --purple-bright: #6A55E8;
+    --purple-pale: #ECE9FB;
+    --ink: #221D3B;
+    --ink-soft: #5C5678;
+    --paper: #F7F5F2;
+    --card: #FFFFFF;
+    --line: #E4E0F3;
+    --amber: #E8834B;
+    --focus: #1F1976;
+    --shadow-sm: 0 1px 2px rgba(36,22,89,0.08);
+    --shadow-md: 0 8px 24px rgba(36,22,89,0.14);
+    --shadow-lg: 0 20px 48px rgba(36,22,89,0.22);
+  }
+
+  * { box-sizing: border-box; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, .display {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  a { color: var(--purple-mid); }
+
+  /* ---------- Header ---------- */
+  header.hero {
+    background: linear-gradient(135deg, var(--purple-bright) 0%, var(--purple-mid) 55%, var(--purple-deep) 100%);
+    color: white;
+    padding: 48px 24px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header.hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 15% 20%, rgba(255,255,255,0.10) 0, transparent 45%),
+                       radial-gradient(circle at 85% 75%, rgba(255,255,255,0.08) 0, transparent 40%);
+    pointer-events: none;
+  }
+
+  header.hero h1 {
+    margin: 0 0 6px;
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  header.hero p.subtitle {
+    margin: 0;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    opacity: 0.85;
+    font-weight: 500;
+  }
+
+  form#searchForm {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+
+  #searchInput {
+    width: min(420px, 80vw);
+    padding: 13px 18px;
+    border-radius: 999px;
+    border: none;
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    box-shadow: var(--shadow-sm);
+  }
+
+  #searchInput:focus-visible {
+    outline: 3px solid #FFD98E;
+    outline-offset: 2px;
+  }
+
+  button.primary {
+    padding: 13px 26px;
+    border-radius: 999px;
+    border: none;
+    background: var(--amber);
+    color: white;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+
+  button.primary:hover { background: #D9713A; transform: translateY(-1px); }
+  button.primary:focus-visible { outline: 3px solid #FFD98E; outline-offset: 2px; }
+  button.primary:active { transform: translateY(0); }
+
+  /* ---------- Main / status ---------- */
+  main {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 36px 24px 80px;
+  }
+
+  #statusMessage {
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 15px;
+    min-height: 24px;
+    margin-bottom: 8px;
+  }
+
+  #statusMessage.error { color: #B23B3B; font-weight: 600; }
+
+  /* ---------- Gallery grid ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 22px;
+    margin-top: 20px;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    border: 1px solid var(--line);
+    transform-style: preserve-3d;
+    transition: box-shadow 0.25s ease, transform 0.08s linear;
+    will-change: transform;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card:hover, .card:focus-within {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .card:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  .card-media {
+    aspect-ratio: 4 / 3;
+    background: var(--purple-pale);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: translateZ(20px) scale(1.0);
+    transition: transform 0.35s ease;
+  }
+
+  .card:hover .card-media img { transform: translateZ(20px) scale(1.06); }
+
+  .card-body {
+    padding: 16px 18px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--ink);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-artist {
+    font-size: 13.5px;
+    color: var(--purple-mid);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .card-artist::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--amber);
+    flex-shrink: 0;
+  }
+
+  .card-date {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  /* ---------- Skeleton loading cards ---------- */
+  .skeleton .card-media { background: linear-gradient(90deg, #EDEAF9 0%, #F8F6FF 50%, #EDEAF9 100%); background-size: 200% 100%; animation: shimmer 1.3s infinite; }
+  .skeleton .line { height: 12px; border-radius: 6px; background: #EDEAF9; margin-bottom: 6px; animation: shimmer 1.3s infinite; }
+  .skeleton .line.short { width: 55%; }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+  /* ---------- Detail view ---------- */
+  #detailView { display: none; }
+  #detailView.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: var(--purple-mid);
+    font-weight: 600;
+    font-size: 14.5px;
+    cursor: pointer;
+    padding: 8px 4px;
+    margin-bottom: 18px;
+  }
+
+  .back-button:hover { text-decoration: underline; }
+  .back-button:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 4px; }
+
+  .detail-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 36px;
+    align-items: start;
+  }
+
+  @media (max-width: 760px) {
+    .detail-layout { grid-template-columns: 1fr; }
+  }
+
+  .detail-media {
+    background: var(--purple-pale);
+    border-radius: 18px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .detail-media img {
+    width: 100%;
+    display: block;
+    max-height: 560px;
+    object-fit: contain;
+    background: #fff;
+  }
+
+  .detail-heading h2 {
+    font-size: clamp(22px, 3vw, 28px);
+    margin: 0 0 8px;
+    line-height: 1.25;
+  }
+
+  .detail-artist {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--purple-mid);
+    margin-bottom: 10px;
+  }
+
+  .date-pill {
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    font-size: 13px;
+    font-family: 'Fira Code', monospace;
+    margin-bottom: 20px;
+  }
+
+  .info-panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 6px;
+  }
+
+  @media (max-width: 520px) {
+    .info-panels { grid-template-columns: 1fr; }
+  }
+
+  .info-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 18px;
+  }
+
+  .info-card h3 {
+    font-size: 12.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--purple-mid);
+    margin: 0 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--purple-pale);
+  }
+
+  .info-row { margin-bottom: 11px; }
+  .info-row:last-child { margin-bottom: 0; }
+
+  .info-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-soft);
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .info-value {
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+
+  .info-value.muted { color: #A8A2C0; font-style: italic; }
+
+  .museum-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 22px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--ink-soft);
+  }
+
+  .empty-state .display { font-size: 20px; color: var(--ink); margin-bottom: 6px; }
+
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap; border: 0;
+  }
+
+  footer.credit {
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    padding: 10px 24px 30px;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>My Decent Docent</h1>
+  <p class="subtitle">Museum Explorer App</p>
+  <form id="searchForm" role="search">
+    <label for="searchInput" class="sr-only">Search artwork, artist, or era</label>
+    <input type="text" id="searchInput" placeholder="Search artwork, artist, era…" autocomplete="off">
+    <button type="submit" class="primary">Search</button>
+  </form>
+</header>
+
+<main>
+  <div id="statusMessage" role="status" aria-live="polite"></div>
+
+  <section id="galleryView">
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section id="detailView" aria-live="polite"></section>
+</main>
+
+<footer class="credit">Artwork data and images courtesy of The Metropolitan Museum of Art Open Access API.</footer>
+
+<script>
+(function () {
+  const API_BASE = "https://collectionapi.metmuseum.org/public/collection/v1";
+  const grid = document.getElementById("grid");
+  const galleryView = document.getElementById("galleryView");
+  const detailView = document.getElementById("detailView");
+  const statusMessage = document.getElementById("statusMessage");
+  const searchForm = document.getElementById("searchForm");
+  const searchInput = document.getElementById("searchInput");
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Fisher-Yates shuffle, so a broad search doesn't always show the same first few results
+  function shuffle(array) {
+    const a = array.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function setStatus(text, isError) {
+    statusMessage.textContent = text || "";
+    statusMessage.classList.toggle("error", Boolean(isError));
+  }
+
+  function showSkeletons(count) {
+    grid.innerHTML = "";
+    for (let i = 0; i < count; i++) {
+      const s = document.createElement("div");
+      s.className = "card skeleton";
+      s.innerHTML = `
+        <div class="card-media"></div>
+        <div class="card-body">
+          <div class="line"></div>
+          <div class="line short"></div>
+          <div class="line short"></div>
+        </div>`;
+      grid.appendChild(s);
+    }
+  }
+
+  // ---- Client -> Server: search for object IDs matching a query ----
+  async function fetchObjectIds(query) {
+    const url = `${API_BASE}/search?hasImages=true&q=${encodeURIComponent(query)}`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Search request failed");
+    const data = await response.json();
+    return Array.isArray(data.objectIDs) ? data.objectIDs : [];
+  }
+
+  // ---- Client -> Server: fetch full details for one object ----
+  async function fetchObject(id) {
+    const response = await fetch(`${API_BASE}/objects/${id}`);
+    if (!response.ok) throw new Error(`Object ${id} request failed`);
+    return response.json();
+  }
+
+  // Try a batch of IDs in parallel, keep only the ones with a usable image
+  async function fetchFirstUsable(ids, limit) {
+    const results = [];
+    let cursor = 0;
+    const batchSize = 8;
+
+    while (results.length < limit && cursor < ids.length) {
+      const batch = ids.slice(cursor, cursor + batchSize);
+      cursor += batchSize;
+
+      const settled = await Promise.allSettled(batch.map(fetchObject));
+      settled.forEach((outcome) => {
+        if (
+          outcome.status === "fulfilled" &&
+          outcome.value &&
+          outcome.value.primaryImageSmall
+        ) {
+          results.push(outcome.value);
+        }
+      });
+    }
+    return results.slice(0, limit);
+  }
+
+  function dateRangeLabel(obj) {
+    const begin = obj.objectBeginDate;
+    const end = obj.objectEndDate;
+    if (begin == null || end == null) return null;
+    return begin === end ? `${begin}` : `${begin} – ${end}`;
+  }
+
+  function fieldOrMuted(value) {
+    if (value === undefined || value === null || value === "") {
+      return `<span class="info-value muted">Not specified</span>`;
+    }
+    return `<span class="info-value">${escapeHtml(value)}</span>`;
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function geographyLabel(obj) {
+    const parts = [obj.country, obj.region, obj.subregion, obj.locale]
+      .filter(Boolean);
+    return parts.length ? parts.join(", ") : null;
+  }
+
+  function renderGrid(objects) {
+    grid.innerHTML = "";
+
+    if (!objects.length) {
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column: 1 / -1;">
+          <div class="display">No pieces found</div>
+          <p>Try a different artist, culture, or time period.</p>
+        </div>`;
+      return;
+    }
+
+    objects.forEach((obj) => {
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "card";
+      card.setAttribute("aria-label", `View details for ${obj.title || "this object"}`);
+
+      const dateText = obj.objectDate || dateRangeLabel(obj) || "Date unknown";
+      const artistText = obj.artistDisplayName || "Unknown Artist";
+
+      card.innerHTML = `
+        <div class="card-media">
+          <img src="${escapeHtml(obj.primaryImageSmall)}" alt="${escapeHtml(obj.title || "Museum object")}" loading="lazy">
+        </div>
+        <div class="card-body">
+          <div class="card-title">${escapeHtml(obj.title || "Untitled")}</div>
+          <div class="card-artist">${escapeHtml(artistText)}</div>
+          <div class="card-date">${escapeHtml(dateText)}</div>
+        </div>`;
+
+      card.addEventListener("click", () => showDetail(obj));
+
+      if (!reduceMotion) attachTilt(card);
+
+      grid.appendChild(card);
+    });
+  }
+
+  // The "move" interaction: a gentle 3D tilt that follows the cursor
+  function attachTilt(card) {
+    const strength = 8; // max degrees of rotation
+
+    function handleMove(e) {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      card.style.transform = `perspective(700px) rotateY(${x * strength}deg) rotateX(${-y * strength}deg) translateY(-4px)`;
+    }
+
+    function reset() {
+      card.style.transform = "perspective(700px) rotateY(0deg) rotateX(0deg) translateY(0)";
+    }
+
+    card.addEventListener("mousemove", handleMove);
+    card.addEventListener("mouseleave", reset);
+    card.addEventListener("blur", reset);
+  }
+
+  function showDetail(obj) {
+    galleryView.style.display = "none";
+    detailView.classList.add("active");
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+
+    const dateText = obj.objectDate || dateRangeLabel(obj) || "Date unknown";
+    const artistText = obj.artistDisplayName || "Unknown Artist";
+    const geo = geographyLabel(obj);
+
+    detailView.innerHTML = `
+      <button type="button" class="back-button" id="backButton">&larr; Back to gallery</button>
+      <div class="detail-layout">
+        <div class="detail-media">
+          <img src="${escapeHtml(obj.primaryImage || obj.primaryImageSmall)}" alt="${escapeHtml(obj.title || "Museum object")}">
+        </div>
+        <div class="detail-heading">
+          <h2>${escapeHtml(obj.title || "Untitled")}</h2>
+          <div class="detail-artist">${escapeHtml(artistText)}</div>
+          <span class="date-pill">${escapeHtml(dateText)}</span>
+
+          <div class="info-panels">
+            <div class="info-card">
+              <h3>Object Details</h3>
+              <div class="info-row"><div class="info-label">Object Name</div>${fieldOrMuted(obj.objectName)}</div>
+              <div class="info-row"><div class="info-label">Date</div>${fieldOrMuted(obj.objectDate)}</div>
+              <div class="info-row"><div class="info-label">Medium</div>${fieldOrMuted(obj.medium)}</div>
+              <div class="info-row"><div class="info-label">Dimensions</div>${fieldOrMuted(obj.dimensions)}</div>
+              <div class="info-row"><div class="info-label">Classification</div>${fieldOrMuted(obj.classification)}</div>
+            </div>
+            <div class="info-card">
+              <h3>Cultural Information</h3>
+              <div class="info-row"><div class="info-label">Culture</div>${fieldOrMuted(obj.culture)}</div>
+              <div class="info-row"><div class="info-label">Period</div>${fieldOrMuted(obj.period)}</div>
+              <div class="info-row"><div class="info-label">Dynasty</div>${fieldOrMuted(obj.dynasty)}</div>
+              <div class="info-row"><div class="info-label">Geography</div>${fieldOrMuted(geo)}</div>
+            </div>
+          </div>
+
+          ${obj.objectURL ? `<a class="museum-link" href="${escapeHtml(obj.objectURL)}" target="_blank" rel="noopener">View on the Met's website &rarr;</a>` : ""}
+        </div>
+      </div>
+    `;
+
+    document.getElementById("backButton").addEventListener("click", closeDetail);
+    document.getElementById("backButton").focus();
+  }
+
+  function closeDetail() {
+    detailView.classList.remove("active");
+    detailView.innerHTML = "";
+    galleryView.style.display = "block";
+  }
+
+  async function runSearch(query) {
+    setStatus(`Searching for “${query}”…`);
+    showSkeletons(6);
+
+    try {
+      const ids = await fetchObjectIds(query);
+
+      if (!ids.length) {
+        setStatus("");
+        renderGrid([]);
+        return;
+      }
+
+      const sampled = shuffle(ids).slice(0, 40);
+      const objects = await fetchFirstUsable(sampled, 9);
+
+      setStatus(objects.length ? "" : "No pieces with images were found for that search.");
+      renderGrid(objects);
+    } catch (err) {
+      setStatus("Something went wrong reaching the museum's collection. Please try again.", true);
+      grid.innerHTML = "";
+      console.error(err);
+    }
+  }
+
+  searchForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const query = searchInput.value.trim();
+    if (query) runSearch(query);
+  });
+
+  // Escape key returns to the gallery from the detail view
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && detailView.classList.contains("active")) {
+      closeDetail();
+    }
+  });
+
+  // Initial gallery on load
+  runSearch("painting");
+})();
+</script>
+
+</body>
+</html>
