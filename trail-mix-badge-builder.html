@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trail Mix Badge Builder</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Geist:wght@400;500;600&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Geist', system-ui, sans-serif;
+    background: #ffffff;
+    color: #1F1976;
+    padding: 24px;
+    line-height: 1.5;
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-size: 20px;
+    color: #1F1976;
+    margin-bottom: 6px;
+  }
+
+  .directions {
+    background: #D5EFFF;
+    color: #06338D;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  /* visually hidden live region for screen readers */
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .ingredients {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+
+  .ingredient-card {
+    flex: 1 1 140px;
+    max-width: 160px;
+    background: #ffffff;
+    border: 2px solid #E4E2F8;
+    border-radius: 10px;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    padding: 14px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  .ingredient-card:focus-visible {
+    outline: 3px solid #ACA8EA;
+    outline-offset: 2px;
+  }
+
+  .ingredient-card.selected {
+    border-color: #4C42CF;
+    background: #E4E2F8;
+  }
+
+  /* subtle highlight when card contributes to the currently active badge */
+  .ingredient-card.contributing {
+    border-color: #34BD43;
+  }
+
+  .icon-tile {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 8px;
+    border-radius: 10px;
+    background: #4C42CF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+  }
+
+  .ingredient-card.selected .icon-tile {
+    background: #1F1976;
+  }
+
+  .ingredient-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1F1976;
+  }
+
+  .check-hint {
+    font-size: 11px;
+    color: #4C42CF;
+    margin-top: 4px;
+  }
+
+  .ingredient-card.selected .check-hint {
+    font-weight: 700;
+  }
+
+  .result-panel {
+    background: #ffffff;
+    border: 1px solid #E4E2F8;
+    border-radius: 10px;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    padding: 16px 18px;
+  }
+
+  .result-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #4C42CF;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .badge-display {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  .badge-display.empty {
+    background: #F5F5F7;
+    color: #1F1976;
+  }
+
+  .badge-display.protein {
+    background: #CCF1D0;
+    color: #003F25;
+  }
+
+  .badge-display.sweet {
+    background: #FBDAE8;
+    color: #7D0C3D;
+  }
+
+  .badge-display.balanced {
+    background: #E4E2F8;
+    color: #1F1976;
+  }
+
+  .badge-display.mixed {
+    background: #D5EFFF;
+    color: #06338D;
+  }
+
+  .current-mix {
+    margin-top: 12px;
+    font-size: 13.5px;
+    color: #1F1976;
+  }
+
+  .current-mix span.empty-text {
+    color: #4C42CF;
+    font-style: italic;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ingredient-card { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+  <h1>Build Your Trail Mix</h1>
+  <div class="directions">
+    Click ingredients to add or remove them from your mix. Watch the badge update below based on what you pick.
+  </div>
+
+  <div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
+
+  <div class="ingredients" role="list" aria-label="Trail mix ingredients">
+    <!-- Each card is a toggle button; data-category groups ingredients for the Balanced Mix check -->
+    <div class="ingredient-card" role="listitem" tabindex="0" data-id="almonds" data-category="protein" aria-pressed="false" aria-label="Almonds, not selected">
+      <div class="icon-tile" aria-hidden="true">🥜</div>
+      <div class="ingredient-name">Almonds</div>
+      <div class="check-hint">Tap to add</div>
+    </div>
+
+    <div class="ingredient-card" role="listitem" tabindex="0" data-id="seeds" data-category="protein" aria-pressed="false" aria-label="Sunflower Seeds, not selected">
+      <div class="icon-tile" aria-hidden="true">🌻</div>
+      <div class="ingredient-name">Sunflower Seeds</div>
+      <div class="check-hint">Tap to add</div>
+    </div>
+
+    <div class="ingredient-card" role="listitem" tabindex="0" data-id="chocolate" data-category="sweet" aria-pressed="false" aria-label="Chocolate Chips, not selected">
+      <div class="icon-tile" aria-hidden="true">🍫</div>
+      <div class="ingredient-name">Chocolate Chips</div>
+      <div class="check-hint">Tap to add</div>
+    </div>
+
+    <div class="ingredient-card" role="listitem" tabindex="0" data-id="cranberries" data-category="sweet" aria-pressed="false" aria-label="Dried Cranberries, not selected">
+      <div class="icon-tile" aria-hidden="true">🍒</div>
+      <div class="ingredient-name">Dried Cranberries</div>
+      <div class="check-hint">Tap to add</div>
+    </div>
+
+    <div class="ingredient-card" role="listitem" tabindex="0" data-id="pretzels" data-category="crunch" aria-pressed="false" aria-label="Pretzels, not selected">
+      <div class="icon-tile" aria-hidden="true">🥨</div>
+      <div class="ingredient-name">Pretzels</div>
+      <div class="check-hint">Tap to add</div>
+    </div>
+  </div>
+
+  <div class="result-panel">
+    <div class="result-label">Your Badge</div>
+    <div class="badge-display empty" id="badgeDisplay">🎒 Empty Bag</div>
+    <div class="current-mix" id="currentMix">
+      <span class="empty-text">No ingredients selected yet.</span>
+    </div>
+  </div>
+
+<script>
+  // ---- State ----
+  // selections tracks which ingredient ids are currently active
+  var selections = {
+    almonds: false,
+    seeds: false,
+    chocolate: false,
+    cranberries: false,
+    pretzels: false
+  };
+
+  var cards = document.querySelectorAll('.ingredient-card');
+  var badgeDisplay = document.getElementById('badgeDisplay');
+  var currentMix = document.getElementById('currentMix');
+  var liveRegion = document.getElementById('liveRegion');
+
+  var displayNames = {
+    almonds: 'Almonds',
+    seeds: 'Sunflower Seeds',
+    chocolate: 'Chocolate Chips',
+    cranberries: 'Dried Cranberries',
+    pretzels: 'Pretzels'
+  };
+
+  // ---- Event listeners ----
+  // one listener per card, toggling that ingredient's selection state
+  cards.forEach(function (card) {
+    card.addEventListener('click', function () {
+      toggleIngredient(card);
+    });
+    card.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleIngredient(card);
+      }
+    });
+  });
+
+  function toggleIngredient(card) {
+    var id = card.getAttribute('data-id');
+    selections[id] = !selections[id];
+
+    card.classList.toggle('selected', selections[id]);
+    card.setAttribute('aria-pressed', selections[id]);
+    card.setAttribute('aria-label', displayNames[id] + (selections[id] ? ', selected' : ', not selected'));
+
+    checkCriteria();
+  }
+
+  // ---- Core logic ----
+  // checkCriteria reads current selections, determines the badge,
+  // and updates the DOM to reflect both the badge and which cards contributed to it
+  function checkCriteria() {
+    var hasAlmonds = selections.almonds;
+    var hasSeeds = selections.seeds;
+    var hasChocolate = selections.chocolate;
+    var hasCranberries = selections.cranberries;
+    var hasPretzels = selections.pretzels;
+
+    var anySelected = hasAlmonds || hasSeeds || hasChocolate || hasCranberries || hasPretzels;
+    var hasProtein = hasAlmonds || hasSeeds;
+    var hasSweet = hasChocolate || hasCranberries;
+    var hasCrunch = hasPretzels;
+
+    var badgeClass = 'mixed';
+    var badgeText = '🎒 Custom Mix';
+    var contributingIds = [];
+
+    if (!anySelected) {
+      badgeClass = 'empty';
+      badgeText = '🎒 Empty Bag';
+    } else if (hasProtein && hasSweet && hasCrunch) {
+      // Balanced Mix: at least one ingredient from every category
+      badgeClass = 'balanced';
+      badgeText = '⚖️ Balanced Mix';
+      contributingIds = ['almonds', 'seeds', 'chocolate', 'cranberries', 'pretzels'].filter(function (id) {
+        return selections[id];
+      });
+    } else if (hasAlmonds && hasSeeds) {
+      // Protein Powerhouse: both protein ingredients selected
+      badgeClass = 'protein';
+      badgeText = '💪 Protein Powerhouse';
+      contributingIds = ['almonds', 'seeds'];
+    } else if (hasChocolate && hasCranberries && !hasAlmonds) {
+      // Sweet Tooth: both sweet ingredients, no almonds mixed in
+      badgeClass = 'sweet';
+      badgeText = '🍭 Sweet Tooth';
+      contributingIds = ['chocolate', 'cranberries'];
+    }
+
+    // Update badge display
+    badgeDisplay.className = 'badge-display ' + badgeClass;
+    badgeDisplay.textContent = badgeText;
+
+    // Update current mix summary
+    var selectedNames = Object.keys(selections).filter(function (id) {
+      return selections[id];
+    }).map(function (id) {
+      return displayNames[id];
+    });
+
+    if (selectedNames.length === 0) {
+      currentMix.innerHTML = '<span class="empty-text">No ingredients selected yet.</span>';
+    } else {
+      currentMix.textContent = 'In your mix: ' + selectedNames.join(', ');
+    }
+
+    // Subtle card highlight for ingredients contributing to the active badge
+    cards.forEach(function (card) {
+      var id = card.getAttribute('data-id');
+      card.classList.toggle('contributing', contributingIds.indexOf(id) !== -1);
+    });
+
+    // Announce badge change to screen readers
+    liveRegion.textContent = badgeText.replace(/[^\w\s]/gi, '').trim() + ' badge active.';
+  }
+</script>
+
+</body>
+</html>
