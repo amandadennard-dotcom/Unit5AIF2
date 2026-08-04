@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Explore the Parts of a Web Page</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Geist:wght@400;500&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Geist', system-ui, sans-serif;
+  background-color: #FFFFFF;
+  color: #222222;
+}
+
+h1 {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 22px;
+  color: #1F1976;
+  margin: 0 0 8px 0;
+}
+
+p.directions {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  background-color: #D5EFFF;
+  color: #06338D;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.progress-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.progress-chip {
+  font-size: 13px;
+  font-weight: 500;
+  color: #4C42CF;
+  background-color: #F7F7FB;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 20px;
+  padding: 5px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.progress-chip.explored {
+  background-color: #CCF1D0;
+  border-color: #7CDB87;
+  color: #003F25;
+}
+.progress-chip .check {
+  display: none;
+  font-weight: 700;
+}
+.progress-chip.explored .check { display: inline; }
+
+.site-frame {
+  border: 1px solid #E4E2F8;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+
+/* Hotspot wrapper shared behavior */
+.hotspot {
+  position: relative;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.hotspot:hover, .hotspot:focus-visible {
+  border-color: #4C42CF;
+  box-shadow: inset 0 0 0 1px #4C42CF;
+  outline: none;
+}
+.hotspot.active {
+  border-color: #1F1976;
+}
+.hotspot-tag {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 12px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+  z-index: 5;
+}
+.hotspot:hover .hotspot-tag, .hotspot:focus-visible .hotspot-tag {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+
+/* Nav bar */
+.site-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background-color: #0B0F2B;
+}
+.site-nav .logo {
+  font-family: 'Geist', sans-serif;
+  font-weight: 700;
+  color: #FFFFFF;
+  font-size: 16px;
+}
+.site-nav .links {
+  display: flex;
+  gap: 20px;
+  font-size: 13px;
+  color: #C9CEFF;
+}
+
+/* Hero */
+.site-hero {
+  background-image: linear-gradient(rgba(4,6,26,0.55), rgba(4,6,26,0.65)), url('images/hero-background.jpg');
+  background-size: cover;
+  background-position: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: #FFFFFF;
+}
+.site-hero h2 {
+  font-family: 'Geist', sans-serif;
+  font-size: 26px;
+  margin: 0 0 10px 0;
+}
+.site-hero p {
+  font-size: 14px;
+  margin: 0 0 16px 0;
+  color: #E4E2F8;
+}
+.site-hero .cta-btn {
+  display: inline-block;
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 22px;
+  border-radius: 8px;
+}
+
+/* Gallery cards */
+.site-gallery {
+  padding: 24px 20px;
+  background-color: #F7F7FB;
+}
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.planet-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E4E2F8;
+  border-radius: 10px;
+  overflow: hidden;
+  text-align: center;
+}
+.planet-card img {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  display: block;
+}
+.planet-card .card-body {
+  padding: 8px 10px;
+}
+.planet-card h3 {
+  font-family: 'Geist', sans-serif;
+  font-size: 13px;
+  color: #1F1976;
+  margin: 0 0 4px 0;
+}
+.planet-card p {
+  font-size: 11px;
+  color: #555;
+  margin: 0;
+}
+
+/* Footer */
+.site-footer {
+  background-color: #1F1976;
+  color: #C9CEFF;
+  font-size: 12px;
+  padding: 16px 20px;
+  text-align: center;
+}
+.site-footer a {
+  color: #FFFFFF;
+  margin: 0 8px;
+}
+
+.detail-panel {
+  background-color: #D5EFFF;
+  color: #06338D;
+  border-radius: 10px;
+  padding: 16px 18px;
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 18px;
+  display: none;
+}
+.detail-panel .detail-title {
+  font-family: 'Geist', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 6px;
+  display: block;
+}
+.detail-placeholder {
+  color: #555555;
+  font-size: 14px;
+  font-style: italic;
+  margin: 0 0 18px 0;
+}
+
+.completion-note {
+  background-color: #E4E2F8;
+  color: #1F1976;
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 18px;
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+  .site-nav .links { gap: 12px; font-size: 11px; }
+  .site-hero h2 { font-size: 20px; }
+}
+</style>
+</head>
+<body>
+
+<h1>Explore the Parts of a Web Page</h1>
+<p class="directions">Hover over each part of this site to see it highlighted. Click a part to find out exactly what job it's doing for the visitor.</p>
+
+<div class="progress-row" id="progressRow" aria-hidden="true"></div>
+<div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
+
+<div class="detail-panel" id="detailPanel">
+  <span class="detail-title" id="detailTitle"></span>
+  <span id="detailText"></span>
+</div>
+<p class="detail-placeholder" id="detailPlaceholder">Click any part of the site below to see what job it's doing.</p>
+
+<div class="completion-note" id="completionNote">You've explored all four sections. Notice how each one answers a different question for the visitor, before they've read a single word of content.</div>
+
+<div class="site-frame">
+
+  <div class="hotspot" id="hotspot-nav" tabindex="0" role="button" aria-label="Navigation Bar, click to learn its job">
+    <span class="hotspot-tag">Nav Bar</span>
+    <div class="site-nav">
+      <div class="logo">Solar Explorer</div>
+      <div class="links"><span>Home</span><span>Planets</span><span>Missions</span><span>About</span></div>
+    </div>
+  </div>
+
+  <div class="hotspot" id="hotspot-hero" tabindex="0" role="button" aria-label="Hero Section, click to learn its job">
+    <span class="hotspot-tag">Hero Section</span>
+    <div class="site-hero">
+      <h2>Explore Our Solar System</h2>
+      <p>Journey through eight planets, countless moons, and the mysteries of space.</p>
+      <div class="cta-btn">Start Exploring</div>
+    </div>
+  </div>
+
+  <div class="hotspot" id="hotspot-gallery" tabindex="0" role="button" aria-label="Gallery Cards, click to learn its job">
+    <span class="hotspot-tag">Gallery Cards</span>
+    <div class="site-gallery">
+      <div class="gallery-grid">
+        <div class="planet-card">
+          <img src="images/mercury.jpg" alt="Mercury">
+          <div class="card-body"><h3>Mercury</h3><p>The smallest planet, closest to the Sun.</p></div>
+        </div>
+        <div class="planet-card">
+          <img src="images/venus.jpg" alt="Venus">
+          <div class="card-body"><h3>Venus</h3><p>The hottest planet, wrapped in thick clouds.</p></div>
+        </div>
+        <div class="planet-card">
+          <img src="images/earth.jpg" alt="Earth">
+          <div class="card-body"><h3>Earth</h3><p>The only known planet with life.</p></div>
+        </div>
+        <div class="planet-card">
+          <img src="images/mars.jpg" alt="Mars">
+          <div class="card-body"><h3>Mars</h3><p>Home to the tallest volcano in the solar system.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hotspot" id="hotspot-footer" tabindex="0" role="button" aria-label="Footer, click to learn its job">
+    <span class="hotspot-tag">Footer</span>
+    <div class="site-footer">
+      &copy; Solar Explorer &nbsp;<a href="#">Missions</a><a href="#">Contact</a><a href="#">Privacy</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const sections = {
+  nav: {
+    label: "Nav Bar",
+    title: "Navigation Bar",
+    text: "Lets a visitor jump anywhere on the site without scrolling first. It answers where can I go, before they've read a single word."
+  },
+  hero: {
+    label: "Hero Section",
+    title: "Hero Section",
+    text: "Makes the first impression and states what the site is about in one glance. It answers what is this, and why should I care."
+  },
+  gallery: {
+    label: "Gallery Cards",
+    title: "Gallery Cards",
+    text: "Lets a visitor browse multiple options and pick their own path. It answers what are my choices."
+  },
+  footer: {
+    label: "Footer",
+    title: "Footer",
+    text: "Holds the secondary information visitors look for once they're done browsing: contact info, legal links, ways to learn more. It answers how do I get more, or get help."
+  }
+};
+
+const explored = { nav: false, hero: false, gallery: false, footer: false };
+const liveRegion = document.getElementById('liveRegion');
+
+function announce(msg) {
+  liveRegion.textContent = msg;
+}
+
+function renderProgress() {
+  const row = document.getElementById('progressRow');
+  row.innerHTML = '';
+  Object.keys(sections).forEach(key => {
+    const chip = document.createElement('div');
+    chip.className = 'progress-chip' + (explored[key] ? ' explored' : '');
+    chip.innerHTML = '<span class="check">&#10003;</span>' + sections[key].label;
+    row.appendChild(chip);
+  });
+}
+
+function activate(key) {
+  document.querySelectorAll('.hotspot').forEach(h => h.classList.remove('active'));
+  document.getElementById('hotspot-' + key).classList.add('active');
+
+  document.getElementById('detailPlaceholder').style.display = 'none';
+  const panel = document.getElementById('detailPanel');
+  panel.style.display = 'block';
+  document.getElementById('detailTitle').textContent = sections[key].title;
+  document.getElementById('detailText').textContent = sections[key].text;
+  announce(sections[key].title + ': ' + sections[key].text);
+
+  explored[key] = true;
+  renderProgress();
+
+  if (Object.values(explored).every(v => v)) {
+    document.getElementById('completionNote').style.display = 'block';
+  }
+}
+
+['nav', 'hero', 'gallery', 'footer'].forEach(key => {
+  const el = document.getElementById('hotspot-' + key);
+  el.addEventListener('click', () => activate(key));
+  el.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      activate(key);
+    }
+  });
+});
+
+renderProgress();
+</script>
+
+</body>
+</html>
