@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Diagnose the Prompt</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Geist:wght@400;500&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Geist', system-ui, sans-serif;
+  background-color: #FFFFFF;
+  color: #222222;
+}
+
+h1 {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 22px;
+  color: #1F1976;
+  margin: 0 0 8px 0;
+}
+
+p.directions {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  background-color: #D5EFFF;
+  color: #06338D;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.dots {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #E4E2F8;
+}
+.dot.active { background-color: #4C42CF; }
+.dot.done { background-color: #ACA8EA; }
+
+.prompt-card {
+  background-color: #F7F7FB;
+  border: 1px solid #E4E2F8;
+  border-radius: 10px;
+  padding: 16px;
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+.prompt-card .prompt-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #4C42CF;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.question-text {
+  font-family: 'Geist', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1F1976;
+  margin-bottom: 10px;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.option-btn {
+  text-align: left;
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  background-color: #FFFFFF;
+  color: #222222;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+.option-btn:hover { background-color: #E4E2F8; }
+.option-btn:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 2px; }
+.option-btn.chosen.correct-fit { background-color: #CCF1D0; border-color: #7CDB87; color: #003F25; }
+.option-btn.chosen:not(.correct-fit) { background-color: #FFE3CE; border-color: #FFA868; color: #510000; }
+
+.feedback {
+  font-size: 14px;
+  line-height: 1.5;
+  background-color: #D5EFFF;
+  color: #06338D;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  display: none;
+}
+
+.try-again-note {
+  font-size: 13px;
+  color: #4C42CF;
+  margin: -6px 0 12px 0;
+  display: none;
+}
+
+.reveal-btn {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: transparent;
+  color: #4C42CF;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 8px;
+  padding: 9px 16px;
+  cursor: pointer;
+  display: none;
+  margin-bottom: 12px;
+}
+.reveal-btn:hover { background-color: #E4E2F8; }
+
+.revised-prompt {
+  background-color: #E4E2F8;
+  color: #1F1976;
+  border-radius: 10px;
+  padding: 16px;
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  display: none;
+}
+.revised-prompt .revised-label {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  display: block;
+}
+.revised-prompt .added-part {
+  background-color: #ACA8EA;
+  color: #1F1976;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+button.primary {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+button.primary:hover { background-color: #1F1976; }
+button.primary:disabled { background-color: #ACA8EA; cursor: not-allowed; }
+button.primary:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 2px; }
+
+button.secondary {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: transparent;
+  color: #4C42CF;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+button.secondary:hover { background-color: #E4E2F8; }
+button.secondary:disabled { color: #ACA8EA; border-color: #E4E2F8; cursor: not-allowed; }
+button.secondary:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 2px; }
+
+.closing-note {
+  font-size: 14px;
+  line-height: 1.5;
+  background-color: #CCF1D0;
+  color: #003F25;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-top: 16px;
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<h1>Diagnose the Prompt</h1>
+<p class="directions">Each of these prompts is missing one piece of the framework: Task, Context, Tone/Format, or Details. Pick the piece that's missing, then see the fix.</p>
+
+<div class="dots" id="dots" aria-hidden="true"></div>
+<div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
+
+<div class="prompt-card">
+  <span class="prompt-label">STUDENT PROMPT</span>
+  <span id="promptText"></span>
+</div>
+
+<div class="question-text">Which piece of the framework is missing?</div>
+<div class="options" id="optionsContainer" role="list" aria-label="Answer choices"></div>
+<div class="try-again-note" id="tryAgainNote">Want to compare another option? Click a different choice.</div>
+<div class="feedback" id="feedback"></div>
+
+<button type="button" class="reveal-btn" id="revealBtn">Show the revised prompt</button>
+<div class="revised-prompt" id="revisedPrompt">
+  <span class="revised-label">REVISED PROMPT</span>
+  <span id="revisedText"></span>
+</div>
+
+<div class="nav-buttons">
+  <button type="button" class="secondary" id="backBtn">Back</button>
+  <button type="button" class="primary" id="nextBtn" disabled>Next</button>
+</div>
+
+<div class="closing-note" id="closingNote">When a student's AI output comes back generic, it's rarely that the AI failed. It's almost always one missing piece of the prompt, and now you know exactly which four to check.</div>
+
+<script>
+const prompts = [
+  {
+    text: "Build a modern homepage for a high school robotics club, with a clean, bold, blue and silver look.",
+    missing: "Details",
+    feedbackCorrect: "Right. Task, Context, and Tone/Format are all there, but there's nothing about what sections or content the page should actually include.",
+    revisedHTML: 'Build a modern homepage for a high school robotics club, with a clean, bold, blue and silver look. <span class="added-part">Include a meet-the-team section, a competition schedule, and a sign-up form.</span>'
+  },
+  {
+    text: "Create a webpage for a local bakery that includes a menu, daily specials, and a contact form.",
+    missing: "Tone/Format",
+    feedbackCorrect: "Right. The task, context, and details are all specific, but there's no direction on what look or feel the page should have.",
+    revisedHTML: 'Create a webpage for a local bakery that includes a menu, daily specials, and a contact form. <span class="added-part">Give it a warm, cozy feel using cream and brown colors.</span>'
+  },
+  {
+    text: "Build a clean, modern landing page with a hero image, three feature cards, and a sign-up button.",
+    missing: "Context",
+    feedbackCorrect: "Right. The task, tone, and details are clear, but nothing says what the page is actually for, so AI has to guess the subject.",
+    revisedHTML: '<span class="added-part">Build a landing page for a nonprofit that rescues shelter dogs,</span> with a clean, modern look, a hero image, three feature cards, and a sign-up button.'
+  },
+  {
+    text: "Something colorful and fun for my after-school coding club, with pictures of past projects and a way for new members to join.",
+    missing: "Task",
+    feedbackCorrect: "Right. Context, tone, and details are all there, but the prompt never actually says what to build, a webpage, a flyer, a slideshow.",
+    revisedHTML: '<span class="added-part">Build a homepage</span> for my after-school coding club, colorful and fun, with pictures of past projects and a way for new members to join.'
+  }
+];
+
+const allOptions = ["Task", "Context", "Tone/Format", "Details"];
+let currentPrompt = 0;
+let shuffledOptionsPerPrompt = [];
+const liveRegion = document.getElementById('liveRegion');
+
+function announce(msg) { liveRegion.textContent = msg; }
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function renderDots() {
+  const container = document.getElementById('dots');
+  container.innerHTML = '';
+  prompts.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    if (i === currentPrompt) d.classList.add('active');
+    else if (i < currentPrompt) d.classList.add('done');
+    container.appendChild(d);
+  });
+}
+
+function renderPrompt() {
+  const p = prompts[currentPrompt];
+  document.getElementById('promptText').textContent = p.text;
+
+  if (!shuffledOptionsPerPrompt[currentPrompt]) {
+    shuffledOptionsPerPrompt[currentPrompt] = shuffle(allOptions);
+  }
+  const ordered = shuffledOptionsPerPrompt[currentPrompt];
+
+  const optionsContainer = document.getElementById('optionsContainer');
+  optionsContainer.innerHTML = '';
+  ordered.forEach((opt) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'option-btn';
+    btn.setAttribute('role', 'listitem');
+    btn.textContent = opt;
+    btn.addEventListener('click', () => selectOption(opt, ordered));
+    optionsContainer.appendChild(btn);
+  });
+
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('tryAgainNote').style.display = 'none';
+  document.getElementById('revealBtn').style.display = 'none';
+  document.getElementById('revisedPrompt').style.display = 'none';
+  document.getElementById('closingNote').style.display = 'none';
+  document.getElementById('nextBtn').disabled = true;
+  document.getElementById('nextBtn').textContent = currentPrompt === prompts.length - 1 ? 'Finish' : 'Next';
+  document.getElementById('backBtn').disabled = currentPrompt === 0;
+  renderDots();
+  announce('Prompt ' + (currentPrompt + 1) + ' of ' + prompts.length + '. ' + p.text);
+}
+
+function selectOption(chosen, ordered) {
+  const p = prompts[currentPrompt];
+  const buttons = document.querySelectorAll('.option-btn');
+  buttons.forEach((btn) => btn.classList.remove('chosen', 'correct-fit'));
+
+  const idx = ordered.indexOf(chosen);
+  const chosenBtn = buttons[idx];
+  chosenBtn.classList.add('chosen');
+  const isCorrect = chosen === p.missing;
+  if (isCorrect) chosenBtn.classList.add('correct-fit');
+
+  const feedback = document.getElementById('feedback');
+  feedback.textContent = isCorrect
+    ? p.feedbackCorrect
+    : "Not quite, look again at what the prompt does specify, then think about which piece is missing.";
+  feedback.style.display = 'block';
+  document.getElementById('tryAgainNote').style.display = 'block';
+  announce(feedback.textContent);
+
+  document.getElementById('revealBtn').style.display = 'inline-block';
+  document.getElementById('nextBtn').disabled = false;
+}
+
+document.getElementById('revealBtn').addEventListener('click', () => {
+  const p = prompts[currentPrompt];
+  document.getElementById('revisedText').innerHTML = p.revisedHTML;
+  document.getElementById('revisedPrompt').style.display = 'block';
+  announce('Revised prompt revealed.');
+  if (currentPrompt === prompts.length - 1) {
+    document.getElementById('closingNote').style.display = 'block';
+  }
+});
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  if (currentPrompt < prompts.length - 1) {
+    currentPrompt++;
+    renderPrompt();
+  }
+});
+document.getElementById('backBtn').addEventListener('click', () => {
+  if (currentPrompt > 0) {
+    currentPrompt--;
+    renderPrompt();
+  }
+});
+
+renderPrompt();
+</script>
+
+</body>
+</html>
