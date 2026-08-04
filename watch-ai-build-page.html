@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Watch AI Build a Page</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Geist:wght@400;500&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Geist', system-ui, sans-serif;
+  background-color: #FFFFFF;
+  color: #222222;
+}
+
+h1 {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 22px;
+  color: #1F1976;
+  margin: 0 0 8px 0;
+}
+
+p.directions {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  background-color: #D5EFFF;
+  color: #06338D;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.demo-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+@media (max-width: 560px) {
+  .demo-row { grid-template-columns: 1fr; }
+}
+
+.panel {
+  border: 1px solid #E4E2F8;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #4C42CF;
+  background-color: #F7F7FB;
+  padding: 8px 14px;
+  border-bottom: 1px solid #E4E2F8;
+}
+
+/* Prompt panel */
+.prompt-body {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.prompt-text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #222222;
+  background-color: #F7F7FB;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+.generate-btn {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  align-self: flex-start;
+}
+.generate-btn:hover { background-color: #1F1976; }
+.generate-btn:disabled { background-color: #ACA8EA; cursor: not-allowed; }
+.generate-btn:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 2px; }
+
+/* Output panel */
+.output-body {
+  flex: 1;
+  position: relative;
+  min-height: 260px;
+  background-color: #F0F0F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.output-placeholder {
+  font-size: 13px;
+  color: #888888;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+}
+.output-loading {
+  font-size: 13px;
+  color: #4C42CF;
+  text-align: center;
+  display: none;
+}
+.loading-dots span {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #4C42CF;
+  margin: 0 2px;
+  animation: pulse 1s infinite ease-in-out;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.15s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes pulse {
+  0%, 80%, 100% { opacity: 0.25; }
+  40% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loading-dots span { animation: none; opacity: 1; }
+}
+
+.generated-site {
+  width: 100%;
+  display: none;
+}
+
+.hotspot {
+  position: relative;
+  border: 2px solid transparent;
+}
+.hotspot:hover, .hotspot:focus-visible {
+  border-color: #4C42CF;
+  outline: none;
+}
+.hotspot-tag {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  opacity: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+.hotspot:hover .hotspot-tag, .hotspot:focus-visible .hotspot-tag {
+  opacity: 1;
+}
+
+.pizza-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background-color: #2B2320;
+}
+.pizza-nav .logo {
+  font-weight: 700;
+  color: #FFFFFF;
+  font-size: 13px;
+}
+.pizza-nav .links {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: #E8B4A0;
+}
+.pizza-hero {
+  background: linear-gradient(rgba(43,35,32,0.55), rgba(43,35,32,0.7)), repeating-linear-gradient(135deg, #6B1B1B, #6B1B1B 10px, #5A1515 10px, #5A1515 20px);
+  padding: 26px 16px;
+  text-align: center;
+  color: #FFFFFF;
+}
+.pizza-hero h2 {
+  font-size: 16px;
+  margin: 0 0 6px 0;
+}
+.pizza-hero p {
+  font-size: 11px;
+  margin: 0 0 10px 0;
+  color: #F0DCD3;
+}
+.pizza-hero .cta {
+  display: inline-block;
+  background-color: #B23B1F;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 7px 16px;
+  border-radius: 6px;
+}
+.pizza-cards {
+  display: flex;
+  gap: 8px;
+  padding: 12px 14px;
+  background-color: #FAF6F2;
+}
+.pizza-card {
+  flex: 1;
+  background-color: #FFFFFF;
+  border: 1px solid #E8D9D1;
+  border-radius: 6px;
+  padding: 6px;
+  font-size: 10px;
+  color: #2B2320;
+  text-align: center;
+}
+.pizza-card .thumb {
+  height: 26px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  background-color: #C7472A;
+}
+.pizza-footer {
+  background-color: #2B2320;
+  color: #E8B4A0;
+  font-size: 10px;
+  padding: 8px 14px;
+  text-align: center;
+}
+
+/* Stepper */
+.stepper-section {
+  border: 1px solid #E4E2F8;
+  border-radius: 12px;
+  padding: 18px;
+}
+.stepper-locked {
+  font-size: 14px;
+  color: #888888;
+  font-style: italic;
+}
+.stepper-content { display: none; }
+.step-dots {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.step-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #E4E2F8;
+}
+.step-dot.active { background-color: #4C42CF; }
+.step-dot.done { background-color: #ACA8EA; }
+
+.step-title {
+  font-family: 'Geist', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #1F1976;
+  margin-bottom: 8px;
+}
+.step-text {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #222222;
+  margin-bottom: 16px;
+}
+.step-nav {
+  display: flex;
+  justify-content: space-between;
+}
+button.secondary {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: transparent;
+  color: #4C42CF;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 8px;
+  padding: 9px 18px;
+  cursor: pointer;
+}
+button.secondary:hover { background-color: #E4E2F8; }
+button.secondary:disabled { color: #ACA8EA; border-color: #E4E2F8; cursor: not-allowed; }
+button.primary {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 18px;
+  cursor: pointer;
+}
+button.primary:hover { background-color: #1F1976; }
+button.primary:disabled { background-color: #ACA8EA; cursor: not-allowed; }
+
+.bridge-note {
+  font-size: 14px;
+  line-height: 1.5;
+  background-color: #E4E2F8;
+  color: #1F1976;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-top: 14px;
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<h1>Watch AI Build a Page</h1>
+<p class="directions">Click Generate to see the prompt turn into a page. Hover over the result to see the sections AI produced. Then walk through how it actually did it.</p>
+
+<div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
+
+<div class="demo-row">
+  <div class="panel">
+    <div class="panel-label">PROMPT</div>
+    <div class="prompt-body">
+      <div class="prompt-text">Build a modern landing page for a gourmet pizza restaurant that is easy to navigate and has a red and charcoal color palette.</div>
+      <button type="button" class="generate-btn" id="generateBtn">Generate</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-label">RESULT</div>
+    <div class="output-body" id="outputBody">
+      <div class="output-placeholder" id="outputPlaceholder">Waiting for a prompt...</div>
+      <div class="output-loading" id="outputLoading">
+        Generating<span class="loading-dots"><span></span><span></span><span></span></span>
+      </div>
+      <div class="generated-site" id="generatedSite">
+        <div class="hotspot" tabindex="0"><span class="hotspot-tag">Nav Bar</span>
+          <div class="pizza-nav">
+            <div class="logo">Bella Forno</div>
+            <div class="links"><span>Menu</span><span>Order</span><span>Contact</span></div>
+          </div>
+        </div>
+        <div class="hotspot" tabindex="0"><span class="hotspot-tag">Hero Section</span>
+          <div class="pizza-hero">
+            <h2>Authentic Italian Pizza</h2>
+            <p>Wood-fired, made fresh daily</p>
+            <div class="cta">Order Now</div>
+          </div>
+        </div>
+        <div class="hotspot" tabindex="0"><span class="hotspot-tag">Gallery Cards</span>
+          <div class="pizza-cards">
+            <div class="pizza-card"><div class="thumb"></div>Margherita</div>
+            <div class="pizza-card"><div class="thumb"></div>Pepperoni</div>
+            <div class="pizza-card"><div class="thumb"></div>Quattro Formaggi</div>
+          </div>
+        </div>
+        <div class="hotspot" tabindex="0"><span class="hotspot-tag">Footer</span>
+          <div class="pizza-footer">&copy; Bella Forno &nbsp; Hours &nbsp; Location &nbsp; Contact</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="stepper-section">
+  <div class="stepper-locked" id="stepperLocked">Click Generate above to unlock this.</div>
+  <div class="stepper-content" id="stepperContent">
+    <div class="step-dots" id="stepDots" aria-hidden="true"></div>
+    <div class="step-title" id="stepTitle"></div>
+    <div class="step-text" id="stepText"></div>
+    <div class="step-nav">
+      <button type="button" class="secondary" id="stepBackBtn">Back</button>
+      <button type="button" class="primary" id="stepNextBtn">Next</button>
+    </div>
+    <div class="bridge-note" id="bridgeNote">This whole process, where AI finds repeating structures in data and uses them to create new output, is called <strong>pattern recognition</strong>.</div>
+  </div>
+</div>
+
+<script>
+const liveRegion = document.getElementById('liveRegion');
+function announce(msg) { liveRegion.textContent = msg; }
+
+const generateBtn = document.getElementById('generateBtn');
+const outputPlaceholder = document.getElementById('outputPlaceholder');
+const outputLoading = document.getElementById('outputLoading');
+const generatedSite = document.getElementById('generatedSite');
+
+generateBtn.addEventListener('click', () => {
+  generateBtn.disabled = true;
+  outputPlaceholder.style.display = 'none';
+  outputLoading.style.display = 'block';
+  announce('Generating the page from the prompt.');
+
+  setTimeout(() => {
+    outputLoading.style.display = 'none';
+    generatedSite.style.display = 'block';
+    announce('Page generated. Hover over each section to see what AI produced. The Nav Bar, Hero Section, Gallery Cards, and Footer are all below.');
+    unlockStepper();
+  }, 900);
+});
+
+const steps = [
+  {
+    title: "Step 1: Training Data",
+    text: "AI learned from a huge collection of real websites, studying how humans structure pages, write headlines, and lay out content."
+  },
+  {
+    title: "Step 2: Patterns",
+    text: "Across thousands of sites, it noticed patterns: a nav bar at the top, a hero image with a headline and button, cards for browsing options, a footer with contact info."
+  },
+  {
+    title: "Step 3: Predictions",
+    text: "When you gave it a prompt, AI predicted which patterns fit best, then generated a new page to match, the pizza site you just saw."
+  }
+];
+
+let currentStep = 0;
+
+function unlockStepper() {
+  document.getElementById('stepperLocked').style.display = 'none';
+  document.getElementById('stepperContent').style.display = 'block';
+  renderStep();
+}
+
+function renderStepDots() {
+  const container = document.getElementById('stepDots');
+  container.innerHTML = '';
+  steps.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'step-dot';
+    if (i === currentStep) d.classList.add('active');
+    else if (i < currentStep) d.classList.add('done');
+    container.appendChild(d);
+  });
+}
+
+function renderStep() {
+  const step = steps[currentStep];
+  document.getElementById('stepTitle').textContent = step.title;
+  document.getElementById('stepText').textContent = step.text;
+  document.getElementById('stepBackBtn').disabled = currentStep === 0;
+  document.getElementById('stepNextBtn').textContent = currentStep === steps.length - 1 ? 'Finish' : 'Next';
+  document.getElementById('bridgeNote').style.display = currentStep === steps.length - 1 ? 'block' : 'none';
+  renderStepDots();
+  announce(step.title + '. ' + step.text);
+}
+
+document.getElementById('stepNextBtn').addEventListener('click', () => {
+  if (currentStep < steps.length - 1) {
+    currentStep++;
+    renderStep();
+  }
+});
+document.getElementById('stepBackBtn').addEventListener('click', () => {
+  if (currentStep > 0) {
+    currentStep--;
+    renderStep();
+  }
+});
+</script>
+
+</body>
+</html>
