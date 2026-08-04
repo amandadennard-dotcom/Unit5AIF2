@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Evolution of Web Design</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Geist:wght@400;500&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Geist', system-ui, sans-serif;
+  background-color: #FFFFFF;
+  color: #222222;
+}
+
+h1 {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 22px;
+  color: #1F1976;
+  margin: 0 0 8px 0;
+}
+
+p.directions {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  background-color: #D5EFFF;
+  color: #06338D;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.dots {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #E4E2F8;
+}
+.dot.active { background-color: #4C42CF; }
+.dot.done { background-color: #ACA8EA; }
+
+.era-label {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: #4C42CF;
+  margin-bottom: 10px;
+}
+
+.mockup-frame {
+  border: 1px solid #E4E2F8;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  min-height: 220px;
+}
+
+/* Stop 1: late 1990s */
+.mock-1990s {
+  background-color: #FFFFFF;
+  padding: 14px;
+  font-family: 'Times New Roman', serif;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #000000;
+}
+.mock-1990s a { color: #0000EE; text-decoration: underline; }
+.mock-1990s .clipart-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+/* Stop 2: early-mid 2000s */
+.mock-2000s {
+  background-color: #F5F0E0;
+  padding: 10px;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+.mock-2000s .banner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.mock-2000s .box {
+  border: 2px solid #CC0000;
+  background-color: #FFFF66;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #CC0000;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.mock-2000s .box.green { border-color: #009900; background-color: #CCFFCC; color: #006600; }
+.mock-2000s .box.blue { border-color: #0033CC; background-color: #CCE0FF; color: #002080; }
+.mock-2000s .content {
+  display: flex;
+  gap: 8px;
+}
+.mock-2000s .sidebar {
+  width: 34%;
+  background-color: #FFE0B0;
+  border: 1px dashed #CC7A00;
+  padding: 6px;
+  font-size: 13px;
+}
+.mock-2000s .main {
+  flex: 1;
+  font-size: 13px;
+  color: #333;
+}
+
+/* Stop 3: late 2000s/2010s */
+.mock-2010s {
+  background-color: #FAFAFA;
+  padding: 14px;
+}
+.mock-2010s .cta-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.mock-2010s .cta {
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 4px;
+  color: #FFFFFF;
+}
+.mock-2010s .cta.c1 { background-color: #3B7DD8; }
+.mock-2010s .cta.c2 { background-color: #E07B39; }
+.mock-2010s .cta.c3 { background-color: #4FAE4F; }
+.mock-2010s .cta.c4 { background-color: #9B59B6; }
+.mock-2010s .row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.mock-2010s .sidebar-ad {
+  width: 30%;
+  background-color: #EAEAEA;
+  border: 1px solid #CCCCCC;
+  padding: 8px;
+  font-size: 13px;
+  color: #555;
+}
+.mock-2010s .body-text {
+  flex: 1;
+  font-size: 13px;
+  color: #444;
+  line-height: 1.4;
+}
+
+/* Stop 4: modern */
+.mock-modern {
+  background-color: #FFFFFF;
+}
+.mock-modern .nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px;
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #E4E2F8;
+}
+.mock-modern .nav .logo {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  color: #1F1976;
+  font-size: 14px;
+}
+.mock-modern .nav .links {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  color: #4C42CF;
+}
+.mock-modern .hero {
+  background-color: #E4E2F8;
+  padding: 28px 18px;
+  text-align: center;
+}
+.mock-modern .hero h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px;
+  color: #1F1976;
+  margin: 0 0 8px 0;
+}
+.mock-modern .hero .cta-btn {
+  display: inline-block;
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 18px;
+  border-radius: 6px;
+  margin-top: 8px;
+}
+.mock-modern .cards {
+  display: flex;
+  gap: 10px;
+  padding: 16px 18px;
+}
+.mock-modern .card {
+  flex: 1;
+  background-color: #FFFFFF;
+  border: 1px solid #E4E2F8;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 13px;
+  color: #444;
+}
+.mock-modern .card .thumb {
+  border-radius: 6px;
+  height: 40px;
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+.mock-modern .footer {
+  background-color: #1F1976;
+  color: #E4E2F8;
+  font-size: 13px;
+  padding: 12px 18px;
+  text-align: center;
+}
+
+.question-block {
+  margin-bottom: 16px;
+}
+.question-text {
+  font-family: 'Geist', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1F1976;
+  margin-bottom: 10px;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.option-btn {
+  text-align: left;
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  background-color: #FFFFFF;
+  color: #222222;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+.option-btn:hover { background-color: #E4E2F8; }
+.option-btn:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 2px; }
+.option-btn.chosen.primary-fit { background-color: #CCF1D0; border-color: #7CDB87; color: #003F25; }
+.option-btn.chosen:not(.primary-fit) { background-color: #FFE3CE; border-color: #FFA868; color: #510000; }
+
+.feedback {
+  font-size: 14px;
+  line-height: 1.5;
+  background-color: #D5EFFF;
+  color: #06338D;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: none;
+}
+
+.try-again-note {
+  font-size: 13px;
+  color: #4C42CF;
+  margin-top: -4px;
+  margin-bottom: 12px;
+  display: none;
+}
+
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+button.primary {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+button.primary:hover { background-color: #1F1976; }
+button.primary:disabled { background-color: #ACA8EA; cursor: not-allowed; }
+button.primary:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 2px; }
+
+button.secondary {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: transparent;
+  color: #4C42CF;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+button.secondary:hover { background-color: #E4E2F8; }
+button.secondary:disabled { color: #ACA8EA; border-color: #E4E2F8; cursor: not-allowed; }
+button.secondary:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 2px; }
+
+.bridge-note {
+  font-size: 14px;
+  line-height: 1.5;
+  background-color: #E4E2F8;
+  color: #1F1976;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-top: 16px;
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<h1>The Evolution of Web Design</h1>
+<p class="directions">Click through four moments in web design history. At each stop, notice what's working and what isn't for the person using the page. You can change your answer or go back at any time.</p>
+
+<div class="dots" id="dots" aria-hidden="true"></div>
+<div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
+
+<div class="era-label" id="eraLabel"></div>
+<div class="mockup-frame" id="mockupFrame"></div>
+
+<div class="question-block">
+  <div class="question-text" id="questionText"></div>
+  <div class="options" id="optionsContainer" role="list" aria-label="Answer choices"></div>
+  <div class="try-again-note" id="tryAgainNote">Want to compare another option? Click a different choice.</div>
+  <div class="feedback" id="feedback"></div>
+</div>
+
+<div class="bridge-note" id="bridgeNote">These four sections, Navigation Bar, Hero Section, Gallery Cards, and Footer, are the exact structure you'll dig into next.</div>
+
+<div class="nav-buttons">
+  <button type="button" class="secondary" id="backBtn">Back</button>
+  <button type="button" class="primary" id="nextBtn" disabled>Next</button>
+</div>
+
+<script>
+// Small inline icon helpers so each era mockup has real imagery, no external files needed.
+function iconClipArt() {
+  return `<svg width="34" height="34" viewBox="0 0 34 34"><rect x="1" y="1" width="32" height="32" fill="none" stroke="#000000" stroke-width="1"/><rect x="6" y="6" width="22" height="14" fill="none" stroke="#000000" stroke-width="1"/><circle cx="17" cy="13" r="4" fill="none" stroke="#000000" stroke-width="1"/><line x1="6" y1="26" x2="28" y2="26" stroke="#000000" stroke-width="1"/><line x1="6" y1="29" x2="28" y2="29" stroke="#000000" stroke-width="1"/></svg>`;
+}
+function iconStarburst(color) {
+  return `<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="10,0 12,7 19,7 13,11 15,19 10,14 5,19 7,11 1,7 8,7" fill="${color}"/></svg>`;
+}
+function iconStockPhoto() {
+  return `<svg width="100%" height="46" viewBox="0 0 140 46"><rect width="140" height="46" fill="#DCE7F0"/><circle cx="112" cy="12" r="7" fill="#F2C464"/><polygon points="0,46 40,18 65,34 95,10 140,46" fill="#8FB89C"/></svg>`;
+}
+function iconThumb(bg, mountain, sun) {
+  return `<svg width="100%" height="40" viewBox="0 0 140 40"><rect width="140" height="40" fill="${bg}"/><circle cx="112" cy="10" r="6" fill="${sun}"/><polygon points="0,40 35,16 60,30 90,8 140,40" fill="${mountain}"/></svg>`;
+}
+
+const stops = [
+  {
+    era: "Late 1990s",
+    mockupClass: "mock-1990s",
+    mockupHTML: `<div class="clipart-row">${iconClipArt()}<b>Welcome to Dave's Baseball Card Site!!</b></div>
+      <p>Hello and welcome to my website. This site is about baseball cards and my collection which I have been building since 1994. Please read below for information about my cards, my trades, and how to contact me. This site was last updated on a Tuesday. I have many cards including rookie cards, all star cards, and error cards. If you would like to trade please <a href="#">click here</a> or email me. I also collect basketball cards but that is a different <a href="#">page</a>. Thank you for visiting and please sign my <a href="#">guestbook</a>. This page is best viewed at 800x600 resolution. More text continues about card grading, storage tips, and my favorite teams growing up in the 1980s and 1990s, none of which is broken into sections.</p>`,
+    question: "What do you notice about this page?",
+    options: [
+      { text: "Too much text with no visual breaks", primary: true, feedback: "Right, walls of unbroken text force a visitor to hunt for what they need. There's no visual hierarchy guiding the eye anywhere." },
+      { text: "The colors clash", primary: false, feedback: "Colors aren't really the issue here, this page barely uses any. The bigger problem is text density." },
+      { text: "There's no clear navigation", primary: false, feedback: "True, but the more immediate problem a visitor hits first is the wall of text before they'd even look for navigation." },
+      { text: "There are too many images", primary: false, feedback: "Actually the opposite, this page has almost no imagery at all, which is part of why it feels so text-heavy." }
+    ]
+  },
+  {
+    era: "Early-to-mid 2000s",
+    mockupClass: "mock-2000s",
+    mockupHTML: `<div class="banner">
+        <div class="box">${iconStarburst('#CC0000')}NEW!!!</div>
+        <div class="box green">${iconStarburst('#009900')}SIGN UP NOW</div>
+        <div class="box blue">Visitor #48213</div>
+      </div>
+      <div class="content">
+        <div class="sidebar">${iconStockPhoto()}<br>Links<br>Home<br>About<br>More Links<br>Poll of the Week</div>
+        <div class="main">Welcome to the new and improved site! Check out our forums, our chat room, and our brand new guestbook. Click any of the flashing banners above for exciting offers.</div>
+      </div>`,
+    question: "What do you notice about this page?",
+    options: [
+      { text: "There's no clear focal point, too many competing elements", primary: true, feedback: "Right, everything is shouting for attention at once, bright boxes, a sidebar, a banner, so nothing stands out as the main thing." },
+      { text: "There's too much plain text", primary: false, feedback: "There's actually less plain text here than the last stop, the new problem is too many competing visual elements." },
+      { text: "There's no color at all", primary: false, feedback: "This page has plenty of color, maybe too much of it, all fighting for attention at once." },
+      { text: "The page loads too fast", primary: false, feedback: "Loading speed isn't really visible here, the issue is visual clutter, not performance." }
+    ]
+  },
+  {
+    era: "Late 2000s to 2010s",
+    mockupClass: "mock-2010s",
+    mockupHTML: `<div class="cta-row">
+        <div class="cta c1">Sign Up</div>
+        <div class="cta c2">Learn More</div>
+        <div class="cta c3">Get Started</div>
+        <div class="cta c4">Contact Us</div>
+      </div>
+      <div class="row">
+        <div class="body-text">Our platform helps you do more, faster. Explore our features below and see why thousands of users trust us. Read more about our story, our team, and our mission on this page.</div>
+        <div class="sidebar-ad">${iconStockPhoto()}Special Offer! Act now for a limited time deal on premium plans.</div>
+      </div>`,
+    question: "What do you notice about this page?",
+    options: [
+      { text: "Too many competing calls to action", primary: true, feedback: "Right, there's a button pulling for attention every few inches, so a visitor doesn't know which action actually matters most." },
+      { text: "There's no text at all", primary: false, feedback: "There's plenty of text here, the issue is that competing buttons and an ad split a visitor's attention away from it." },
+      { text: "Only one color is used", primary: false, feedback: "This page actually uses a fair number of colors on those buttons, just not consistently enough to guide the eye toward one action." },
+      { text: "There are no links anywhere", primary: false, feedback: "There are links and buttons throughout, too many, in fact, without a clear sense of priority." }
+    ]
+  },
+  {
+    era: "Modern web app",
+    mockupClass: "mock-modern",
+    mockupHTML: `<div class="nav"><div class="logo">Brand</div><div class="links"><span>Shop</span><span>About</span><span>Contact</span></div></div>
+      <div class="hero"><h2>Find what you're looking for</h2><div class="cta-btn">Get Started</div></div>
+      <div class="cards">
+        <div class="card"><div class="thumb">${iconThumb('#D5EFFF', '#7CDB87', '#FFA868')}</div>Item one</div>
+        <div class="card"><div class="thumb">${iconThumb('#E4E2F8', '#ACA8EA', '#4C42CF')}</div>Item two</div>
+        <div class="card"><div class="thumb">${iconThumb('#D5EFFF', '#6FCAFF', '#FFA868')}</div>Item three</div>
+      </div>
+      <div class="footer">&copy; Brand Co. | Privacy | Contact</div>`,
+    question: "What makes this feel easier to use than what you just saw?",
+    options: [
+      { text: "Clear structure: a nav bar, a hero, cards, and a footer, each doing one job", primary: true, feedback: "Exactly. Every part of the page has one clear job, and that predictable structure is what your students will learn to recognize and build themselves." },
+      { text: "It has more pictures than the others", primary: false, feedback: "There are images here, but that's not really what makes it easier to navigate, it's the structure underneath them." },
+      { text: "It uses more colors than the others", primary: false, feedback: "This page actually uses fewer colors than the cluttered ones you just saw. Restraint, not more color, is doing the work." },
+      { text: "It has less text than all the others", primary: false, feedback: "Text amount isn't really the differentiator here, it's how the content is organized into clear, single-purpose sections." }
+    ]
+  }
+];
+
+let currentStop = 0;
+let shuffledOptionsPerStop = [];
+const liveRegion = document.getElementById('liveRegion');
+
+function announce(msg) {
+  liveRegion.textContent = msg;
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  // Keep the primary/correct option out of the first slot so it isn't always first.
+  if (a[0].primary) {
+    const swapWith = 1 + Math.floor(Math.random() * (a.length - 1));
+    [a[0], a[swapWith]] = [a[swapWith], a[0]];
+  }
+  return a;
+}
+
+function renderDots() {
+  const dotsContainer = document.getElementById('dots');
+  dotsContainer.innerHTML = '';
+  stops.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    if (i === currentStop) d.classList.add('active');
+    else if (i < currentStop) d.classList.add('done');
+    dotsContainer.appendChild(d);
+  });
+}
+
+function renderStop() {
+  const stop = stops[currentStop];
+  document.getElementById('eraLabel').textContent = stop.era;
+  const frame = document.getElementById('mockupFrame');
+  frame.className = 'mockup-frame ' + stop.mockupClass;
+  frame.innerHTML = stop.mockupHTML;
+  document.getElementById('questionText').textContent = stop.question;
+
+  if (!shuffledOptionsPerStop[currentStop]) {
+    shuffledOptionsPerStop[currentStop] = shuffle(stop.options);
+  }
+  const orderedOptions = shuffledOptionsPerStop[currentStop];
+
+  const optionsContainer = document.getElementById('optionsContainer');
+  optionsContainer.innerHTML = '';
+  orderedOptions.forEach((opt) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'option-btn';
+    btn.setAttribute('role', 'listitem');
+    btn.textContent = opt.text;
+    btn.addEventListener('click', () => selectOption(opt, orderedOptions));
+    optionsContainer.appendChild(btn);
+  });
+
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('tryAgainNote').style.display = 'none';
+  document.getElementById('bridgeNote').style.display = 'none';
+  document.getElementById('nextBtn').disabled = true;
+  document.getElementById('nextBtn').textContent = currentStop === stops.length - 1 ? 'Finish' : 'Next';
+  document.getElementById('backBtn').disabled = currentStop === 0;
+  renderDots();
+  announce(stop.era + '. ' + stop.question);
+}
+
+function selectOption(chosenOpt, orderedOptions) {
+  const buttons = document.querySelectorAll('.option-btn');
+  buttons.forEach((btn) => {
+    btn.classList.remove('chosen', 'primary-fit');
+  });
+  const idx = orderedOptions.indexOf(chosenOpt);
+  const chosenBtn = buttons[idx];
+  chosenBtn.classList.add('chosen');
+  if (chosenOpt.primary) chosenBtn.classList.add('primary-fit');
+
+  const feedback = document.getElementById('feedback');
+  feedback.textContent = chosenOpt.feedback;
+  feedback.style.display = 'block';
+  document.getElementById('tryAgainNote').style.display = 'block';
+  announce(chosenOpt.feedback);
+
+  if (currentStop === stops.length - 1) {
+    document.getElementById('bridgeNote').style.display = 'block';
+  }
+  document.getElementById('nextBtn').disabled = false;
+}
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  if (currentStop < stops.length - 1) {
+    currentStop++;
+    renderStop();
+  }
+});
+
+document.getElementById('backBtn').addEventListener('click', () => {
+  if (currentStop > 0) {
+    currentStop--;
+    renderStop();
+  }
+});
+
+renderStop();
+</script>
+
+</body>
+</html>
