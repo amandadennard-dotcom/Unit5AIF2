@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Prompt Like a Developer</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Geist', system-ui, sans-serif;
+  background-color: #FFFFFF;
+  color: #222222;
+}
+
+h1 {
+  font-size: 20px;
+  color: #1F1976;
+  margin: 0 0 8px 0;
+}
+
+p.directions {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  background-color: #D5EFFF;
+  color: #06338D;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.tab-btn {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #F7F7FB;
+  color: #4C42CF;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 20px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+.tab-btn:hover { background-color: #E4E2F8; }
+.tab-btn.active {
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  border-color: #4C42CF;
+}
+.tab-btn:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 2px; }
+
+.habit-intro {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #222222;
+  margin-bottom: 16px;
+}
+
+.prompt-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+@media (max-width: 560px) {
+  .prompt-row { grid-template-columns: 1fr; }
+}
+
+.prompt-card {
+  border: 1px solid #E4E2F8;
+  border-radius: 10px;
+  padding: 16px;
+  cursor: pointer;
+  background-color: #FFFFFF;
+  text-align: left;
+  font-family: 'Geist', system-ui, sans-serif;
+}
+.prompt-card:hover { background-color: #F7F7FB; }
+.prompt-card:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 2px; }
+.prompt-card .prompt-num {
+  font-size: 12px;
+  font-weight: 700;
+  color: #4C42CF;
+  display: block;
+  margin-bottom: 8px;
+}
+.prompt-card .prompt-body-text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #222222;
+}
+.prompt-card .click-hint {
+  font-size: 12px;
+  color: #888888;
+  font-style: italic;
+  margin-top: 10px;
+}
+
+.prompt-card.weak.revealed { background-color: #FFF6EC; border-color: #FFA868; }
+.prompt-card.strong.revealed { background-color: #F2FBF3; border-color: #7CDB87; }
+
+.feedback-line {
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #E4E2F8;
+  display: none;
+}
+.prompt-card.weak .feedback-line { color: #8A4B00; }
+.prompt-card.strong .feedback-line { color: #003F25; }
+
+.synthesis {
+  background-color: #E4E2F8;
+  color: #1F1976;
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-top: 8px;
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<h1>Prompt Like a Developer</h1>
+<p class="directions">Choose a habit below: Goals, Constraints, or Edge Cases. Then click each of the two prompts under it to see why one works better than the other.</p>
+
+<div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
+
+<div class="tabs" id="tabs"></div>
+<div class="habit-intro" id="habitIntro"></div>
+<div class="prompt-row" id="promptRow"></div>
+<div class="synthesis" id="synthesis"></div>
+
+<script>
+const liveRegion = document.getElementById('liveRegion');
+function announce(msg) { liveRegion.textContent = msg; }
+
+const habits = [
+  {
+    tab: "State Your Goals",
+    intro: "Here are two ways a student might prompt for this. Click each one to see why they work differently.",
+    weak: {
+      text: "Style my webpage to look modern and professional.",
+      feedback: "Vague. \"Modern and professional\" means something different to everyone, AI has to guess."
+    },
+    strong: {
+      text: "Create a CSS stylesheet using my brand's colors and fonts in a bold, modern style. Style the header, navigation, main content, and footer consistently.",
+      feedback: "Specific. Names the actual sections to style and the exact source (brand colors and fonts) to pull from."
+    },
+    closing: "Stating your goal means naming what \"good\" actually looks like, not just that you want it."
+  },
+  {
+    tab: "Define the Constraints",
+    intro: "Here are two ways a student might prompt for this. Click each one to see why they work differently.",
+    weak: {
+      text: "Make the menu look nice and easy to read on a phone.",
+      feedback: "\"Nice\" and \"easy to read\" aren't rules AI can apply, they're outcomes without a method."
+    },
+    strong: {
+      text: "Use a dark color scheme with clean, simple fonts. Make sure the text is easy to read on smaller screens and that spacing is consistent across the page.",
+      feedback: "Gives actual constraints to design within: a color direction, a font style, and a specific screen-size concern."
+    },
+    closing: "Constraints are the boundaries AI should design inside of, not just the result you're hoping for."
+  },
+  {
+    tab: "Prepare for Edge Cases",
+    intro: "Here are two ways a student might prompt for this. Click each one to see why they work differently.",
+    weak: {
+      text: "Make sure the page looks good.",
+      feedback: "\"Looks good\" to whom, on what screen? This leaves every failure case unaddressed."
+    },
+    strong: {
+      text: "Avoid low-contrast text, hard-to-read fonts, and spacing that feels crowded or messy. Make sure the design stays readable on smaller screens.",
+      feedback: "Names the specific ways a design usually breaks, so AI can guard against them instead of reacting after the fact."
+    },
+    closing: "Thinking through edge cases means naming what could go wrong before it does, not fixing it after your students spot it."
+  }
+];
+
+let currentTab = 0;
+let revealedInTab = {};
+
+function renderTabs() {
+  const container = document.getElementById('tabs');
+  container.innerHTML = '';
+  habits.forEach((h, i) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tab-btn' + (i === currentTab ? ' active' : '');
+    btn.textContent = h.tab;
+    btn.addEventListener('click', () => switchTab(i));
+    container.appendChild(btn);
+  });
+}
+
+function switchTab(i) {
+  currentTab = i;
+  if (!revealedInTab[i]) revealedInTab[i] = { weak: false, strong: false };
+  renderTabs();
+  renderHabit();
+  announce(habits[i].tab + '. ' + habits[i].intro);
+}
+
+function renderHabit() {
+  const h = habits[currentTab];
+  document.getElementById('habitIntro').textContent = h.intro;
+
+  const row = document.getElementById('promptRow');
+  row.innerHTML = '';
+
+  ['weak', 'strong'].forEach((kind, idx) => {
+    const data = h[kind];
+    const isRevealed = revealedInTab[currentTab][kind];
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'prompt-card ' + kind + (isRevealed ? ' revealed' : '');
+    card.innerHTML = `
+      <span class="prompt-num">PROMPT #${idx + 1}</span>
+      <span class="prompt-body-text">${data.text}</span>
+      <div class="feedback-line" style="display:${isRevealed ? 'block' : 'none'};">${data.feedback}</div>
+      ${isRevealed ? '' : '<div class="click-hint">Click to see why</div>'}
+    `;
+    card.addEventListener('click', () => revealCard(kind));
+    row.appendChild(card);
+  });
+
+  const synthesis = document.getElementById('synthesis');
+  const bothRevealed = revealedInTab[currentTab].weak && revealedInTab[currentTab].strong;
+  synthesis.style.display = bothRevealed ? 'block' : 'none';
+  synthesis.textContent = h.closing;
+}
+
+function revealCard(kind) {
+  revealedInTab[currentTab][kind] = true;
+  renderHabit();
+  const h = habits[currentTab];
+  announce(h[kind].feedback);
+}
+
+renderTabs();
+switchTab(0);
+</script>
+
+</body>
+</html>
