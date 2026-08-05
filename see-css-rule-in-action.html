@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>See a CSS Rule in Action</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Geist', system-ui, sans-serif;
+  background-color: #FFFFFF;
+  color: #222222;
+}
+
+h1 {
+  font-size: 20px;
+  color: #1F1976;
+  margin: 0 0 8px 0;
+}
+
+p.directions {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  background-color: #D5EFFF;
+  color: #06338D;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.dots {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #E4E2F8;
+}
+.dot.active { background-color: #4C42CF; }
+.dot.done { background-color: #ACA8EA; }
+
+.legend-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.legend-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #555555;
+}
+.legend-chip .swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.code-block {
+  background-color: #2B2745;
+  border-radius: 10px;
+  padding: 22px 24px;
+  font-family: 'Courier New', monospace;
+  font-size: 18px;
+  color: #E4E2F8;
+  margin-bottom: 18px;
+  line-height: 1.9;
+}
+
+.code-line-done {
+  opacity: 0.55;
+}
+
+.token {
+  background: none;
+  border: none;
+  font-family: 'Courier New', monospace;
+  font-size: 18px;
+  color: #FFFFFF;
+  cursor: pointer;
+  padding: 2px 3px;
+  border-bottom: 3px solid transparent;
+}
+.token:hover, .token:focus-visible {
+  outline: none;
+  background-color: rgba(255,255,255,0.08);
+}
+.token.selector { border-bottom-color: #4A46D6; }
+.token.property { border-bottom-color: #8B85E8; }
+.token.value { border-bottom-color: #C7C3F2; }
+.token.active.selector { background-color: #4A46D6; color: #FFFFFF; }
+.token.active.property { background-color: #8B85E8; color: #1F1976; }
+.token.active.value { background-color: #C7C3F2; color: #1F1976; }
+
+.explanation {
+  background-color: #E4E2F8;
+  color: #1F1976;
+  border-radius: 10px;
+  padding: 16px 18px;
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 18px;
+  display: none;
+}
+.explanation .exp-title {
+  font-weight: 700;
+  display: block;
+  margin-bottom: 4px;
+}
+.explanation-placeholder {
+  font-size: 14px;
+  color: #888888;
+  font-style: italic;
+  margin-bottom: 18px;
+}
+
+.progress-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.progress-chip {
+  font-size: 13px;
+  font-weight: 500;
+  background-color: #F7F7FB;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 20px;
+  padding: 5px 12px;
+  color: #4C42CF;
+}
+.progress-chip.explored {
+  background-color: #CCF1D0;
+  border-color: #7CDB87;
+  color: #003F25;
+}
+
+.reveal-btn {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  margin-bottom: 18px;
+}
+.reveal-btn:hover { background-color: #1F1976; }
+.reveal-btn:disabled { background-color: #ACA8EA; cursor: not-allowed; }
+.reveal-btn:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 2px; }
+
+.result-frame {
+  border: 1px solid #E4E2F8;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+.result-browser-bar {
+  background-color: #F7F7FB;
+  padding: 8px 12px;
+  border-bottom: 1px solid #E4E2F8;
+  display: flex;
+  gap: 6px;
+}
+.result-browser-bar span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: #E4E2F8;
+  display: inline-block;
+}
+.result-page {
+  padding: 30px;
+  text-align: left;
+}
+.result-page h2 {
+  font-size: 22px;
+  margin: 0;
+  display: inline-block;
+  color: #1F1976;
+}
+
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+button.primary {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+button.primary:hover { background-color: #1F1976; }
+button.primary:disabled { background-color: #ACA8EA; cursor: not-allowed; }
+button.secondary {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: transparent;
+  color: #4C42CF;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+button.secondary:hover { background-color: #E4E2F8; }
+button.secondary:disabled { color: #ACA8EA; border-color: #E4E2F8; cursor: not-allowed; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<h1>See a CSS Rule in Action</h1>
+<p class="directions">Click the new property and value below to find out what they do. Reveal the result, then move to the next rule and watch it build on the last one.</p>
+
+<div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
+
+<div class="dots" id="dots" aria-hidden="true"></div>
+
+<div class="legend-row">
+  <div class="legend-chip"><span class="swatch" style="background-color:#1F1976;"></span>Selector</div>
+  <div class="legend-chip"><span class="swatch" style="background-color:#4C42CF;"></span>Property</div>
+  <div class="legend-chip"><span class="swatch" style="background-color:#ACA8EA;"></span>Value</div>
+</div>
+
+<div class="code-block" id="codeBlock"></div>
+
+<div class="progress-row" id="progressRow" aria-hidden="true"></div>
+
+<p class="explanation-placeholder" id="explanationPlaceholder">Click a highlighted word above to learn what it does.</p>
+<div class="explanation" id="explanation">
+  <span class="exp-title" id="expTitle"></span>
+  <span id="expText"></span>
+</div>
+
+<button type="button" class="reveal-btn" id="revealBtn" disabled>Show the result</button>
+
+<div class="result-frame" id="resultFrame" style="display:none;">
+  <div class="result-browser-bar"><span></span><span></span><span></span></div>
+  <div class="result-page" id="resultPage">
+    <h2 id="resultHeading">Welcome to My Website</h2>
+  </div>
+</div>
+
+<div class="nav-buttons">
+  <button type="button" class="secondary" id="backBtn">Back</button>
+  <button type="button" class="primary" id="nextBtn" disabled>Next</button>
+</div>
+
+<script>
+const liveRegion = document.getElementById('liveRegion');
+function announce(msg) { liveRegion.textContent = msg; }
+
+// Each step adds one new declaration on top of all previous ones.
+const steps = [
+  {
+    property: "color",
+    value: "blue",
+    exp: {
+      title: "color — Property",
+      text: "This names what's being changed. Here, it's the text color."
+    },
+    expValue: {
+      title: "blue — Value",
+      text: "This sets the specific setting for that property. The text will render in blue."
+    },
+    apply: (styleObj) => { styleObj.color = 'blue'; }
+  },
+  {
+    property: "text-align",
+    value: "center",
+    exp: {
+      title: "text-align — Property",
+      text: "This controls how text lines up inside its container."
+    },
+    expValue: {
+      title: "center — Value",
+      text: "This centers the heading instead of leaving it at the default left edge."
+    },
+    apply: (styleObj) => { styleObj.textAlign = 'center'; }
+  },
+  {
+    property: "background-color",
+    value: "#E4E2F8",
+    exp: {
+      title: "background-color — Property",
+      text: "This sets the color behind an element, not the text itself."
+    },
+    expValue: {
+      title: "#E4E2F8 — Value",
+      text: "Hex codes are a precise way to specify a color. This one is a light purple."
+    },
+    apply: (styleObj) => { styleObj.backgroundColor = '#E4E2F8'; styleObj.padding = '10px 20px'; styleObj.borderRadius = '8px'; }
+  }
+];
+
+let currentStep = 0;
+let explored = {};
+let revealedSteps = [];
+
+function renderDots() {
+  const container = document.getElementById('dots');
+  container.innerHTML = '';
+  steps.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    if (i === currentStep) d.classList.add('active');
+    else if (i < currentStep) d.classList.add('done');
+    container.appendChild(d);
+  });
+}
+
+function renderCodeBlock() {
+  const block = document.getElementById('codeBlock');
+  let html = '<button type="button" class="token selector" id="tok-selector" data-part="selector">h1</button> {<br>';
+  for (let i = 0; i <= currentStep; i++) {
+    const s = steps[i];
+    const isCurrent = i === currentStep;
+    if (isCurrent) {
+      html += `&nbsp;&nbsp;<button type="button" class="token property" id="tok-property" data-part="property">${s.property}</button>: <button type="button" class="token value" id="tok-value" data-part="value">${s.value}</button>;<br>`;
+    } else {
+      html += `<span class="code-line-done">&nbsp;&nbsp;${s.property}: ${s.value};</span><br>`;
+    }
+  }
+  html += '}';
+  block.innerHTML = html;
+
+  document.getElementById('tok-selector').addEventListener('click', () => selectToken('selector'));
+  document.getElementById('tok-property').addEventListener('click', () => selectToken('property'));
+  document.getElementById('tok-value').addEventListener('click', () => selectToken('value'));
+}
+
+function renderProgress() {
+  const row = document.getElementById('progressRow');
+  row.innerHTML = '';
+  ['selector', 'property', 'value'].forEach(part => {
+    const chip = document.createElement('div');
+    chip.className = 'progress-chip' + (explored[part] ? ' explored' : '');
+    chip.textContent = part.charAt(0).toUpperCase() + part.slice(1);
+    row.appendChild(chip);
+  });
+}
+
+function selectToken(part) {
+  document.querySelectorAll('.token').forEach(t => t.classList.remove('active'));
+  const tokEl = document.getElementById('tok-' + part);
+  if (tokEl) tokEl.classList.add('active');
+
+  document.getElementById('explanationPlaceholder').style.display = 'none';
+  const exp = document.getElementById('explanation');
+  exp.style.display = 'block';
+
+  const step = steps[currentStep];
+  const info = part === 'selector'
+    ? { title: "h1 — Selector", text: "This tells the browser which element to style. Every heading tagged h1 on the page will follow this rule." }
+    : part === 'property' ? step.exp : step.expValue;
+
+  document.getElementById('expTitle').textContent = info.title;
+  document.getElementById('expText').textContent = info.text;
+  announce(info.title + ': ' + info.text);
+
+  explored[part] = true;
+  renderProgress();
+
+  if (explored.selector && explored.property && explored.value) {
+    document.getElementById('revealBtn').disabled = false;
+  }
+}
+
+function renderResult() {
+  const heading = document.getElementById('resultHeading');
+  heading.style.color = '#1F1976';
+  heading.style.textAlign = '';
+  heading.style.backgroundColor = '';
+  heading.style.padding = '';
+  heading.style.borderRadius = '';
+
+  const styleObj = {};
+  for (let i = 0; i <= currentStep; i++) {
+    steps[i].apply(styleObj);
+  }
+  Object.keys(styleObj).forEach(key => { heading.style[key] = styleObj[key]; });
+
+  const page = document.getElementById('resultPage');
+  page.style.textAlign = styleObj.textAlign === 'center' ? 'center' : 'left';
+}
+
+function goToStep(stepIndex) {
+  currentStep = stepIndex;
+  explored = {};
+  document.getElementById('explanationPlaceholder').style.display = 'block';
+  document.getElementById('explanation').style.display = 'none';
+  document.getElementById('revealBtn').disabled = true;
+
+  const alreadyRevealed = revealedSteps.includes(currentStep);
+  document.getElementById('resultFrame').style.display = alreadyRevealed ? 'block' : 'none';
+  if (alreadyRevealed) {
+    renderResult();
+    explored = { selector: true, property: true, value: true };
+    document.getElementById('revealBtn').disabled = false;
+  }
+
+  renderDots();
+  renderCodeBlock();
+  renderProgress();
+  document.getElementById('backBtn').disabled = currentStep === 0;
+  document.getElementById('nextBtn').disabled = !alreadyRevealed;
+  document.getElementById('nextBtn').textContent = currentStep === steps.length - 1 ? 'Finish' : 'Next';
+  announce('Rule ' + (currentStep + 1) + ' of ' + steps.length + '.');
+}
+
+document.getElementById('revealBtn').addEventListener('click', () => {
+  document.getElementById('resultFrame').style.display = 'block';
+  if (!revealedSteps.includes(currentStep)) revealedSteps.push(currentStep);
+  renderResult();
+  announce('Result revealed and updated.');
+  document.getElementById('nextBtn').disabled = false;
+});
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  if (currentStep < steps.length - 1) {
+    goToStep(currentStep + 1);
+  }
+});
+document.getElementById('backBtn').addEventListener('click', () => {
+  if (currentStep > 0) {
+    goToStep(currentStep - 1);
+  }
+});
+
+goToStep(0);
+</script>
+
+</body>
+</html>
