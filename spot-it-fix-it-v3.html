@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Spot It, Fix It</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Geist', system-ui, sans-serif;
+  background-color: #FFFFFF;
+  color: #222222;
+}
+
+h1 {
+  font-size: 20px;
+  color: #1F1976;
+  margin: 0 0 8px 0;
+}
+
+p.directions {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  background-color: #D5EFFF;
+  color: #06338D;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.context-frame {
+  border: 1px solid #E4E2F8;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.context-frame img {
+  width: 100%;
+  display: block;
+}
+.context-caption {
+  font-size: 13px;
+  color: #888888;
+  font-style: italic;
+  margin: 0 0 24px 0;
+}
+
+.issue-card {
+  border: 1px solid #E4E2F8;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.issue-title {
+  font-weight: 700;
+  color: #1F1976;
+  font-size: 15px;
+  margin-bottom: 8px;
+  display: block;
+}
+.issue-desc {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #222222;
+  margin-bottom: 14px;
+}
+
+.pour-choice-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+@media (max-width: 560px) {
+  .pour-choice-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+.pour-choice-btn {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  background-color: #FFFFFF;
+  color: #4C42CF;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 8px;
+  padding: 8px 6px;
+  cursor: pointer;
+}
+.pour-choice-btn:hover { background-color: #F7F7FB; }
+.pour-choice-btn:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 2px; }
+.pour-choice-btn.selected { background-color: #4C42CF; color: #FFFFFF; border-color: #4C42CF; }
+.pour-choice-btn:disabled { cursor: default; }
+
+.issue-card.correct { background-color: #F2FBF3; border-color: #7CDB87; }
+.issue-card.incorrect { background-color: #FFF6EC; border-color: #FFA868; }
+
+.issue-feedback {
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 12px;
+  display: none;
+}
+.issue-card.correct .issue-feedback { color: #003F25; }
+.issue-card.incorrect .issue-feedback { color: #8A4B00; }
+
+.sample-fix {
+  background-color: #E4E2F8;
+  color: #1F1976;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-top: 10px;
+  display: none;
+}
+.sample-fix .sample-fix-label {
+  font-weight: 700;
+  display: block;
+  margin-bottom: 4px;
+}
+</style>
+</head>
+<body>
+
+<h1>Spot It, Fix It</h1>
+<p class="directions">Read each issue below, then choose the POUR principle it violates. You'll see right away whether you're right, and what the fix looks like.</p>
+
+<div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
+
+<div class="context-frame">
+  <img src="rainready-umbrella-context.png" alt="RainReady Umbrellas website. Top navigation reads RainReady Umbrellas with a Click here link in the top right. A hero banner shows a woman walking in the rain holding an umbrella, with light grey low-contrast tagline text reading Stay dry in style with our lightweight, wind-tested umbrellas, and a Shop button. A Products section lists three items, Classic Umbrella, Travel Mini, and Model X, each with a small Add button. An Order section has a field with placeholder text reading Your name and a Continue button.">
+</div>
+<p class="context-caption">This is the page the four issues below come from.</p>
+
+<div class="issue-card" data-correct="P">
+  <span class="issue-title">Issue 1</span>
+  <p class="issue-desc">The tagline above the Shop button reads "Stay dry in style with our lightweight, wind-tested umbrellas," rendered in light grey text on a white background.</p>
+  <div class="pour-choice-row">
+    <button type="button" class="pour-choice-btn" data-letter="P">Perceivable</button>
+    <button type="button" class="pour-choice-btn" data-letter="O">Operable</button>
+    <button type="button" class="pour-choice-btn" data-letter="U">Understandable</button>
+    <button type="button" class="pour-choice-btn" data-letter="R">Robust</button>
+  </div>
+  <div class="issue-feedback"></div>
+  <div class="sample-fix"><span class="sample-fix-label">Sample fix:</span>Increase the contrast of the tagline and the Shop button so the text is easy to read against the background, using a dark color instead of light grey.</div>
+</div>
+
+<div class="issue-card" data-correct="O">
+  <span class="issue-title">Issue 2</span>
+  <p class="issue-desc">Each product's Add button is small, with very little space around it or between the three product cards.</p>
+  <div class="pour-choice-row">
+    <button type="button" class="pour-choice-btn" data-letter="P">Perceivable</button>
+    <button type="button" class="pour-choice-btn" data-letter="O">Operable</button>
+    <button type="button" class="pour-choice-btn" data-letter="U">Understandable</button>
+    <button type="button" class="pour-choice-btn" data-letter="R">Robust</button>
+  </div>
+  <div class="issue-feedback"></div>
+  <div class="sample-fix"><span class="sample-fix-label">Sample fix:</span>Make each Add button larger with more padding around it, and add more space between the three product cards so they're easier to tap without hitting the wrong one.</div>
+</div>
+
+<div class="issue-card" data-correct="U">
+  <span class="issue-title">Issue 3</span>
+  <p class="issue-desc">The link in the top-right corner reads only "Click here," with no indication of where it leads.</p>
+  <div class="pour-choice-row">
+    <button type="button" class="pour-choice-btn" data-letter="P">Perceivable</button>
+    <button type="button" class="pour-choice-btn" data-letter="O">Operable</button>
+    <button type="button" class="pour-choice-btn" data-letter="U">Understandable</button>
+    <button type="button" class="pour-choice-btn" data-letter="R">Robust</button>
+  </div>
+  <div class="issue-feedback"></div>
+  <div class="sample-fix"><span class="sample-fix-label">Sample fix:</span>Rewrite the top-right link with clear, complete text that describes where it goes, for example, View All Umbrellas, instead of Click here.</div>
+</div>
+
+<div class="issue-card" data-correct="R">
+  <span class="issue-title">Issue 4</span>
+  <p class="issue-desc">The Order section's name field has no visible label above it, just placeholder text reading "Your name" inside the box.</p>
+  <div class="pour-choice-row">
+    <button type="button" class="pour-choice-btn" data-letter="P">Perceivable</button>
+    <button type="button" class="pour-choice-btn" data-letter="O">Operable</button>
+    <button type="button" class="pour-choice-btn" data-letter="U">Understandable</button>
+    <button type="button" class="pour-choice-btn" data-letter="R">Robust</button>
+  </div>
+  <div class="issue-feedback"></div>
+  <div class="sample-fix"><span class="sample-fix-label">Sample fix:</span>Add a permanent label above the name field that stays visible even after the user starts typing, rather than relying only on placeholder text.</div>
+</div>
+
+<script>
+const liveRegion = document.getElementById('liveRegion');
+function announce(msg) { liveRegion.textContent = msg; }
+
+const feedbackText = {
+  P: "Perceivable, low contrast text is hard or impossible for many users to read.",
+  O: "Operable, small, tightly packed buttons are hard to tap or click accurately.",
+  U: "Understandable, vague link text doesn't tell a user what will happen if they click it.",
+  R: "Robust, placeholder text disappears once typing starts and isn't a reliable label for assistive technology."
+};
+
+document.querySelectorAll('.issue-card').forEach((card) => {
+  const correctLetter = card.dataset.correct;
+  card.querySelectorAll('.pour-choice-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (card.classList.contains('correct') || card.classList.contains('incorrect')) return;
+
+      const chosenLetter = btn.dataset.letter;
+      const isCorrect = chosenLetter === correctLetter;
+
+      card.querySelectorAll('.pour-choice-btn').forEach(b => {
+        b.disabled = true;
+        if (b === btn) b.classList.add('selected');
+      });
+
+      card.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+      const feedback = card.querySelector('.issue-feedback');
+      feedback.style.display = 'block';
+      feedback.textContent = isCorrect
+        ? 'Correct. ' + feedbackText[correctLetter]
+        : 'Not quite. This is actually ' + feedbackText[correctLetter];
+
+      card.querySelector('.sample-fix').style.display = 'block';
+
+      announce(feedback.textContent);
+    });
+  });
+});
+</script>
+
+</body>
+</html>
