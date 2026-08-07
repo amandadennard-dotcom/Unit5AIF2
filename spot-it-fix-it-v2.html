@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Spot It, Fix It</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Geist', system-ui, sans-serif;
+  background-color: #FFFFFF;
+  color: #222222;
+}
+
+h1 {
+  font-size: 20px;
+  color: #1F1976;
+  margin: 0 0 8px 0;
+}
+
+p.directions {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  background-color: #D5EFFF;
+  color: #06338D;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.progress-track {
+  width: 100%;
+  height: 10px;
+  background-color: #E4E2F8;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background-color: #4C42CF;
+}
+
+.site-container {
+  position: relative;
+  border: 1px solid #E4E2F8;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.site-container img {
+  width: 100%;
+  display: block;
+}
+
+.pin {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 14px;
+  border: 2px solid #FFFFFF;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pin:hover, .pin:focus-visible { background-color: #1F1976; outline: none; }
+.pin.selected { background-color: #1F1976; box-shadow: 0 0 0 3px #ACA8EA; }
+.pin.placed.correct { background-color: #1FA34D; }
+.pin.placed.incorrect { background-color: #E0762A; }
+
+.pour-bins {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+@media (max-width: 560px) {
+  .pour-bins { grid-template-columns: repeat(2, 1fr); }
+}
+.bin {
+  border: 2px dashed #ACA8EA;
+  border-radius: 10px;
+  padding: 12px 8px;
+  text-align: center;
+  cursor: pointer;
+  min-height: 70px;
+}
+.bin:hover { background-color: #F7F7FB; }
+.bin-label {
+  font-weight: 700;
+  font-size: 13px;
+  color: #1F1976;
+  display: block;
+  margin-bottom: 6px;
+}
+.bin .placed-pin-num {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 700;
+  align-items: center;
+  justify-content: center;
+  margin: 2px;
+}
+.bin.correct { background-color: #F2FBF3; border-color: #7CDB87; }
+.bin.incorrect { background-color: #FFF6EC; border-color: #FFA868; }
+
+.check-btn, .reveal-btn {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+.check-btn:hover, .reveal-btn:hover { background-color: #1F1976; }
+.check-btn:disabled { background-color: #ACA8EA; cursor: not-allowed; }
+
+.result-banner {
+  font-size: 14px;
+  color: #06338D;
+  background-color: #D5EFFF;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 18px;
+  display: none;
+}
+
+.fix-section {
+  display: none;
+  border-top: 1px solid #E4E2F8;
+  padding-top: 20px;
+  margin-top: 10px;
+}
+.fix-item {
+  margin-bottom: 22px;
+}
+.fix-item .fix-title {
+  font-weight: 700;
+  color: #1F1976;
+  font-size: 15px;
+  margin-bottom: 6px;
+  display: block;
+}
+.fix-item .fix-issue {
+  font-size: 14px;
+  color: #222222;
+  margin-bottom: 10px;
+}
+.fix-item textarea {
+  width: 100%;
+  min-height: 70px;
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 8px;
+  padding: 10px 12px;
+  resize: vertical;
+  margin-bottom: 10px;
+}
+.sample-fix {
+  background-color: #E4E2F8;
+  color: #1F1976;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  display: none;
+  margin-top: 8px;
+}
+</style>
+</head>
+<body>
+
+<h1>Spot It, Fix It</h1>
+<p class="directions">Click a numbered pin on the site below, then click the POUR principle it violates. Once all four are placed, check your answers and write the fix.</p>
+
+<div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+<div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
+
+<div class="site-container">
+  <img src="rainready-umbrella-site.png" alt="RainReady Umbrellas website. Top navigation reads RainReady Umbrellas with a link in the top right corner reading Click he, cut off. A hero banner shows a woman walking in the rain holding an umbrella, with light grey low-contrast tagline text reading Stay dry in style with our lightweight, wind-tested umbrellas, and a Shop button. A Products section lists three items, Classic Umbrella, Travel Mini, and Model X, each with a small Add button. An Order section has a field with placeholder text reading Your name and a Continue button.">
+
+  <button type="button" class="pin" id="pin-1" data-issue="1" style="top: 26%; left: 4%;" aria-label="Issue 1">1</button>
+  <button type="button" class="pin" id="pin-2" data-issue="2" style="top: 68%; left: 8%;" aria-label="Issue 2">2</button>
+  <button type="button" class="pin" id="pin-3" data-issue="3" style="top: 2%; left: 90%;" aria-label="Issue 3">3</button>
+  <button type="button" class="pin" id="pin-4" data-issue="4" style="top: 73%; left: 4%;" aria-label="Issue 4">4</button>
+</div>
+
+<div class="pour-bins" id="pourBins">
+  <div class="bin" data-letter="P"><span class="bin-label">Perceivable</span></div>
+  <div class="bin" data-letter="O"><span class="bin-label">Operable</span></div>
+  <div class="bin" data-letter="U"><span class="bin-label">Understandable</span></div>
+  <div class="bin" data-letter="R"><span class="bin-label">Robust</span></div>
+</div>
+
+<button type="button" class="check-btn" id="checkBtn" disabled>Check answers</button>
+<div class="result-banner" id="resultBanner"></div>
+
+<div class="fix-section" id="fixSection">
+  <h2>Now Write the Fix</h2>
+  <p>For each issue, write the piece of a prompt you'd add to fix it. Then compare it to a sample.</p>
+</div>
+
+<script>
+const liveRegion = document.getElementById('liveRegion');
+function announce(msg) { liveRegion.textContent = msg; }
+
+const issues = {
+  "1": {
+    letter: "P",
+    title: "Issue 1: Low-contrast tagline and Shop button",
+    issueText: "The tagline text and the Shop button are both light grey on white, hard to read for many users.",
+    sample: "Increase the contrast of the tagline and the Shop button so the text is easy to read against the background, using a dark color instead of light grey."
+  },
+  "2": {
+    letter: "O",
+    title: "Issue 2: Tiny Add buttons",
+    issueText: "Each product's Add button is small and tightly spaced, hard to tap accurately, especially on a touchscreen.",
+    sample: "Make each Add button larger with more padding around it, and add more space between the three product cards so they're easier to tap without hitting the wrong one."
+  },
+  "3": {
+    letter: "U",
+    title: "Issue 3: Vague, cut-off link text",
+    issueText: "The link in the top right reads \"Click he,\" cut off and vague, it doesn't say where it leads.",
+    sample: "Rewrite the top-right link with clear, complete text that describes where it goes, for example, View All Umbrellas, instead of Click here."
+  },
+  "4": {
+    letter: "R",
+    title: "Issue 4: Name field with no real label",
+    issueText: "The \"Your name\" field only has placeholder text, which disappears once someone starts typing and may not be read reliably by assistive technology.",
+    sample: "Add a permanent label above the name field that stays visible even after the user starts typing, rather than relying only on placeholder text."
+  }
+};
+
+let selectedPin = null;
+let placements = {};
+let checked = false;
+
+function updateProgress() {
+  const placedCount = Object.keys(placements).length;
+  document.getElementById('progressFill').style.width = (placedCount / 4 * 100) + '%';
+  document.getElementById('checkBtn').disabled = placedCount < 4;
+}
+
+document.querySelectorAll('.pin').forEach(pin => {
+  pin.addEventListener('click', () => {
+    if (checked) return;
+    document.querySelectorAll('.pin').forEach(p => p.classList.remove('selected'));
+    pin.classList.add('selected');
+    selectedPin = pin.dataset.issue;
+    announce('Issue ' + selectedPin + ' selected. Now click the POUR principle it violates.');
+  });
+});
+
+document.querySelectorAll('.bin').forEach(bin => {
+  bin.addEventListener('click', () => {
+    if (checked || !selectedPin) {
+      if (!selectedPin) announce('Select a numbered pin first.');
+      return;
+    }
+    placements[selectedPin] = bin.dataset.letter;
+    document.getElementById('pin-' + selectedPin).classList.remove('selected');
+
+    let tag = bin.querySelector('.placed-pin-num[data-for="' + selectedPin + '"]');
+    document.querySelectorAll('.placed-pin-num[data-for="' + selectedPin + '"]').forEach(t => t.remove());
+    const span = document.createElement('span');
+    span.className = 'placed-pin-num';
+    span.dataset.for = selectedPin;
+    span.textContent = selectedPin;
+    bin.appendChild(span);
+
+    announce('Issue ' + selectedPin + ' placed under ' + bin.querySelector('.bin-label').textContent + '.');
+    selectedPin = null;
+    updateProgress();
+  });
+});
+
+document.getElementById('checkBtn').addEventListener('click', () => {
+  checked = true;
+  let correctCount = 0;
+  document.querySelectorAll('.bin').forEach(bin => bin.classList.remove('correct', 'incorrect'));
+
+  Object.keys(placements).forEach(issueNum => {
+    const placedLetter = placements[issueNum];
+    const correctLetter = issues[issueNum].letter;
+    const pin = document.getElementById('pin-' + issueNum);
+    const isCorrect = placedLetter === correctLetter;
+    if (isCorrect) correctCount++;
+    pin.classList.add('placed', isCorrect ? 'correct' : 'incorrect');
+
+    const bin = document.querySelector('.bin[data-letter="' + placedLetter + '"]');
+    bin.classList.add(isCorrect ? 'correct' : 'incorrect');
+  });
+
+  const banner = document.getElementById('resultBanner');
+  banner.style.display = 'block';
+  banner.textContent = correctCount + ' of 4 matched correctly.';
+  announce(correctCount + ' of 4 matched correctly.');
+
+  document.getElementById('checkBtn').disabled = true;
+  buildFixSection();
+});
+
+function buildFixSection() {
+  const section = document.getElementById('fixSection');
+  section.style.display = 'block';
+
+  Object.keys(issues).forEach(num => {
+    const issue = issues[num];
+    const item = document.createElement('div');
+    item.className = 'fix-item';
+    item.innerHTML = `
+      <span class="fix-title">${issue.title}</span>
+      <div class="fix-issue">${issue.issueText}</div>
+      <textarea placeholder="Write the prompt language you'd add to fix this..." id="textarea-${num}"></textarea>
+      <button type="button" class="reveal-btn" id="reveal-${num}">Show a sample fix</button>
+      <div class="sample-fix" id="sample-${num}">${issue.sample}</div>
+    `;
+    section.appendChild(item);
+
+    item.querySelector('#reveal-' + num).addEventListener('click', () => {
+      document.getElementById('sample-' + num).style.display = 'block';
+      announce('Sample fix shown for ' + issue.title);
+    });
+  });
+}
+</script>
+
+</body>
+</html>
