@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Spot the Interactivity</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Geist', system-ui, sans-serif;
+  background-color: #FFFFFF;
+  color: #222222;
+}
+
+h1 {
+  font-size: 20px;
+  color: #1F1976;
+  margin: 0 0 8px 0;
+}
+
+p.directions {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  background-color: #D5EFFF;
+  color: #06338D;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.progress-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.progress-chip {
+  font-size: 12px;
+  font-weight: 500;
+  color: #4C42CF;
+  background-color: #F7F7FB;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 20px;
+  padding: 4px 10px;
+}
+.progress-chip.explored {
+  background-color: #CCF1D0;
+  border-color: #7CDB87;
+  color: #003F25;
+}
+
+.site-frame {
+  border: 1px solid #E4E2F8;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+
+.hotspot {
+  position: relative;
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 4px;
+}
+.hotspot:hover, .hotspot:focus-visible {
+  border-color: #4C42CF;
+  outline: none;
+}
+.hotspot.active { border-color: #1F1976; }
+.hotspot-tag {
+  position: absolute;
+  top: -10px;
+  left: 4px;
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  opacity: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+.hotspot:hover .hotspot-tag, .hotspot:focus-visible .hotspot-tag {
+  opacity: 1;
+}
+
+.top-bar {
+  background-color: #1F1976;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.top-bar .logo {
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.search-bar {
+  flex: 1;
+  display: flex;
+  max-width: 400px;
+}
+.search-bar input {
+  flex: 1;
+  border: none;
+  border-radius: 4px 0 0 4px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+.search-bar .search-btn {
+  background-color: #ACA8EA;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  padding: 6px 10px;
+  color: #1F1976;
+  font-weight: 700;
+}
+.top-bar .signin {
+  color: #FFFFFF;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.top-bar .cart {
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  position: relative;
+}
+.cart-badge {
+  background-color: #FFA868;
+  color: #1F1976;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 50%;
+  padding: 1px 5px;
+  margin-left: 3px;
+}
+
+.nav-row {
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #E4E2F8;
+  padding: 8px 16px;
+  display: flex;
+  gap: 18px;
+  font-size: 13px;
+  color: #4C42CF;
+}
+
+.promo-banner {
+  background-color: #E4E2F8;
+  padding: 28px 16px;
+}
+.carousel-box {
+  position: relative;
+  background-color: #FFFFFF;
+  border: 1px solid #E4E2F8;
+  border-radius: 12px;
+  padding: 26px 50px;
+  max-width: 420px;
+  margin: 0 auto;
+  text-align: center;
+}
+.carousel-box h2 {
+  font-size: 18px;
+  color: #1F1976;
+  margin: 0 0 10px 0;
+}
+.carousel-box .join-btn {
+  display: inline-block;
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 18px;
+  border-radius: 6px;
+  margin-top: 6px;
+}
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+}
+.carousel-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #ACA8EA;
+  display: inline-block;
+}
+.carousel-dots span.active { background-color: #4C42CF; }
+.carousel-arrow-inner {
+  font-size: 16px;
+  color: #4C42CF;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#hotspot-arrow-left, #hotspot-arrow-right {
+  background-color: #F7F7FB;
+  border: 1px solid #E4E2F8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.products-row {
+  display: flex;
+  gap: 10px;
+  padding: 16px;
+  background-color: #F7F7FB;
+}
+.product-tile {
+  flex: 1;
+  background-color: #FFFFFF;
+  border: 1px solid #E4E2F8;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 12px;
+  text-align: center;
+}
+.product-tile .thumb {
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 6px;
+  line-height: 0;
+}
+
+.detail-panel {
+  background-color: #E4E2F8;
+  color: #1F1976;
+  border-radius: 10px;
+  padding: 16px 18px;
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  display: none;
+}
+.detail-panel .detail-title {
+  font-weight: 700;
+  display: block;
+  margin-bottom: 6px;
+}
+.detail-placeholder {
+  color: #555555;
+  font-size: 14px;
+  font-style: italic;
+  margin: 0 0 20px 0;
+}
+
+.completion-note {
+  background-color: #CCF1D0;
+  color: #003F25;
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .products-row { flex-wrap: wrap; }
+  .nav-row { flex-wrap: wrap; gap: 10px; }
+}
+</style>
+</head>
+<body>
+
+<h1>Spot the Interactivity</h1>
+<p class="directions">Hover over the mock shop below to see each interactive element highlighted. Click one to find out what happens when a user interacts with it.</p>
+
+<div class="progress-row" id="progressRow" aria-hidden="true"></div>
+<div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
+
+<div class="detail-panel" id="detailPanel">
+  <span class="detail-title" id="detailTitle"></span>
+  <span id="detailText"></span>
+</div>
+<p class="detail-placeholder" id="detailPlaceholder">Click any highlighted part of the site below to see what it does.</p>
+
+<div class="completion-note" id="completionNote">You just found six ways a page can respond to a user, none of these are decoration. Each one exists to do something when someone interacts with it.</div>
+
+<div class="site-frame">
+
+  <div class="top-bar">
+    <div class="logo">ShopWave</div>
+    <div class="hotspot" id="hotspot-search" tabindex="0" role="button" aria-label="Search bar, click to learn what it does" style="flex:1; max-width:400px;">
+      <span class="hotspot-tag">Search bar</span>
+      <div class="search-bar">
+        <input type="text" placeholder="Search products..." style="pointer-events: none;">
+        <span class="search-btn" style="pointer-events: none;">Go</span>
+      </div>
+    </div>
+    <div class="hotspot" id="hotspot-signin" tabindex="0" role="button" aria-label="Sign in link, click to learn what it does">
+      <span class="hotspot-tag">Sign in</span>
+      <span class="signin">Sign in</span>
+    </div>
+    <div class="hotspot" id="hotspot-cart" tabindex="0" role="button" aria-label="Cart icon, click to learn what it does">
+      <span class="hotspot-tag">Cart</span>
+      <span class="cart">Cart<span class="cart-badge">2</span></span>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <div class="hotspot" id="hotspot-navmenu" tabindex="0" role="button" aria-label="Navigation menu, click to learn what it does">
+      <span class="hotspot-tag">Nav menu</span>
+      <span>Shop &#9662;</span>
+    </div>
+    <span>Deals</span>
+    <span>Support</span>
+  </div>
+
+  <div class="promo-banner">
+    <div class="carousel-box">
+      <div class="hotspot" id="hotspot-arrow-left" tabindex="0" role="button" aria-label="Carousel left arrow, click to learn what it does" style="position:absolute; top:50%; left:10px; transform:translateY(-50%); width:26px; height:26px; border-radius:50%;">
+        <span class="hotspot-tag">Carousel</span>
+        <span class="carousel-arrow-inner">&#8249;</span>
+      </div>
+      <div class="hotspot" id="hotspot-arrow-right" tabindex="0" role="button" aria-label="Carousel right arrow, click to learn what it does" style="position:absolute; top:50%; right:10px; transform:translateY(-50%); width:26px; height:26px; border-radius:50%;">
+        <span class="hotspot-tag">Carousel</span>
+        <span class="carousel-arrow-inner">&#8250;</span>
+      </div>
+      <h2>Save 20% This Week</h2>
+      <div class="hotspot" id="hotspot-join" tabindex="0" role="button" aria-label="Join Rewards button, click to learn what it does">
+        <span class="hotspot-tag">Join button</span>
+        <span class="join-btn">Join Rewards</span>
+      </div>
+      <div class="carousel-dots"><span class="active"></span><span></span><span></span></div>
+    </div>
+  </div>
+
+  <div class="products-row">
+    <div class="hotspot" id="hotspot-product-1" tabindex="0" role="button" aria-label="Product tile, click to learn what it does" style="flex:1;">
+      <span class="hotspot-tag">Product tile</span>
+      <div class="product-tile"><div class="thumb">
+        <svg viewBox="0 0 100 60" width="100%" height="40"><rect width="100" height="60" fill="#D5EFFF"/><ellipse cx="35" cy="30" rx="14" ry="18" fill="#1F1976"/><ellipse cx="65" cy="30" rx="14" ry="18" fill="#1F1976"/><circle cx="35" cy="24" r="5" fill="#FFFFFF"/><circle cx="65" cy="24" r="5" fill="#FFFFFF"/></svg>
+      </div>Wireless Earbuds</div>
+    </div>
+    <div class="hotspot" id="hotspot-product-2" tabindex="0" role="button" aria-label="Product tile, click to learn what it does" style="flex:1;">
+      <span class="hotspot-tag">Product tile</span>
+      <div class="product-tile"><div class="thumb">
+        <svg viewBox="0 0 100 60" width="100%" height="40"><rect width="100" height="60" fill="#E4E2F8"/><rect x="46" y="10" width="8" height="26" fill="#4C42CF"/><rect x="30" y="36" width="40" height="6" rx="2" fill="#4C42CF"/><path d="M30 10 L70 10 L58 28 L42 28 Z" fill="#ACA8EA"/></svg>
+      </div>Desk Lamp</div>
+    </div>
+    <div class="hotspot" id="hotspot-product-3" tabindex="0" role="button" aria-label="Product tile, click to learn what it does" style="flex:1;">
+      <span class="hotspot-tag">Product tile</span>
+      <div class="product-tile"><div class="thumb">
+        <svg viewBox="0 0 100 60" width="100%" height="40"><rect width="100" height="60" fill="#D5EFFF"/><rect x="40" y="8" width="20" height="8" rx="2" fill="#1F1976"/><path d="M38 16 h24 v34 a12 12 0 0 1 -12 12 a12 12 0 0 1 -12 -12 Z" fill="#4C42CF"/><rect x="40" y="30" width="20" height="8" fill="#FFFFFF" opacity="0.6"/></svg>
+      </div>Water Bottle</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const sections = {
+  search: {
+    label: "Search bar",
+    title: "Search Bar",
+    text: "Responds as the user types, narrowing results in real time instead of waiting for a full page reload."
+  },
+  navmenu: {
+    label: "Nav menu",
+    title: "Navigation Menu",
+    text: "Expands to reveal more options when clicked or hovered, without sending the user to a new page."
+  },
+  signin: {
+    label: "Sign in",
+    title: "Sign In Link",
+    text: "Responds to a click by opening a sign-in form, changing what the user sees based on their action."
+  },
+  cart: {
+    label: "Cart",
+    title: "Cart Icon",
+    text: "The number updates automatically whenever an item is added, giving the user instant feedback that something changed."
+  },
+  arrows: {
+    ids: ["hotspot-arrow-left", "hotspot-arrow-right"],
+    label: "Carousel",
+    title: "Carousel Arrows",
+    text: "Clicking rotates the banner to a new promotion, letting the user control what they see instead of only scrolling."
+  },
+  join: {
+    label: "Join button",
+    title: "Join Rewards Button",
+    text: "Triggers an action when clicked, starting a sign-up process rather than just displaying text."
+  },
+  product: {
+    ids: ["hotspot-product-1", "hotspot-product-2", "hotspot-product-3"],
+    label: "Product tile",
+    title: "Product Tile",
+    text: "Clicking takes the user to more detail about that specific item, the whole tile acts as a link."
+  }
+};
+
+const explored = {};
+Object.keys(sections).forEach(k => explored[k] = false);
+
+const liveRegion = document.getElementById('liveRegion');
+function announce(msg) { liveRegion.textContent = msg; }
+
+function renderProgress() {
+  const row = document.getElementById('progressRow');
+  row.innerHTML = '';
+  Object.keys(sections).forEach(key => {
+    const chip = document.createElement('div');
+    chip.className = 'progress-chip' + (explored[key] ? ' explored' : '');
+    chip.textContent = sections[key].label;
+    row.appendChild(chip);
+  });
+}
+
+function activate(key) {
+  document.querySelectorAll('.hotspot').forEach(h => h.classList.remove('active'));
+  const activeIds = sections[key].ids || ['hotspot-' + key];
+  activeIds.forEach(id => document.getElementById(id).classList.add('active'));
+
+  document.getElementById('detailPlaceholder').style.display = 'none';
+  const panel = document.getElementById('detailPanel');
+  panel.style.display = 'block';
+  document.getElementById('detailTitle').textContent = sections[key].title;
+  document.getElementById('detailText').textContent = sections[key].text;
+  announce(sections[key].title + ': ' + sections[key].text);
+
+  explored[key] = true;
+  renderProgress();
+
+  if (Object.values(explored).every(v => v)) {
+    document.getElementById('completionNote').style.display = 'block';
+  }
+}
+
+Object.keys(sections).forEach(key => {
+  const ids = sections[key].ids || ['hotspot-' + key];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('click', () => activate(key));
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        activate(key);
+      }
+    });
+  });
+});
+
+renderProgress();
+</script>
+
+</body>
+</html>
