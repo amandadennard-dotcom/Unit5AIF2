@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Evaluate AI Like a QA Engineer</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Geist', system-ui, sans-serif;
+  background-color: #FFFFFF;
+  color: #222222;
+}
+
+h1 {
+  font-size: 20px;
+  color: #1F1976;
+  margin: 0 0 8px 0;
+}
+
+p.directions {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  background-color: #D5EFFF;
+  color: #06338D;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.dots {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #E4E2F8;
+}
+.dot.active { background-color: #4C42CF; }
+.dot.done { background-color: #ACA8EA; }
+
+.lens-label {
+  font-weight: 700;
+  font-size: 14px;
+  color: #4C42CF;
+  margin-bottom: 12px;
+}
+
+.prompt-card {
+  background-color: #F7F7FB;
+  border: 1px solid #E4E2F8;
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+.prompt-card .prompt-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #4C42CF;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.code-block {
+  background-color: #2B2745;
+  border-radius: 10px;
+  padding: 16px 20px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  color: #E4E2F8;
+  line-height: 1.8;
+  margin-bottom: 18px;
+  white-space: pre-wrap;
+}
+
+.question-text {
+  font-weight: 500;
+  font-size: 15px;
+  color: #1F1976;
+  margin-bottom: 12px;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.option-btn {
+  text-align: left;
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  background-color: #FFFFFF;
+  color: #222222;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+.option-btn:hover { background-color: #F7F7FB; }
+.option-btn:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 2px; }
+.option-btn.chosen.correct-fit { background-color: #CCF1D0; border-color: #7CDB87; color: #003F25; }
+.option-btn.chosen:not(.correct-fit) { background-color: #FFE3CE; border-color: #FFA868; color: #510000; }
+
+.feedback {
+  font-size: 14px;
+  line-height: 1.5;
+  background-color: #D5EFFF;
+  color: #06338D;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  display: none;
+}
+
+.fix-reveal {
+  background-color: #E4E2F8;
+  color: #1F1976;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 14px;
+  display: none;
+}
+.fix-reveal .fix-label {
+  font-weight: 700;
+  display: block;
+  margin-bottom: 4px;
+}
+.fix-reveal .fix-code {
+  font-family: 'Courier New', monospace;
+  background-color: #2B2745;
+  color: #E4E2F8;
+  border-radius: 6px;
+  padding: 8px 10px;
+  display: inline-block;
+  margin-top: 6px;
+}
+
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+button.primary {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+button.primary:hover { background-color: #1F1976; }
+button.primary:disabled { background-color: #ACA8EA; cursor: not-allowed; }
+button.secondary {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: transparent;
+  color: #4C42CF;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+button.secondary:hover { background-color: #E4E2F8; }
+button.secondary:disabled { color: #ACA8EA; border-color: #E4E2F8; cursor: not-allowed; }
+
+.closing-note {
+  font-size: 14px;
+  line-height: 1.5;
+  background-color: #CCF1D0;
+  color: #003F25;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-top: 16px;
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<p class="directions">Read each prompt and the code AI generated for it, then answer the question. Not every one has a bug, that's part of the test.</p>
+
+<div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
+
+<div class="dots" id="dots" aria-hidden="true"></div>
+<div class="lens-label" id="lensLabel"></div>
+
+<div class="prompt-card">
+  <span class="prompt-label">PROMPT</span>
+  <span id="promptText"></span>
+</div>
+
+<div class="code-block" id="codeBlock"></div>
+
+<div class="question-text" id="questionText"></div>
+<div class="options" id="optionsContainer"></div>
+<div class="feedback" id="feedback"></div>
+<div class="fix-reveal" id="fixReveal"></div>
+
+<div class="nav-buttons">
+  <button type="button" class="secondary" id="backBtn">Back</button>
+  <button type="button" class="primary" id="nextBtn" disabled>Next</button>
+</div>
+
+<div class="closing-note" id="closingNote">None of these bugs were about AI failing to code, they were about AI not fully matching what was actually asked. That gap is exactly what you're checking for every time a student shows you their work.</div>
+
+<script>
+const stops = [
+  {
+    lens: "LENS 1: Is the output what you asked for?",
+    prompt: "Create a variable that stores the user's name and displays \"Hello [name]\" on the page.",
+    code: 'let name = "Sonia";\ngreeting.textContent = "Hello!";',
+    question: "Does this match what was asked?",
+    options: [
+      { text: "Yes, it matches", correct: false },
+      { text: "No, something's missing", correct: true }
+    ],
+    feedback: "The prompt asked for the greeting to include the name, but the code never actually uses the name variable, it just displays the static text \"Hello!\". The variable exists, but it's disconnected from the output.",
+    fixLabel: "A fix would look like:",
+    fixCode: 'greeting.textContent = "Hello " + name + "!";'
+  },
+  {
+    lens: "LENS 2: Does it actually work?",
+    prompt: "Create a variable for score and add 10 to it.",
+    code: 'let score = 5;\nscore = score - 10;\nconsole.log(score);',
+    question: "Does this code do what the prompt asked?",
+    options: [
+      { text: "Yes, it works", correct: false },
+      { text: "No, something's wrong", correct: true }
+    ],
+    feedback: "The variable is created correctly, but the operation subtracts 10 instead of adding it. The code runs without an error, which is exactly why this kind of bug is easy to miss just by looking at whether something happens.",
+    fixLabel: "A fix would look like:",
+    fixCode: 'score = score + 10;'
+  },
+  {
+    lens: "LENS 3: Can you explain it?",
+    prompt: "Write code that doubles a number stored in a variable.",
+    code: 'let num = 5;\nnum = num + num;\nconsole.log(num);',
+    question: "This code is actually correct. Which explanation is right?",
+    options: [
+      { text: "It multiplies num by 2 using the * operator", correct: false },
+      { text: "It adds num to itself, which doubles the value", correct: true }
+    ],
+    feedback: "Right, there's no multiplication here at all. Adding a number to itself produces the same result as multiplying by 2, just using a different operation. Being able to explain why correct code works is as important as catching bugs in broken code.",
+    fixLabel: null,
+    fixCode: null
+  }
+];
+
+let currentStop = 0;
+const liveRegion = document.getElementById('liveRegion');
+function announce(msg) { liveRegion.textContent = msg; }
+
+function renderDots() {
+  const container = document.getElementById('dots');
+  container.innerHTML = '';
+  stops.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    if (i === currentStop) d.classList.add('active');
+    else if (i < currentStop) d.classList.add('done');
+    container.appendChild(d);
+  });
+}
+
+function renderStop() {
+  const stop = stops[currentStop];
+  document.getElementById('lensLabel').textContent = stop.lens;
+  document.getElementById('promptText').textContent = stop.prompt;
+  document.getElementById('codeBlock').textContent = stop.code;
+  document.getElementById('questionText').textContent = stop.question;
+
+  const optionsContainer = document.getElementById('optionsContainer');
+  optionsContainer.innerHTML = '';
+  stop.options.forEach((opt) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'option-btn';
+    btn.textContent = opt.text;
+    btn.addEventListener('click', () => selectOption(opt, btn));
+    optionsContainer.appendChild(btn);
+  });
+
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('fixReveal').style.display = 'none';
+  document.getElementById('closingNote').style.display = 'none';
+  document.getElementById('nextBtn').disabled = true;
+  document.getElementById('nextBtn').textContent = currentStop === stops.length - 1 ? 'Finish' : 'Next';
+  document.getElementById('backBtn').disabled = currentStop === 0;
+  renderDots();
+  announce(stop.lens + '. ' + stop.question);
+}
+
+function selectOption(opt, btn) {
+  const stop = stops[currentStop];
+  document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('chosen', 'correct-fit'));
+  btn.classList.add('chosen');
+  if (opt.correct) btn.classList.add('correct-fit');
+
+  const feedback = document.getElementById('feedback');
+  feedback.textContent = stop.feedback;
+  feedback.style.display = 'block';
+  announce(stop.feedback);
+
+  if (stop.fixCode) {
+    const fixReveal = document.getElementById('fixReveal');
+    fixReveal.innerHTML = '<span class="fix-label">' + stop.fixLabel + '</span><span class="fix-code">' + stop.fixCode + '</span>';
+    fixReveal.style.display = 'block';
+  }
+
+  if (currentStop === stops.length - 1) {
+    document.getElementById('closingNote').style.display = 'block';
+  }
+
+  document.getElementById('nextBtn').disabled = false;
+}
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  if (currentStop < stops.length - 1) {
+    currentStop++;
+    renderStop();
+  }
+});
+document.getElementById('backBtn').addEventListener('click', () => {
+  if (currentStop > 0) {
+    currentStop--;
+    renderStop();
+  }
+});
+
+renderStop();
+</script>
+
+</body>
+</html>
