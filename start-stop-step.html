@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Start, Stop, and Step</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Geist', system-ui, sans-serif;
+  background-color: #FFFFFF;
+  color: #222222;
+}
+
+p.directions {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  background-color: #D5EFFF;
+  color: #06338D;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.legend-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.legend-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #555555;
+}
+.legend-chip .swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.code-block {
+  background-color: #2B2745;
+  border-radius: 10px;
+  padding: 20px 22px;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  color: #E4E2F8;
+  margin-bottom: 18px;
+}
+
+.token {
+  background: none;
+  border: none;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  color: #FFFFFF;
+  cursor: pointer;
+  padding: 2px 3px;
+  border-bottom: 3px solid transparent;
+}
+.token:hover, .token:focus-visible {
+  outline: none;
+  background-color: rgba(255,255,255,0.08);
+}
+.token.start { border-bottom-color: #1F1976; }
+.token.stop { border-bottom-color: #4C42CF; }
+.token.step { border-bottom-color: #ACA8EA; }
+.token.active.start { background-color: #1F1976; color: #FFFFFF; }
+.token.active.stop { background-color: #4C42CF; color: #FFFFFF; }
+.token.active.step { background-color: #ACA8EA; color: #1F1976; }
+
+.explanation {
+  background-color: #E4E2F8;
+  color: #1F1976;
+  border-radius: 10px;
+  padding: 16px 18px;
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 18px;
+  display: none;
+}
+.explanation .exp-title {
+  font-weight: 700;
+  display: block;
+  margin-bottom: 4px;
+}
+.explanation-placeholder {
+  font-size: 14px;
+  color: #888888;
+  font-style: italic;
+  margin-bottom: 18px;
+}
+
+.misconception-note {
+  background-color: #FFF6EC;
+  border: 1px solid #FFA868;
+  color: #8A4B00;
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 18px;
+  display: none;
+}
+
+.progress-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.progress-chip {
+  font-size: 13px;
+  font-weight: 500;
+  background-color: #F7F7FB;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 6px;
+  padding: 5px 12px;
+  color: #4C42CF;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.progress-chip.explored {
+  background-color: #CCF1D0;
+  border-color: #7CDB87;
+  color: #003F25;
+}
+.progress-chip .check { display: none; font-weight: 700; }
+.progress-chip.explored .check { display: inline; }
+
+.reveal-btn {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  margin-bottom: 18px;
+}
+.reveal-btn:hover { background-color: #1F1976; }
+.reveal-btn:disabled { background-color: #ACA8EA; cursor: not-allowed; }
+
+.output-frame {
+  border: 1px solid #E4E2F8;
+  border-radius: 10px;
+  padding: 20px;
+  display: none;
+}
+.output-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #4C42CF;
+  margin-bottom: 12px;
+}
+.step-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+.step-block {
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 13px;
+  border-radius: 6px;
+  padding: 8px 10px;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+
+<p class="directions">Click each highlighted part of the loop to see what it controls. Then run it to see the actual values it produces.</p>
+
+<div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
+
+<div class="legend-row">
+  <div class="legend-chip"><span class="swatch" style="background-color:#1F1976;"></span>Start</div>
+  <div class="legend-chip"><span class="swatch" style="background-color:#4C42CF;"></span>Stop</div>
+  <div class="legend-chip"><span class="swatch" style="background-color:#ACA8EA;"></span>Step</div>
+</div>
+
+<div class="code-block">for (let <button type="button" class="token start" id="tok-start">i = 0</button>; <button type="button" class="token stop" id="tok-stop">i &lt;= 10</button>; <button type="button" class="token step" id="tok-step">i += 2</button>) {<br>
+&nbsp;&nbsp;output.push(i);<br>
+}</div>
+
+<div class="progress-row" id="progressRow" aria-hidden="true"></div>
+
+<p class="explanation-placeholder" id="explanationPlaceholder">Click a highlighted part above to learn what it controls.</p>
+<div class="explanation" id="explanation">
+  <span class="exp-title" id="expTitle"></span>
+  <span id="expText"></span>
+</div>
+
+<div class="misconception-note" id="misconceptionNote">
+<b>Common mix-up:</b> it's easy to think <code>i</code> itself controls how many times the loop runs. It doesn't. The condition, <code>i &lt;= 10</code>, is what decides that. <code>i</code> is the loop variable, it just changes by the step each time, and the condition checks whether to keep going.
+</div>
+
+<button type="button" class="reveal-btn" id="revealBtn" disabled>Run this loop</button>
+
+<div class="output-frame" id="outputFrame">
+  <div class="output-label">OUTPUT (i at each iteration)</div>
+  <div class="step-row" id="stepRow"></div>
+</div>
+
+<script>
+const liveRegion = document.getElementById('liveRegion');
+function announce(msg) { liveRegion.textContent = msg; }
+
+const explanations = {
+  start: {
+    title: "i = 0 — Start Value",
+    text: "This is where the loop variable begins. The counter, i, starts at 0 before the loop runs even once."
+  },
+  stop: {
+    title: "i <= 10 — Stop Value",
+    text: "This is the condition that ends the loop. As long as this evaluates to true, the loop keeps running. The moment it's false, the loop stops."
+  },
+  step: {
+    title: "i += 2 — Step",
+    text: "This is how much the counter changes after each pass through the loop. Here, i increases by 2 every time."
+  }
+};
+
+const explored = { start: false, stop: false, step: false };
+
+function renderProgress() {
+  const row = document.getElementById('progressRow');
+  row.innerHTML = '';
+  ['start', 'stop', 'step'].forEach(part => {
+    const chip = document.createElement('div');
+    chip.className = 'progress-chip' + (explored[part] ? ' explored' : '');
+    chip.innerHTML = '<span class="check">&#10003;</span>' + part.charAt(0).toUpperCase() + part.slice(1);
+    row.appendChild(chip);
+  });
+}
+
+function selectToken(part) {
+  document.querySelectorAll('.token').forEach(t => t.classList.remove('active'));
+  document.getElementById('tok-' + part).classList.add('active');
+
+  document.getElementById('explanationPlaceholder').style.display = 'none';
+  const exp = document.getElementById('explanation');
+  exp.style.display = 'block';
+  document.getElementById('expTitle').textContent = explanations[part].title;
+  document.getElementById('expText').textContent = explanations[part].text;
+  announce(explanations[part].title + ': ' + explanations[part].text);
+
+  explored[part] = true;
+  renderProgress();
+
+  if (part === 'start') {
+    document.getElementById('misconceptionNote').style.display = 'block';
+  }
+
+  if (explored.start && explored.stop && explored.step) {
+    document.getElementById('revealBtn').disabled = false;
+  }
+}
+
+['start', 'stop', 'step'].forEach(part => {
+  document.getElementById('tok-' + part).addEventListener('click', () => selectToken(part));
+});
+
+document.getElementById('revealBtn').addEventListener('click', () => {
+  const output = [];
+  for (let i = 0; i <= 10; i += 2) {
+    output.push(i);
+  }
+
+  const stepRow = document.getElementById('stepRow');
+  stepRow.innerHTML = '';
+  output.forEach(val => {
+    const block = document.createElement('div');
+    block.className = 'step-block';
+    block.textContent = val;
+    stepRow.appendChild(block);
+  });
+
+  document.getElementById('outputFrame').style.display = 'block';
+  announce('Loop ran. It produced the values: ' + output.join(', ') + '. That\'s 6 iterations, starting at 0, stopping once i exceeds 10, stepping by 2 each time.');
+});
+
+renderProgress();
+</script>
+
+</body>
+</html>
