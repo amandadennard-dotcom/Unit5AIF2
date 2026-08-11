@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>From Flowchart to Code</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Geist', system-ui, sans-serif;
+  background-color: #FFFFFF;
+  color: #222222;
+}
+
+h1 {
+  font-size: 20px;
+  color: #1F1976;
+  margin: 0 0 8px 0;
+}
+
+p.directions {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  background-color: #D5EFFF;
+  color: #06338D;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.legend-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.legend-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #555555;
+}
+.legend-chip .swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.code-block {
+  background-color: #2B2745;
+  border-radius: 10px;
+  padding: 20px 22px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  color: #E4E2F8;
+  line-height: 1.9;
+  margin-bottom: 18px;
+  white-space: pre-wrap;
+}
+
+.token {
+  background: none;
+  border: none;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  color: #FFFFFF;
+  cursor: pointer;
+  padding: 2px 3px;
+  border-bottom: 3px solid transparent;
+}
+.token:hover, .token:focus-visible {
+  outline: none;
+  background-color: rgba(255,255,255,0.08);
+}
+.token.variable { border-bottom-color: #1F1976; }
+.token.listener { border-bottom-color: #4C42CF; }
+.token.decision { border-bottom-color: #ACA8EA; }
+.token.outcome { border-bottom-color: #7C9CDB; }
+.token.active.variable { background-color: #1F1976; color: #FFFFFF; }
+.token.active.listener { background-color: #4C42CF; color: #FFFFFF; }
+.token.active.decision { background-color: #ACA8EA; color: #1F1976; }
+.token.active.outcome { background-color: #7C9CDB; color: #FFFFFF; }
+
+.explanation {
+  background-color: #E4E2F8;
+  color: #1F1976;
+  border-radius: 10px;
+  padding: 16px 18px;
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 18px;
+  display: none;
+}
+.explanation .exp-title {
+  font-weight: 700;
+  display: block;
+  margin-bottom: 4px;
+}
+.explanation-placeholder {
+  font-size: 14px;
+  color: #888888;
+  font-style: italic;
+  margin-bottom: 18px;
+}
+
+.progress-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.progress-chip {
+  font-size: 13px;
+  font-weight: 500;
+  background-color: #F7F7FB;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 6px;
+  padding: 5px 12px;
+  color: #4C42CF;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.progress-chip.explored {
+  background-color: #CCF1D0;
+  border-color: #7CDB87;
+  color: #003F25;
+}
+.progress-chip .check {
+  display: none;
+  font-weight: 700;
+}
+.progress-chip.explored .check {
+  display: inline;
+}
+
+.reveal-btn {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  margin-bottom: 18px;
+}
+.reveal-btn:hover { background-color: #1F1976; }
+.reveal-btn:disabled { background-color: #ACA8EA; cursor: not-allowed; }
+
+.demo-frame {
+  border: 1px solid #E4E2F8;
+  border-radius: 10px;
+  overflow: hidden;
+  display: none;
+}
+.demo-browser-bar {
+  background-color: #F7F7FB;
+  padding: 8px 12px;
+  border-bottom: 1px solid #E4E2F8;
+  display: flex;
+  gap: 6px;
+}
+.demo-browser-bar span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: #E4E2F8;
+  display: inline-block;
+}
+.demo-page {
+  padding: 24px;
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+.demo-page input[type="range"] {
+  width: 80%;
+  margin-bottom: 14px;
+}
+.demo-message {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1F1976;
+}
+.demo-value {
+  font-size: 13px;
+  color: #555555;
+  margin-bottom: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-page { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<h1>From Flowchart to Code: The Temperature App</h1>
+<p class="directions">Click each highlighted part of the code to see which flowchart shape it matches. Then try the live version.</p>
+
+<div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
+
+<div class="legend-row">
+  <div class="legend-chip"><span class="swatch" style="background-color:#1F1976;"></span>Variable</div>
+  <div class="legend-chip"><span class="swatch" style="background-color:#4C42CF;"></span>Event Listener</div>
+  <div class="legend-chip"><span class="swatch" style="background-color:#ACA8EA;"></span>Decision</div>
+  <div class="legend-chip"><span class="swatch" style="background-color:#7C9CDB;"></span>Outcome</div>
+</div>
+
+<div class="code-block">let <button type="button" class="token variable" id="tok-variable">temperature = 50</button>;
+
+slider.<button type="button" class="token listener" id="tok-listener">addEventListener("input", () =&gt; {</button>
+  temperature = slider.value;
+  if (<button type="button" class="token decision" id="tok-decision">temperature &gt; 70</button>) {
+    <button type="button" class="token outcome" id="tok-outcome-yes">message.textContent = "It's warm outside!";</button>
+  } else {
+    <button type="button" class="token outcome" id="tok-outcome-no">message.textContent = "It's cool outside!";</button>
+  }
+});</div>
+
+<div class="progress-row" id="progressRow" aria-hidden="true"></div>
+
+<p class="explanation-placeholder" id="explanationPlaceholder">Click a highlighted part above to see what flowchart shape it matches.</p>
+<div class="explanation" id="explanation">
+  <span class="exp-title" id="expTitle"></span>
+  <span id="expText"></span>
+</div>
+
+<button type="button" class="reveal-btn" id="revealBtn" disabled>Try the live version</button>
+
+<div class="demo-frame" id="demoFrame">
+  <div class="demo-browser-bar"><span></span><span></span><span></span></div>
+  <div class="demo-page" id="demoPage">
+    <input type="range" id="demoSlider" min="0" max="100" value="50">
+    <div class="demo-value" id="demoValue">Temperature: 50</div>
+    <div class="demo-message" id="demoMessage">It's cool outside!</div>
+  </div>
+</div>
+
+<script>
+const liveRegion = document.getElementById('liveRegion');
+function announce(msg) { liveRegion.textContent = msg; }
+
+const explanations = {
+  variable: {
+    title: "temperature = 50 — Variable (Start)",
+    text: "This is the starting value, the same job as the Start shape in a flowchart. It's the piece of information everything else in this program checks."
+  },
+  listener: {
+    title: 'addEventListener("input", ...) — Event Listener (Process)',
+    text: "This is the Process step, the user action that kicks off the flow: moving the slider. Every time it moves, this code runs again with the new value."
+  },
+  decision: {
+    title: "temperature > 70 — Decision",
+    text: "This is the diamond shape from the flowchart, the Yes/No question. It's a Boolean expression: it can only ever evaluate to true or false."
+  },
+  "outcome-yes": {
+    title: 'message.textContent = "It\'s warm outside!" — Outcome (Yes)',
+    text: "This is what happens down the Yes path of the decision diamond, the outcome when the condition evaluates to true."
+  },
+  "outcome-no": {
+    title: 'message.textContent = "It\'s cool outside!" — Outcome (No)',
+    text: "This is what happens down the No path, the outcome when the condition evaluates to false. Same decision, different branch."
+  }
+};
+
+const explored = { variable: false, listener: false, decision: false, "outcome-yes": false, "outcome-no": false };
+
+function renderProgress() {
+  const row = document.getElementById('progressRow');
+  row.innerHTML = '';
+  const labels = { variable: "Variable", listener: "Listener", decision: "Decision", "outcome-yes": "Outcome (Yes)", "outcome-no": "Outcome (No)" };
+  Object.keys(labels).forEach(key => {
+    const chip = document.createElement('div');
+    chip.className = 'progress-chip' + (explored[key] ? ' explored' : '');
+    chip.innerHTML = '<span class="check">&#10003;</span>' + labels[key];
+    row.appendChild(chip);
+  });
+}
+
+function selectToken(key, tokenId) {
+  document.querySelectorAll('.token').forEach(t => t.classList.remove('active'));
+  document.getElementById(tokenId).classList.add('active');
+
+  document.getElementById('explanationPlaceholder').style.display = 'none';
+  const exp = document.getElementById('explanation');
+  exp.style.display = 'block';
+  document.getElementById('expTitle').textContent = explanations[key].title;
+  document.getElementById('expText').textContent = explanations[key].text;
+  announce(explanations[key].title + ': ' + explanations[key].text);
+
+  explored[key] = true;
+  renderProgress();
+
+  if (Object.values(explored).every(v => v)) {
+    document.getElementById('revealBtn').disabled = false;
+  }
+}
+
+document.getElementById('tok-variable').addEventListener('click', () => selectToken('variable', 'tok-variable'));
+document.getElementById('tok-listener').addEventListener('click', () => selectToken('listener', 'tok-listener'));
+document.getElementById('tok-decision').addEventListener('click', () => selectToken('decision', 'tok-decision'));
+document.getElementById('tok-outcome-yes').addEventListener('click', () => selectToken('outcome-yes', 'tok-outcome-yes'));
+document.getElementById('tok-outcome-no').addEventListener('click', () => selectToken('outcome-no', 'tok-outcome-no'));
+
+document.getElementById('revealBtn').addEventListener('click', () => {
+  document.getElementById('demoFrame').style.display = 'block';
+  announce('Live demo revealed. Move the slider to see the condition change the outcome in real time.');
+});
+
+const slider = document.getElementById('demoSlider');
+slider.addEventListener('input', () => {
+  const val = slider.value;
+  document.getElementById('demoValue').textContent = 'Temperature: ' + val;
+  const message = document.getElementById('demoMessage');
+  const page = document.getElementById('demoPage');
+  if (val > 70) {
+    message.textContent = "It's warm outside!";
+    page.style.backgroundColor = '#FFE3CE';
+  } else {
+    message.textContent = "It's cool outside!";
+    page.style.backgroundColor = '#D5EFFF';
+  }
+});
+
+renderProgress();
+</script>
+
+</body>
+</html>
