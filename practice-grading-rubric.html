@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Practice Grading with the Rubric</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Geist', system-ui, sans-serif;
+  background-color: #FFFFFF;
+  color: #222222;
+}
+
+.grade-card {
+  border: 1px solid #E4E2F8;
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+.grade-title {
+  font-weight: 700;
+  color: #1F1976;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+.grade-options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+@media (max-width: 560px) {
+  .grade-options { grid-template-columns: repeat(2, 1fr); }
+}
+
+.grade-btn {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  background-color: #FFFFFF;
+  color: #4C42CF;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 8px;
+  padding: 10px 6px;
+  cursor: pointer;
+}
+.grade-btn:hover { background-color: #F7F7FB; }
+.grade-btn.chosen.match { background-color: #CCF1D0; border-color: #7CDB87; color: #003F25; }
+.grade-btn.chosen:not(.match) { background-color: #FFE3CE; border-color: #FFA868; color: #510000; }
+
+.feedback {
+  font-size: 14px;
+  line-height: 1.5;
+  background-color: #E4E2F8;
+  color: #1F1976;
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: none;
+}
+.feedback .feedback-tier {
+  font-weight: 700;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.closing-note {
+  font-size: 14px;
+  line-height: 1.5;
+  background-color: #CCF1D0;
+  color: #003F25;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: none;
+  margin-bottom: 12px;
+}
+
+.professional-note {
+  font-size: 14px;
+  line-height: 1.5;
+  background-color: #E4E2F8;
+  color: #222222;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion" style="position:absolute; width:1px; height:1px; overflow:hidden;"></div>
+
+<div class="grade-card" data-row="planning">
+  <div class="grade-title">Algorithmic Planning</div>
+  <div class="grade-options">
+    <button type="button" class="grade-btn" data-tier="extensive">Extensive</button>
+    <button type="button" class="grade-btn" data-tier="convincing">Convincing</button>
+    <button type="button" class="grade-btn" data-tier="limited">Limited</button>
+    <button type="button" class="grade-btn" data-tier="none">No evidence</button>
+  </div>
+  <div class="feedback"></div>
+</div>
+
+<div class="grade-card" data-row="conditional">
+  <div class="grade-title">Conditional Logic Implementation</div>
+  <div class="grade-options">
+    <button type="button" class="grade-btn" data-tier="extensive">Extensive</button>
+    <button type="button" class="grade-btn" data-tier="convincing">Convincing</button>
+    <button type="button" class="grade-btn" data-tier="limited">Limited</button>
+    <button type="button" class="grade-btn" data-tier="none">No evidence</button>
+  </div>
+  <div class="feedback"></div>
+</div>
+
+<div class="closing-note" id="closingNote">Notice these two rows didn't land on the same tier. The pseudocode only planned for two moods, so Algorithmic Planning is Limited, but the actual code handles all three moods correctly and updates reliably, earning Conditional Logic Implementation a Convincing. A rubric grades each row on its own evidence, a weak plan doesn't automatically mean weak code, and strong code doesn't erase a gap in the plan.</div>
+
+<div class="professional-note" id="professionalNote"><b>💡 A note on professional judgment:</b> if you graded either row differently, that's completely fine. This was practice, not a test, and rubrics always leave room for professional judgment. When you're grading a real student's project, your read of their work, their context, and their growth is the final call, not a single calibrated answer.</div>
+
+<script>
+const liveRegion = document.getElementById('liveRegion');
+function announce(msg) { liveRegion.textContent = msg; }
+
+const rows = {
+  planning: {
+    correctTier: "limited",
+    tiers: {
+      extensive: "Flowchart or pseudocode includes multiple layers of logic or alternate user paths; criteria are detailed and anticipate complex user behaviors.",
+      convincing: "Flowchart or pseudocode clearly models the app's logic, with branches and decision points that match app behavior; all outcome criteria are defined.",
+      limited: "Flowchart shows basic structure but some branches or decision points don't align with intended app behavior; outcome criteria are partially defined.",
+      none: "Flowchart or pseudocode is incomplete or missing, with unclear or missing decision points; outcome criteria are not defined."
+    },
+    reasoning: "The pseudocode only plans for happy and chill, but the actual app has three moods, sad is missing entirely from the plan. That's a branch that doesn't align with the app's real behavior, with outcome criteria only partially defined. That's Limited, not Convincing, since not all outcomes are accounted for, but not No evidence either, since two of the three moods are clearly planned."
+  },
+  conditional: {
+    correctTier: "convincing",
+    tiers: {
+      extensive: "Code demonstrates efficient use of if/else structures to handle complex app conditions; features update accurately and consistently.",
+      convincing: "JavaScript correctly implements the planned conditional logic using if/else; features update reliably based on user input.",
+      limited: "Code includes basic if/else statements, but some feature updates occur inconsistently or do not fully match the planned logic.",
+      none: "Code lacks functional if/else statements or does not reflect the flowchart's logic; features do not update correctly."
+    },
+    reasoning: "Try the app again: all three moods work, both the playlist text and background color update reliably every time. The if/else structure is correctly implemented and functions exactly as it should. It doesn't demonstrate the kind of complex, layered conditions that would earn Extensive, three straightforward mood checks, but it's solid, working conditional logic. That's Convincing."
+  }
+};
+
+let gradedCount = 0;
+
+Object.keys(rows).forEach(rowKey => {
+  const card = document.querySelector('[data-row="' + rowKey + '"]');
+  const row = rows[rowKey];
+
+  card.querySelectorAll('.grade-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const alreadyGraded = card.querySelector('.grade-btn.chosen');
+      card.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('chosen', 'match'));
+
+      const tier = btn.dataset.tier;
+      const isMatch = tier === row.correctTier;
+      btn.classList.add('chosen');
+      if (isMatch) btn.classList.add('match');
+
+      const feedback = card.querySelector('.feedback');
+      feedback.style.display = 'block';
+      const tierLabel = btn.textContent;
+      feedback.innerHTML = '<span class="feedback-tier">' + tierLabel + ': ' + row.tiers[tier] + '</span>' + row.reasoning;
+      announce(tierLabel + '. ' + row.reasoning);
+
+      if (!alreadyGraded) {
+        gradedCount++;
+        if (gradedCount === Object.keys(rows).length) {
+          document.getElementById('closingNote').style.display = 'block';
+          document.getElementById('professionalNote').style.display = 'block';
+        }
+      }
+    });
+  });
+});
+</script>
+
+</body>
+</html>
