@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Loop Debugging Checklist</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Geist', system-ui, sans-serif;
+  background-color: #FFFFFF;
+  color: #222222;
+}
+
+p.directions {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  background-color: #D5EFFF;
+  color: #06338D;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.prompt-card {
+  background-color: #F7F7FB;
+  border: 1px solid #E4E2F8;
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+.prompt-card .prompt-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #4C42CF;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.code-block {
+  background-color: #2B2745;
+  border-radius: 10px;
+  padding: 16px 20px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  color: #E4E2F8;
+  line-height: 1.8;
+  margin-bottom: 18px;
+  white-space: pre-wrap;
+}
+
+.checklist-row {
+  border: 1px solid #E4E2F8;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.checklist-header {
+  width: 100%;
+  text-align: left;
+  background-color: #FFFFFF;
+  border: none;
+  padding: 14px 16px;
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #222222;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.checklist-header:hover { background-color: #F7F7FB; }
+.checklist-header .status-tag {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 6px;
+  display: none;
+}
+.checklist-row.pass .status-tag.pass-tag { display: inline; background-color: #CCF1D0; color: #003F25; }
+.checklist-row.fail .status-tag.fail-tag { display: inline; background-color: #FFE3CE; color: #8A4B00; }
+.checklist-result {
+  padding: 0 16px 16px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #222222;
+  display: none;
+}
+.checklist-row.pass, .checklist-row.fail { }
+.checklist-row.pass .checklist-header { background-color: #F2FBF3; }
+.checklist-row.fail .checklist-header { background-color: #FFF6EC; }
+
+.synthesis {
+  background-color: #E4E2F8;
+  color: #1F1976;
+  border-radius: 10px;
+  padding: 16px 18px;
+  font-size: 15px;
+  line-height: 1.5;
+  margin-top: 18px;
+  display: none;
+}
+
+.reveal-btn {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: transparent;
+  color: #4C42CF;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 8px;
+  padding: 9px 16px;
+  cursor: pointer;
+  margin-top: 12px;
+}
+.reveal-btn:hover { background-color: #E4E2F8; }
+
+.fix-block {
+  background-color: #2B2745;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: #E4E2F8;
+  margin-top: 10px;
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
+
+<div class="prompt-card">
+  <span class="prompt-label">PROMPT</span>
+  Generate a random password that is exactly as long as the number the user requests.
+</div>
+
+<div class="code-block">let length = 8;
+let password = "";
+
+for (let i = 0; i &lt;= length; i++) {
+  password += getRandomChar();
+}
+
+console.log(password.length);</div>
+
+<div class="checklist-row" id="row-first">
+  <button type="button" class="checklist-header" data-check="first">
+    <span>First Value Test — checks the start value</span>
+    <span class="status-tag pass-tag">Pass</span>
+    <span class="status-tag fail-tag">Fail</span>
+  </button>
+  <div class="checklist-result" id="result-first"></div>
+</div>
+
+<div class="checklist-row" id="row-last">
+  <button type="button" class="checklist-header" data-check="last">
+    <span>Last Value Test — checks the stop condition</span>
+    <span class="status-tag pass-tag">Pass</span>
+    <span class="status-tag fail-tag">Fail</span>
+  </button>
+  <div class="checklist-result" id="result-last"></div>
+</div>
+
+<div class="checklist-row" id="row-step">
+  <button type="button" class="checklist-header" data-check="step">
+    <span>Step Value Check — checks the counter changes correctly</span>
+    <span class="status-tag pass-tag">Pass</span>
+    <span class="status-tag fail-tag">Fail</span>
+  </button>
+  <div class="checklist-result" id="result-step"></div>
+</div>
+
+<div class="checklist-row" id="row-extra">
+  <button type="button" class="checklist-header" data-check="extra">
+    <span>Extra/Missing Iteration Check — catches errors at the boundaries</span>
+    <span class="status-tag pass-tag">Pass</span>
+    <span class="status-tag fail-tag">Fail</span>
+  </button>
+  <div class="checklist-result" id="result-extra"></div>
+</div>
+
+<div class="checklist-row" id="row-match">
+  <button type="button" class="checklist-header" data-check="match">
+    <span>Match Check — confirms output matches what was asked for</span>
+    <span class="status-tag pass-tag">Pass</span>
+    <span class="status-tag fail-tag">Fail</span>
+  </button>
+  <div class="checklist-result" id="result-match"></div>
+</div>
+
+<div class="synthesis" id="synthesis">
+  Three checks flagged a problem, but only one diagnoses the actual cause. Extra/Missing Iteration and Match Check both confirm <i>something</i> is wrong, an extra character, a length mismatch, but the Last Value Test is what actually points to <i>why</i>: the condition <code>i &lt;= length</code> lets the loop run one time too many. That's the difference between noticing a symptom and diagnosing the root cause.
+  <div>
+    <button type="button" class="reveal-btn" id="fixBtn">Show the fix</button>
+    <div class="fix-block" id="fixBlock">for (let i = 0; i &lt; length; i++) {<br>&nbsp;&nbsp;password += getRandomChar();<br>}</div>
+  </div>
+</div>
+
+<script>
+const liveRegion = document.getElementById('liveRegion');
+function announce(msg) { liveRegion.textContent = msg; }
+
+const checks = {
+  first: {
+    result: "pass",
+    text: "The counter starts at i = 0, which is correct, that's exactly where this loop should begin."
+  },
+  last: {
+    result: "fail",
+    text: "This is the problem. The condition is i <= length, and the last value of i that makes that true is i = 8 (since length is 8). That means the loop runs for i = 0 through i = 8, nine iterations, one more than intended."
+  },
+  step: {
+    result: "pass",
+    text: "The counter increases by 1 each time (i++), which is exactly the step this loop needs."
+  },
+  extra: {
+    result: "fail",
+    text: "Yes, there's an extra iteration, nine passes through the loop instead of eight. This check confirms the symptom, but the Last Value Test is what explains why it's happening."
+  },
+  match: {
+    result: "fail",
+    text: "The password ends up 9 characters long, not the 8 the user requested. The output doesn't match what was asked for, another confirmation that something's wrong, but again, not the diagnosis itself."
+  }
+};
+
+let checkedCount = 0;
+const totalChecks = 5;
+
+Object.keys(checks).forEach(key => {
+  document.querySelector('[data-check="' + key + '"]').addEventListener('click', () => {
+    const row = document.getElementById('row-' + key);
+    if (row.classList.contains('pass') || row.classList.contains('fail')) return;
+
+    const check = checks[key];
+    row.classList.add(check.result);
+    const resultDiv = document.getElementById('result-' + key);
+    resultDiv.textContent = check.text;
+    resultDiv.style.display = 'block';
+    announce((check.result === 'pass' ? 'Pass. ' : 'Fail. ') + check.text);
+
+    checkedCount++;
+    if (checkedCount === totalChecks) {
+      document.getElementById('synthesis').style.display = 'block';
+    }
+  });
+});
+
+document.getElementById('fixBtn').addEventListener('click', () => {
+  document.getElementById('fixBlock').style.display = 'block';
+  announce('Fix revealed: changing the condition from less than or equal to, to just less than.');
+});
+</script>
+
+</body>
+</html>
