@@ -533,7 +533,7 @@ function renderStop() {
   document.getElementById('tryAgainNote').style.display = 'none';
   document.getElementById('bridgeNote').style.display = 'none';
   document.getElementById('nextBtn').disabled = true;
-  document.getElementById('nextBtn').textContent = currentStop === stops.length - 1 ? 'Finish' : 'Next';
+  document.getElementById('nextBtn').style.display = currentStop === stops.length - 1 ? 'none' : 'inline-block';
   document.getElementById('backBtn').disabled = currentStop === 0;
   renderDots();
   announce(stop.era + '. ' + stop.question);
