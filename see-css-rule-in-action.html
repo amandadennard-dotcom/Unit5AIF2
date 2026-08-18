@@ -438,7 +438,7 @@ function goToStep(stepIndex) {
   renderProgress();
   document.getElementById('backBtn').disabled = currentStep === 0;
   document.getElementById('nextBtn').disabled = !alreadyRevealed;
-  document.getElementById('nextBtn').textContent = currentStep === steps.length - 1 ? 'Finish' : 'Next';
+  document.getElementById('nextBtn').textContent = currentStep === steps.length - 1 ? 'none' : 'inline-block';
   announce('Rule ' + (currentStep + 1) + ' of ' + steps.length + '.');
 }
 
