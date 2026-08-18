@@ -56,13 +56,23 @@ p.directions {
   color: #4C42CF;
   background-color: #F7F7FB;
   border: 1.5px solid #E4E2F8;
-  border-radius: 20px;
+  border-radius: 6px;
   padding: 4px 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 .progress-chip.explored {
   background-color: #CCF1D0;
   border-color: #7CDB87;
   color: #003F25;
+}
+.progress-chip .check {
+  display: none;
+  font-weight: 700;
+}
+.progress-chip.explored .check {
+  display: inline;
 }
 
 .site-frame {
@@ -292,7 +302,7 @@ p.directions {
 <h1>Spot the Interactivity</h1>
 <p class="directions">Hover over the mock shop below to see each interactive element highlighted. Click one to find out what happens when a user interacts with it.</p>
 
-<div class="progress-row" id="progressRow" aria-hidden="true"></div>
+
 <div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
 
 <div class="detail-panel" id="detailPanel">
@@ -372,7 +382,7 @@ p.directions {
       </div>Water Bottle</div>
     </div>
   </div>
-
+<div class="progress-row" id="progressRow" aria-hidden="true"></div>
 </div>
 
 <script>
@@ -428,7 +438,7 @@ function renderProgress() {
   Object.keys(sections).forEach(key => {
     const chip = document.createElement('div');
     chip.className = 'progress-chip' + (explored[key] ? ' explored' : '');
-    chip.textContent = sections[key].label;
+    chip.innerHTML = '<span class="check">&#10003;</span>' + sections[key].label;
     row.appendChild(chip);
   });
 }
