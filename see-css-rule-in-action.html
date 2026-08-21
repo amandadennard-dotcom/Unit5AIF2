@@ -44,20 +44,6 @@ p.directions {
   border: 0;
 }
 
-.dots {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
-}
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: #E4E2F8;
-}
-.dot.active { background-color: #4C42CF; }
-.dot.done { background-color: #ACA8EA; }
-
 .legend-row {
   display: flex;
   gap: 20px;
@@ -86,11 +72,6 @@ p.directions {
   font-size: 18px;
   color: #E4E2F8;
   margin-bottom: 18px;
-  line-height: 1.9;
-}
-
-.code-line-done {
-  opacity: 0.55;
 }
 
 .token {
@@ -136,27 +117,6 @@ p.directions {
   margin-bottom: 18px;
 }
 
-.progress-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
-.progress-chip {
-  font-size: 13px;
-  font-weight: 500;
-  background-color: #F7F7FB;
-  border: 1.5px solid #E4E2F8;
-  border-radius: 20px;
-  padding: 5px 12px;
-  color: #4C42CF;
-}
-.progress-chip.explored {
-  background-color: #CCF1D0;
-  border-color: #7CDB87;
-  color: #003F25;
-}
-
 .reveal-btn {
   font-family: 'Geist', system-ui, sans-serif;
   font-size: 14px;
@@ -177,7 +137,7 @@ p.directions {
   border: 1px solid #E4E2F8;
   border-radius: 10px;
   overflow: hidden;
-  margin-bottom: 18px;
+  display: none;
 }
 .result-browser-bar {
   background-color: #F7F7FB;
@@ -201,40 +161,8 @@ p.directions {
   font-size: 22px;
   margin: 0;
   display: inline-block;
-  color: #1F1976;
+  color: blue;
 }
-
-.nav-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 8px;
-}
-button.primary {
-  font-family: 'Geist', system-ui, sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  background-color: #4C42CF;
-  color: #FFFFFF;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
-  cursor: pointer;
-}
-button.primary:hover { background-color: #1F1976; }
-button.primary:disabled { background-color: #ACA8EA; cursor: not-allowed; }
-button.secondary {
-  font-family: 'Geist', system-ui, sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  background-color: transparent;
-  color: #4C42CF;
-  border: 1.5px solid #E4E2F8;
-  border-radius: 8px;
-  padding: 10px 20px;
-  cursor: pointer;
-}
-button.secondary:hover { background-color: #E4E2F8; }
-button.secondary:disabled { color: #ACA8EA; border-color: #E4E2F8; cursor: not-allowed; }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
@@ -244,20 +172,24 @@ button.secondary:disabled { color: #ACA8EA; border-color: #E4E2F8; cursor: not-a
 <body>
 
 <h1>See a CSS Rule in Action</h1>
-<p class="directions">In the black box below, click each of the three components of a CSS rule to learn what it does.</p>
+<p class="directions">Click each highlighted part of the rule below to find out what it does. Then reveal the result.</p>
 
 <div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
 
-<div class="dots" id="dots" aria-hidden="true"></div>
-
 <div class="legend-row">
-<div class="legend-chip"><span class="swatch" style="background-color:#34BD43;"></span>Selector</div>
-<div class="legend-chip"><span class="swatch" style="background-color:#E11970;"></span>Property</div>
-<div class="legend-chip"><span class="swatch" style="background-color:#0099F3;"></span>Value</div>
+  <div class="legend-chip"><span class="swatch" style="background-color:#34BD43;"></span>Selector</div>
+  <div class="legend-chip"><span class="swatch" style="background-color:#E11970;"></span>Property</div>
+  <div class="legend-chip"><span class="swatch" style="background-color:#0099F3;"></span>Value</div>
 </div>
 
-<div class="code-block" id="codeBlock"></div>
+<div class="code-block">
+  <button type="button" class="token selector" id="tok-selector">h1</button> {
+  <br>&nbsp;&nbsp;<button type="button" class="token property" id="tok-property">color</button>:
+  <button type="button" class="token value" id="tok-value">blue</button>;
+  <br>}
+</div>
 
+<p class="explanation-placeholder" id="explanationPlaceholder">Click a highlighted word above to learn what it does.</p>
 <div class="explanation" id="explanation">
   <span class="exp-title" id="expTitle"></span>
   <span id="expText"></span>
@@ -265,200 +197,60 @@ button.secondary:disabled { color: #ACA8EA; border-color: #E4E2F8; cursor: not-a
 
 <button type="button" class="reveal-btn" id="revealBtn" disabled>Show the result</button>
 
-<div class="result-frame" id="resultFrame" style="display:none;">
+<div class="result-frame" id="resultFrame">
   <div class="result-browser-bar"><span></span><span></span><span></span></div>
-  <div class="result-page" id="resultPage">
-    <h2 id="resultHeading">Welcome to My Website</h2>
+  <div class="result-page">
+    <h2>Welcome to My Website</h2>
   </div>
-</div>
-
-<div class="nav-buttons">
-  <button type="button" class="secondary" id="backBtn">Back</button>
-  <button type="button" class="primary" id="nextBtn" disabled>Next</button>
 </div>
 
 <script>
 const liveRegion = document.getElementById('liveRegion');
 function announce(msg) { liveRegion.textContent = msg; }
 
-// Each step adds one new declaration on top of all previous ones.
-const steps = [
-  {
-    property: "color",
-    value: "blue",
-    exp: {
-      title: "color — Property",
-      text: "This names what's being changed. Here, it's the text color."
-    },
-    expValue: {
-      title: "blue — Value",
-      text: "This sets the specific setting for that property. The text will render in blue."
-    },
-    apply: (styleObj) => { styleObj.color = 'blue'; }
+const explanations = {
+  selector: {
+    title: "h1 — Selector",
+    text: "This tells the browser which element to style. Every heading tagged h1 on the page will follow this rule."
   },
-  {
-    property: "text-align",
-    value: "center",
-    exp: {
-      title: "text-align — Property",
-      text: "This controls how text lines up inside its container."
-    },
-    expValue: {
-      title: "center — Value",
-      text: "This centers the heading instead of leaving it at the default left edge."
-    },
-    apply: (styleObj) => { styleObj.textAlign = 'center'; }
+  property: {
+    title: "color — Property",
+    text: "This names what's being changed. Here, it's the text color."
   },
-  {
-    property: "background-color",
-    value: "#E4E2F8",
-    exp: {
-      title: "background-color — Property",
-      text: "This sets the color behind an element, not the text itself."
-    },
-    expValue: {
-      title: "#E4E2F8 — Value",
-      text: "Hex codes are a precise way to specify a color. This one is a light purple."
-    },
-    apply: (styleObj) => { styleObj.backgroundColor = '#E4E2F8'; styleObj.padding = '10px 20px'; styleObj.borderRadius = '8px'; }
+  value: {
+    title: "blue — Value",
+    text: "This sets the specific setting for that property. The text will render in blue."
   }
-];
+};
 
-let currentStep = 0;
-let explored = {};
-let revealedSteps = [];
-
-function renderDots() {
-  const container = document.getElementById('dots');
-  container.innerHTML = '';
-  steps.forEach((_, i) => {
-    const d = document.createElement('div');
-    d.className = 'dot';
-    if (i === currentStep) d.classList.add('active');
-    else if (i < currentStep) d.classList.add('done');
-    container.appendChild(d);
-  });
-}
-
-function renderCodeBlock() {
-  const block = document.getElementById('codeBlock');
-  let html = '<button type="button" class="token selector" id="tok-selector" data-part="selector">h1</button> {<br>';
-  for (let i = 0; i <= currentStep; i++) {
-    const s = steps[i];
-    const isCurrent = i === currentStep;
-    if (isCurrent) {
-      html += `&nbsp;&nbsp;<button type="button" class="token property" id="tok-property" data-part="property">${s.property}</button>: <button type="button" class="token value" id="tok-value" data-part="value">${s.value}</button>;<br>`;
-    } else {
-      html += `<span class="code-line-done">&nbsp;&nbsp;${s.property}: ${s.value};</span><br>`;
-    }
-  }
-  html += '}';
-  block.innerHTML = html;
-
-  document.getElementById('tok-selector').addEventListener('click', () => selectToken('selector'));
-  document.getElementById('tok-property').addEventListener('click', () => selectToken('property'));
-  document.getElementById('tok-value').addEventListener('click', () => selectToken('value'));
-}
-
-function renderProgress() {
-  const row = document.getElementById('progressRow');
-  row.innerHTML = '';
-  ['selector', 'property', 'value'].forEach(part => {
-    const chip = document.createElement('div');
-    chip.className = 'progress-chip' + (explored[part] ? ' explored' : '');
-    chip.textContent = part.charAt(0).toUpperCase() + part.slice(1);
-    row.appendChild(chip);
-  });
-}
+const explored = { selector: false, property: false, value: false };
 
 function selectToken(part) {
   document.querySelectorAll('.token').forEach(t => t.classList.remove('active'));
-  const tokEl = document.getElementById('tok-' + part);
-  if (tokEl) tokEl.classList.add('active');
+  document.getElementById('tok-' + part).classList.add('active');
 
   document.getElementById('explanationPlaceholder').style.display = 'none';
   const exp = document.getElementById('explanation');
   exp.style.display = 'block';
-
-  const step = steps[currentStep];
-  const info = part === 'selector'
-    ? { title: "h1 — Selector", text: "This tells the browser which element to style. Every heading tagged h1 on the page will follow this rule." }
-    : part === 'property' ? step.exp : step.expValue;
-
-  document.getElementById('expTitle').textContent = info.title;
-  document.getElementById('expText').textContent = info.text;
-  announce(info.title + ': ' + info.text);
+  document.getElementById('expTitle').textContent = explanations[part].title;
+  document.getElementById('expText').textContent = explanations[part].text;
+  announce(explanations[part].title + ': ' + explanations[part].text);
 
   explored[part] = true;
-  renderProgress();
 
   if (explored.selector && explored.property && explored.value) {
     document.getElementById('revealBtn').disabled = false;
   }
 }
 
-function renderResult() {
-  const heading = document.getElementById('resultHeading');
-  heading.style.color = '#1F1976';
-  heading.style.textAlign = '';
-  heading.style.backgroundColor = '';
-  heading.style.padding = '';
-  heading.style.borderRadius = '';
-
-  const styleObj = {};
-  for (let i = 0; i <= currentStep; i++) {
-    steps[i].apply(styleObj);
-  }
-  Object.keys(styleObj).forEach(key => { heading.style[key] = styleObj[key]; });
-
-  const page = document.getElementById('resultPage');
-  page.style.textAlign = styleObj.textAlign === 'center' ? 'center' : 'left';
-}
-
-function goToStep(stepIndex) {
-  currentStep = stepIndex;
-  explored = {};
-  document.getElementById('explanationPlaceholder').style.display = 'block';
-  document.getElementById('explanation').style.display = 'none';
-  document.getElementById('revealBtn').disabled = true;
-
-  const alreadyRevealed = revealedSteps.includes(currentStep);
-  document.getElementById('resultFrame').style.display = alreadyRevealed ? 'block' : 'none';
-  if (alreadyRevealed) {
-    renderResult();
-    explored = { selector: true, property: true, value: true };
-    document.getElementById('revealBtn').disabled = false;
-  }
-
-  renderDots();
-  renderCodeBlock();
-  renderProgress();
-  document.getElementById('backBtn').disabled = currentStep === 0;
-  document.getElementById('nextBtn').disabled = !alreadyRevealed;
-  document.getElementById('nextBtn').style.display = currentPrompt === prompts.length - 1 ? 'none' : 'inline-block';
-  announce('Rule ' + (currentStep + 1) + ' of ' + steps.length + '.');
-}
+document.getElementById('tok-selector').addEventListener('click', () => selectToken('selector'));
+document.getElementById('tok-property').addEventListener('click', () => selectToken('property'));
+document.getElementById('tok-value').addEventListener('click', () => selectToken('value'));
 
 document.getElementById('revealBtn').addEventListener('click', () => {
   document.getElementById('resultFrame').style.display = 'block';
-  if (!revealedSteps.includes(currentStep)) revealedSteps.push(currentStep);
-  renderResult();
-  announce('Result revealed and updated.');
-  document.getElementById('nextBtn').disabled = false;
+  announce('Result revealed. The heading now renders in blue, exactly as the rule set it to.');
 });
-
-document.getElementById('nextBtn').addEventListener('click', () => {
-  if (currentStep < steps.length - 1) {
-    goToStep(currentStep + 1);
-  }
-});
-document.getElementById('backBtn').addEventListener('click', () => {
-  if (currentStep > 0) {
-    goToStep(currentStep - 1);
-  }
-});
-
-goToStep(0);
 </script>
 
 </body>
