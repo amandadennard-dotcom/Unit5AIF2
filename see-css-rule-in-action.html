@@ -244,7 +244,7 @@ button.secondary:disabled { color: #ACA8EA; border-color: #E4E2F8; cursor: not-a
 <body>
 
 <h1>See a CSS Rule in Action</h1>
-<p class="directions">Click the new property and value below to find out what they do. Reveal the result, then move to the next rule and watch it build on the last one.</p>
+<p class="directions">In the black box below, click each of the three components of a CSS rule to learn what it does.</p>
 
 <div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
 
@@ -260,7 +260,7 @@ button.secondary:disabled { color: #ACA8EA; border-color: #E4E2F8; cursor: not-a
 
 <div class="progress-row" id="progressRow" aria-hidden="true"></div>
 
-<p class="explanation-placeholder" id="explanationPlaceholder">Click a highlighted word above to learn what it does.</p>
+
 <div class="explanation" id="explanation">
   <span class="exp-title" id="expTitle"></span>
   <span id="expText"></span>
@@ -438,7 +438,7 @@ function goToStep(stepIndex) {
   renderProgress();
   document.getElementById('backBtn').disabled = currentStep === 0;
   document.getElementById('nextBtn').disabled = !alreadyRevealed;
-  document.getElementById('nextBtn').textContent = currentStep === steps.length - 1 ? 'none' : 'inline-block';
+  document.getElementById('nextBtn').style.display = currentPrompt === prompts.length - 1 ? 'none' : 'inline-block';
   announce('Rule ' + (currentStep + 1) + ' of ' + steps.length + '.');
 }
 
