@@ -78,7 +78,7 @@ p.directions {
   border: 1px solid #E4E2F8;
   border-radius: 12px;
   overflow: hidden;
-  margin-bottom: 18px;
+  margin-bottom: 32px;
 }
 
 /* Hotspot wrapper shared behavior */
@@ -274,7 +274,7 @@ p.directions {
   <span class="detail-title" id="detailTitle"></span>
   <span id="detailText"></span>
 </div>
-
+<p class="detail-placeholder" id="detailPlaceholder">Click any highlighted part of the site below to see what it does.</p>
 
 <div class="completion-note" id="completionNote">You've explored all four sections. Notice how each one answers a different question for the visitor, before they've read a single word of content.</div>
 
@@ -327,11 +327,8 @@ p.directions {
       &copy; Solar Explorer &nbsp;<a href="#">Missions</a><a href="#">Contact</a><a href="#">Privacy</a>
     </div>
   </div>
-  <br><br><br><br>
-  <div class="progress-row" id="progressRow" aria-hidden="true"></div>
-
 </div>
-
+   <div class="progress-row" id="progressRow" aria-hidden="true"></div>
 <script>
 const sections = {
   nav: {
