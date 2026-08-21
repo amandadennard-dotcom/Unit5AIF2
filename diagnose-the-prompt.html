@@ -330,7 +330,7 @@ function renderPrompt() {
   document.getElementById('revisedPrompt').style.display = 'none';
   document.getElementById('closingNote').style.display = 'none';
   document.getElementById('nextBtn').disabled = true;
-  document.getElementById('nextBtn').textContent = currentPrompt === prompts.length - 1 ? 'none' : 'inline-block';
+  document.getElementById('nextBtn').style.display = currentPrompt === prompts.length - 1 ? 'none' : 'inline-block';
   document.getElementById('backBtn').disabled = currentPrompt === 0;
   renderDots();
   announce('Prompt ' + (currentPrompt + 1) + ' of ' + prompts.length + '. ' + p.text);
