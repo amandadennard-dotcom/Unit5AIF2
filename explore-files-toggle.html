@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Explore the Files</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Geist', system-ui, sans-serif;
+  background-color: #FFFFFF;
+  color: #222222;
+}
+
+p.directions {
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 0 0 16px 0;
+  background-color: #D5EFFF;
+  color: #06338D;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+/* File tabs */
+.file-tabs {
+  display: flex;
+  border: 1px solid #E4E2F8;
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  overflow: hidden;
+}
+.file-tab {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 14px;
+  padding: 10px 20px;
+  background-color: #F0F0F5;
+  color: #888888;
+  border: none;
+  cursor: pointer;
+  border-top: 3px solid transparent;
+}
+.file-tab:hover { background-color: #F7F7FB; }
+.file-tab.active {
+  background-color: #2B2745;
+  color: #FFFFFF;
+  font-weight: bold;
+  border-top: 3px solid #4C42CF;
+}
+.file-tab .dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  margin-right: 6px;
+}
+
+.code-panel {
+  background-color: #2B2745;
+  color: #E4E2F8;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  line-height: 1.8;
+  padding: 20px 24px;
+  border-radius: 0 0 10px 10px;
+  margin-bottom: 24px;
+  white-space: pre-wrap;
+}
+.code-panel .tag { color: #E11970; }
+.code-panel .attr { color: #0099F3; }
+.code-panel .selector { color: #34BD43; font-weight: bold; }
+
+/* Live preview */
+.preview-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1F1976;
+  margin-bottom: 10px;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.toggle-btn {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+.toggle-btn:hover { background-color: #1F1976; }
+
+.state-label {
+  font-size: 14px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 6px;
+}
+.state-label.off { background-color: #FFE3CE; color: #8A4B00; }
+.state-label.on { background-color: #CCF1D0; color: #003F25; }
+
+.demo-frame {
+  border: 1px solid #E4E2F8;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.demo-browser-bar {
+  background-color: #F7F7FB;
+  padding: 8px 12px;
+  border-bottom: 1px solid #E4E2F8;
+  display: flex;
+  gap: 6px;
+}
+.demo-browser-bar span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: #E4E2F8;
+  display: inline-block;
+}
+
+.demo-page h1, .demo-page h2, .demo-page p {
+  font-family: Times, serif;
+  color: #000000;
+  margin: 1em 0;
+}
+
+.demo-page.styled header {
+  background-color: lightblue;
+  text-align: center;
+}
+.demo-page.styled {
+  font-family: Arial, sans-serif;
+  margin: 0 auto;
+  max-width: 800px;
+  padding: 20px;
+  background-color: #f4f4f4;
+  color: #333;
+}
+.demo-page.styled h1 {
+  color: #0056b3;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.demo-page.styled h2 {
+  color: #007bff;
+  margin-top: 1.5rem;
+  margin-bottom: 0.8rem;
+}
+</style>
+</head>
+<body>
+
+<p class="directions">Click a file tab to see its code. Then turn the stylesheet on and off below to see it applied to the real page.</p>
+
+<div class="file-tabs">
+  <button type="button" class="file-tab active" id="tab-html"><span class="dot" style="background-color:#E44D26;"></span>index.html</button>
+  <button type="button" class="file-tab" id="tab-css"><span class="dot" style="background-color:#264DE4;"></span>style.css</button>
+</div>
+
+<div class="code-panel" id="codePanel"></div>
+
+<div class="preview-label">LIVE PREVIEW</div>
+<div class="toggle-row">
+  <button type="button" class="toggle-btn" id="toggleBtn">Turn CSS On</button>
+  <span class="state-label off" id="stateLabel">style.css: OFF</span>
+</div>
+
+<div class="demo-frame">
+  <div class="demo-browser-bar"><span></span><span></span><span></span></div>
+  <div class="demo-page" id="demoPage">
+    <header>
+      <h1>Welcome to My Website</h1>
+      <p>This text is centered inside the header.</p>
+    </header>
+    <section>
+      <h2>Section One</h2>
+      <p>This paragraph shows the body styles: gray background, readable text color, limited width, and padding.</p>
+    </section>
+    <section>
+      <h2>Another Section</h2>
+      <p>Headings have extra space above and below them, and different shades of blue.</p>
+    </section>
+  </div>
+</div>
+
+<script>
+const htmlCode = `&lt;<span class="tag">!DOCTYPE html</span>&gt;
+&lt;<span class="tag">html</span> <span class="attr">lang</span>="en"&gt;
+&lt;<span class="tag">head</span>&gt;
+  &lt;<span class="tag">meta</span> <span class="attr">charset</span>="UTF-8"&gt;
+  &lt;<span class="tag">title</span>&gt;CSS Demo&lt;/<span class="tag">title</span>&gt;
+  &lt;<span class="tag">link</span> <span class="attr">rel</span>="stylesheet" <span class="attr">href</span>="style.css"&gt;
+&lt;/<span class="tag">head</span>&gt;
+&lt;<span class="tag">body</span>&gt;
+  &lt;<span class="tag">header</span>&gt;
+    &lt;<span class="tag">h1</span>&gt;Welcome to My Website&lt;/<span class="tag">h1</span>&gt;
+    &lt;<span class="tag">p</span>&gt;This text is centered inside the header.&lt;/<span class="tag">p</span>&gt;
+  &lt;/<span class="tag">header</span>&gt;
+  &lt;<span class="tag">section</span>&gt;
+    &lt;<span class="tag">h2</span>&gt;Section One&lt;/<span class="tag">h2</span>&gt;
+    &lt;<span class="tag">p</span>&gt;This paragraph shows the body styles: gray background, readable text color, limited width, and padding.&lt;/<span class="tag">p</span>&gt;
+  &lt;/<span class="tag">section</span>&gt;
+  &lt;<span class="tag">section</span>&gt;
+    &lt;<span class="tag">h2</span>&gt;Another Section&lt;/<span class="tag">h2</span>&gt;
+    &lt;<span class="tag">p</span>&gt;Headings have extra space above and below them, and different shades of blue.&lt;/<span class="tag">p</span>&gt;
+  &lt;/<span class="tag">section</span>&gt;
+&lt;/<span class="tag">body</span>&gt;
+&lt;/<span class="tag">html</span>&gt;`;
+
+const cssCode = `<span class="selector">header</span> {
+  background-color: lightblue;
+  text-align: center;
+}
+
+<span class="selector">body</span> {
+  font-family: Arial, sans-serif;
+  margin: 0 auto;
+  max-width: 800px;
+  padding: 20px;
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+<span class="selector">h1</span> {
+  color: #0056b3;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+<span class="selector">h2</span> {
+  color: #007bff;
+  margin-top: 1.5rem;
+  margin-bottom: 0.8rem;
+}`;
+
+const codePanel = document.getElementById('codePanel');
+const tabHtml = document.getElementById('tab-html');
+const tabCss = document.getElementById('tab-css');
+
+function showFile(file) {
+  if (file === 'html') {
+    codePanel.innerHTML = htmlCode;
+    tabHtml.classList.add('active');
+    tabCss.classList.remove('active');
+  } else {
+    codePanel.innerHTML = cssCode;
+    tabCss.classList.add('active');
+    tabHtml.classList.remove('active');
+  }
+}
+
+tabHtml.addEventListener('click', () => showFile('html'));
+tabCss.addEventListener('click', () => showFile('css'));
+
+showFile('html');
+
+const toggleBtn = document.getElementById('toggleBtn');
+const demoPage = document.getElementById('demoPage');
+const stateLabel = document.getElementById('stateLabel');
+let isStyled = false;
+
+toggleBtn.addEventListener('click', () => {
+  isStyled = !isStyled;
+  demoPage.classList.toggle('styled', isStyled);
+  toggleBtn.textContent = isStyled ? 'Turn CSS Off' : 'Turn CSS On';
+  stateLabel.textContent = 'style.css: ' + (isStyled ? 'ON' : 'OFF');
+  stateLabel.className = 'state-label ' + (isStyled ? 'on' : 'off');
+});
+</script>
+
+</body>
+</html>
