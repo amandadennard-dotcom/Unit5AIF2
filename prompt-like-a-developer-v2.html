@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Prompt Like a Developer</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Geist', system-ui, sans-serif;
+  background-color: #FFFFFF;
+  color: #222222;
+}
+
+p.directions {
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  background-color: #D5EFFF;
+  color: #06338D;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.legend-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.legend-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  color: #555555;
+}
+.legend-chip .swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.prompt-card {
+  background-color: #F7F7FB;
+  border: 1px solid #E4E2F8;
+  border-radius: 10px;
+  padding: 20px 22px;
+  font-size: 17px;
+  line-height: 1.9;
+  color: #222222;
+  margin-bottom: 18px;
+}
+
+.token {
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  padding-bottom: 1px;
+}
+.token:hover, .token:focus-visible {
+  outline: none;
+  background-color: rgba(0,0,0,0.05);
+}
+.token.goal { border-bottom-color: #34BD43; }
+.token.constraint { border-bottom-color: #E11970; }
+.token.edgecase { border-bottom-color: #0099F3; }
+.token.active.goal { background-color: #34BD43; color: #FFFFFF; }
+.token.active.constraint { background-color: #E11970; color: #FFFFFF; }
+.token.active.edgecase { background-color: #0099F3; color: #FFFFFF; }
+
+.explanation {
+  background-color: #E4E2F8;
+  color: #1F1976;
+  border-radius: 10px;
+  padding: 16px 18px;
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 18px;
+  display: none;
+}
+.explanation .exp-title {
+  font-weight: 700;
+  display: block;
+  margin-bottom: 4px;
+}
+.explanation-placeholder {
+  font-size: 16px;
+  color: #888888;
+  font-style: italic;
+  margin-bottom: 18px;
+}
+
+.progress-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.progress-chip {
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #F7F7FB;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 6px;
+  padding: 5px 12px;
+  color: #4C42CF;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.progress-chip.explored {
+  background-color: #CCF1D0;
+  border-color: #7CDB87;
+  color: #003F25;
+}
+.progress-chip .check { display: none; font-weight: 700; }
+.progress-chip.explored .check { display: inline; }
+
+.closing-note {
+  background-color: #CCF1D0;
+  color: #003F25;
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 16px;
+  line-height: 1.5;
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
+
+<div class="legend-row">
+  <div class="legend-chip"><span class="swatch" style="background-color:#34BD43;"></span>Goal</div>
+  <div class="legend-chip"><span class="swatch" style="background-color:#E11970;"></span>Constraint</div>
+  <div class="legend-chip"><span class="swatch" style="background-color:#0099F3;"></span>Edge Case</div>
+</div>
+
+<div class="prompt-card">"Create a CSS stylesheet that gives my portfolio site a <span class="token goal" id="tok-goal" tabindex="0" role="button" aria-label="Goal">clean, modern feel using my brand's navy and gold colors</span>, <span class="token constraint" id="tok-constraint" tabindex="0" role="button" aria-label="Constraint">keeping the layout simple with plenty of white space so text stays readable on both mobile and desktop</span>, and <span class="token edgecase" id="tok-edgecase" tabindex="0" role="button" aria-label="Edge case">avoiding low-contrast text, overlapping elements, or fonts that look cluttered when the page is resized</span>."</div>
+
+<p class="explanation-placeholder" id="explanationPlaceholder">Click a highlighted part of the prompt above to learn what it does.</p>
+<div class="explanation" id="explanation">
+  <span class="exp-title" id="expTitle"></span>
+  <span id="expText"></span>
+</div>
+
+<div class="progress-row" id="progressRow" aria-hidden="true"></div>
+
+<div class="closing-note" id="closingNote">One strong prompt, three habits working together: a clear goal, real constraints, and edge cases named up front. That's what separates a usable first draft from one that needs several rounds of guesswork.</div>
+
+<script>
+const liveRegion = document.getElementById('liveRegion');
+function announce(msg) { liveRegion.textContent = msg; }
+
+const explanations = {
+  goal: {
+    title: "State the Goal",
+    text: "This names what \"good\" actually looks like: a clean, modern feel using specific brand colors. It's not just \"make it look nice,\" it's a defined target AI can aim for."
+  },
+  constraint: {
+    title: "Define the Constraint",
+    text: "This sets the boundaries AI should design inside: a simple layout, generous white space, readability across devices. These are rules to follow, not just a wish."
+  },
+  edgecase: {
+    title: "Prepare for the Edge Case",
+    text: "This names specific ways the design could break, low contrast, overlapping elements, awkward resizing, so AI can guard against them instead of you catching them after the fact."
+  }
+};
+
+const explored = { goal: false, constraint: false, edgecase: false };
+
+function renderProgress() {
+  const row = document.getElementById('progressRow');
+  row.innerHTML = '';
+  const labels = { goal: "Goal", constraint: "Constraint", edgecase: "Edge Case" };
+  Object.keys(labels).forEach(key => {
+    const chip = document.createElement('div');
+    chip.className = 'progress-chip' + (explored[key] ? ' explored' : '');
+    chip.innerHTML = '<span class="check">&#10003;</span>' + labels[key];
+    row.appendChild(chip);
+  });
+}
+
+function selectToken(part) {
+  document.querySelectorAll('.token').forEach(t => t.classList.remove('active'));
+  document.getElementById('tok-' + part).classList.add('active');
+
+  document.getElementById('explanationPlaceholder').style.display = 'none';
+  const exp = document.getElementById('explanation');
+  exp.style.display = 'block';
+  document.getElementById('expTitle').textContent = explanations[part].title;
+  document.getElementById('expText').textContent = explanations[part].text;
+  announce(explanations[part].title + ': ' + explanations[part].text);
+
+  explored[part] = true;
+  renderProgress();
+
+  if (explored.goal && explored.constraint && explored.edgecase) {
+    document.getElementById('closingNote').style.display = 'block';
+  }
+}
+
+document.getElementById('tok-goal').addEventListener('click', () => selectToken('goal'));
+document.getElementById('tok-constraint').addEventListener('click', () => selectToken('constraint'));
+document.getElementById('tok-edgecase').addEventListener('click', () => selectToken('edgecase'));
+
+document.querySelectorAll('.token').forEach(el => {
+  el.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      el.click();
+    }
+  });
+});
+
+renderProgress();
+</script>
+
+</body>
+</html>
