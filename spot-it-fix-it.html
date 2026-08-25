@@ -16,16 +16,10 @@ body {
   color: #222222;
 }
 
-h1 {
-  font-size: 20px;
-  color: #1F1976;
-  margin: 0 0 8px 0;
-}
-
 p.directions {
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.5;
-  margin: 0 0 20px 0;
+  margin: 0 0 16px 0;
   background-color: #D5EFFF;
   color: #06338D;
   border-radius: 10px;
@@ -44,192 +38,202 @@ p.directions {
   border: 0;
 }
 
-.progress-track {
-  width: 100%;
-  height: 10px;
-  background-color: #E4E2F8;
-  border-radius: 5px;
-  overflow: hidden;
-  margin-bottom: 18px;
+.progress-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
 }
-.progress-fill {
-  height: 100%;
-  width: 0%;
-  background-color: #4C42CF;
+.progress-chip {
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #F7F7FB;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 6px;
+  padding: 5px 12px;
+  color: #4C42CF;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
+.progress-chip.explored {
+  background-color: #CCF1D0;
+  border-color: #7CDB87;
+  color: #003F25;
+}
+.progress-chip .check { display: none; font-weight: 700; }
+.progress-chip.explored .check { display: inline; }
 
-.site-container {
+.image-container {
   position: relative;
   border: 1px solid #E4E2F8;
   border-radius: 10px;
   overflow: hidden;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
-.site-container img {
+.image-container img {
   width: 100%;
   display: block;
 }
 
-.pin {
+.zone {
   position: absolute;
+  border: 3px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: rgba(76, 66, 207, 0.06);
+}
+.zone:hover, .zone:focus-visible {
+  border-color: #4C42CF;
+  background-color: rgba(76, 66, 207, 0.14);
+  outline: none;
+}
+.zone.answered {
+  border-color: #7CDB87;
+  background-color: rgba(124, 219, 135, 0.12);
+}
+.zone.answered.wrong {
+  border-color: #FFA868;
+  background-color: rgba(255, 168, 104, 0.12);
+}
+
+.zone-badge {
+  position: absolute;
+  top: -14px;
+  left: -14px;
   width: 30px;
   height: 30px;
   border-radius: 50%;
   background-color: #4C42CF;
   color: #FFFFFF;
   font-weight: 700;
-  font-size: 14px;
-  border: 2px solid #FFFFFF;
-  cursor: pointer;
+  font-size: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 2px solid #FFFFFF;
 }
-.pin:hover, .pin:focus-visible { background-color: #1F1976; outline: none; }
-.pin.selected { background-color: #1F1976; box-shadow: 0 0 0 3px #ACA8EA; }
-.pin.placed.correct { background-color: #1FA34D; }
-.pin.placed.incorrect { background-color: #E0762A; }
+.zone.answered .zone-badge { background-color: #34BD43; }
+.zone.answered.wrong .zone-badge { background-color: #E07B39; }
 
-.pour-bins {
+.answer-panel {
+  border: 1px solid #E4E2F8;
+  border-radius: 10px;
+  padding: 18px;
+}
+.answer-placeholder {
+  color: #888888;
+  font-style: italic;
+  font-size: 16px;
+}
+
+.answer-title {
+  font-weight: 700;
+  color: #1F1976;
+  font-size: 16px;
+  margin-bottom: 10px;
+  display: block;
+}
+.answer-desc {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #222222;
+  margin-bottom: 14px;
+}
+
+.pour-choice-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-bottom: 18px;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 @media (max-width: 560px) {
-  .pour-bins { grid-template-columns: repeat(2, 1fr); }
+  .pour-choice-row { grid-template-columns: repeat(2, 1fr); }
 }
-.bin {
-  border: 2px dashed #ACA8EA;
-  border-radius: 10px;
-  padding: 12px 8px;
-  text-align: center;
-  cursor: pointer;
-  min-height: 70px;
-}
-.bin:hover { background-color: #F7F7FB; }
-.bin-label {
-  font-weight: 700;
-  font-size: 13px;
-  color: #1F1976;
-  display: block;
-  margin-bottom: 6px;
-}
-.bin .placed-pin-num {
-  display: inline-flex;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background-color: #4C42CF;
-  color: #FFFFFF;
-  font-size: 12px;
-  font-weight: 700;
-  align-items: center;
-  justify-content: center;
-  margin: 2px;
-}
-.bin.correct { background-color: #F2FBF3; border-color: #7CDB87; }
-.bin.incorrect { background-color: #FFF6EC; border-color: #FFA868; }
-
-.check-btn, .reveal-btn {
+.pour-choice-btn {
   font-family: 'Geist', system-ui, sans-serif;
   font-size: 14px;
   font-weight: 500;
-  background-color: #4C42CF;
-  color: #FFFFFF;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
-  cursor: pointer;
-  margin-bottom: 16px;
-}
-.check-btn:hover, .reveal-btn:hover { background-color: #1F1976; }
-.check-btn:disabled { background-color: #ACA8EA; cursor: not-allowed; }
-
-.result-banner {
-  font-size: 14px;
-  color: #06338D;
-  background-color: #D5EFFF;
-  border-radius: 10px;
-  padding: 10px 14px;
-  margin-bottom: 18px;
-  display: none;
-}
-
-.fix-section {
-  display: none;
-  border-top: 1px solid #E4E2F8;
-  padding-top: 20px;
-  margin-top: 10px;
-}
-.fix-item {
-  margin-bottom: 22px;
-}
-.fix-item .fix-title {
-  font-weight: 700;
-  color: #1F1976;
-  font-size: 15px;
-  margin-bottom: 6px;
-  display: block;
-}
-.fix-item .fix-issue {
-  font-size: 14px;
-  color: #222222;
-  margin-bottom: 10px;
-}
-.fix-item textarea {
-  width: 100%;
-  min-height: 70px;
-  font-family: 'Geist', system-ui, sans-serif;
-  font-size: 14px;
+  background-color: #FFFFFF;
+  color: #4C42CF;
   border: 1.5px solid #E4E2F8;
   border-radius: 8px;
-  padding: 10px 12px;
-  resize: vertical;
-  margin-bottom: 10px;
+  padding: 8px 6px;
+  cursor: pointer;
 }
+.pour-choice-btn:hover { background-color: #F7F7FB; }
+.pour-choice-btn.chosen.correct { background-color: #CCF1D0; border-color: #7CDB87; color: #003F25; }
+.pour-choice-btn.chosen.incorrect { background-color: #FFE3CE; border-color: #FFA868; color: #510000; }
+
+.pour-feedback {
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  display: none;
+}
+.pour-feedback.correct { background-color: #F2FBF3; color: #003F25; }
+.pour-feedback.incorrect { background-color: #FFF6EC; color: #8A4B00; }
+
 .sample-fix {
   background-color: #E4E2F8;
   color: #1F1976;
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 12px 14px;
   font-size: 14px;
   line-height: 1.5;
   display: none;
-  margin-top: 8px;
 }
+.sample-fix .fix-label { font-weight: 700; display: block; margin-bottom: 4px; }
 </style>
 </head>
 <body>
 
-<h1>Spot It, Fix It</h1>
-<p class="directions">Click a numbered pin on the site below, then click the POUR principle it violates. Once all four are placed, check your answers and write the fix.</p>
+<div style="background-color: #F7F7FB; border-left: 4px solid #4C42CF; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;">
+<p>You're about to do the same thing your students do in Curriculum Lesson 4's Accessibility Audit: review a site and identify what's actually blocking someone from using it.</p>
+<a href="[LESSON 4 URL]" style="display: inline-block; background-color: #4C42CF; color: #FFFFFF; font-weight: bold; padding: 6px 14px; border-radius: 8px; text-decoration: none; margin-top: 6px; font-size: 13px;">View Curriculum Lesson 4</a>
+</div>
 
-<div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+<h1>Spot It, Fix It</h1>
+<p class="directions">Click each numbered zone on the site below, choose which POUR principle it violates, then write the fix.</p>
+
 <div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
 
-<div class="site-container">
-  <img src="rainready-umbrella-site.png" alt="RainReady Umbrellas website. Top navigation reads RainReady Umbrellas with a link in the top right corner reading Click he, cut off. A hero banner shows a woman walking in the rain holding an umbrella, with light grey low-contrast tagline text reading Stay dry in style with our lightweight, wind-tested umbrellas, and a Shop button. A Products section lists three items, Classic Umbrella, Travel Mini, and Model X, each with a small Add button. An Order section has a field with placeholder text reading Your name and a Continue button.">
+<div class="progress-row" id="progressRow" aria-hidden="true"></div>
 
-  <button type="button" class="pin" id="pin-1" data-issue="1" style="top: 26%; left: 4%;" aria-label="Issue 1">1</button>
-  <button type="button" class="pin" id="pin-2" data-issue="2" style="top: 68%; left: 8%;" aria-label="Issue 2">2</button>
-  <button type="button" class="pin" id="pin-3" data-issue="3" style="top: 2%; left: 90%;" aria-label="Issue 3">3</button>
-  <button type="button" class="pin" id="pin-4" data-issue="4" style="top: 73%; left: 4%;" aria-label="Issue 4">4</button>
+<div class="image-container">
+  <img src="rainready-umbrella-context.png" alt="RainReady Umbrellas website. Top navigation reads RainReady Umbrellas with a Click here link in the top right. A hero banner shows a woman walking in the rain holding an umbrella, with light grey low-contrast tagline text reading Stay dry in style with our lightweight, wind-tested umbrellas, and a Shop button. A Products section lists three items, Classic Umbrella, Travel Mini, and Model X, each with a small Add button. An Order section has a field with placeholder text reading Your name and a Continue button.">
+
+  <div class="zone" id="zone-1" data-issue="1" tabindex="0" role="button" aria-label="Issue 1" style="top: 22%; left: 2%; width: 44%; height: 13%;">
+    <div class="zone-badge">1</div>
+  </div>
+
+  <div class="zone" id="zone-2" data-issue="2" tabindex="0" role="button" aria-label="Issue 2" style="top: 65%; left: 1%; width: 98%; height: 14%;">
+    <div class="zone-badge">2</div>
+  </div>
+
+  <div class="zone" id="zone-3" data-issue="3" tabindex="0" role="button" aria-label="Issue 3" style="top: 0%; left: 78%; width: 21%; height: 6%;">
+    <div class="zone-badge">3</div>
+  </div>
+
+  <div class="zone" id="zone-4" data-issue="4" tabindex="0" role="button" aria-label="Issue 4" style="top: 79%; left: 1%; width: 40%; height: 12%;">
+    <div class="zone-badge">4</div>
+  </div>
 </div>
 
-<div class="pour-bins" id="pourBins">
-  <div class="bin" data-letter="P"><span class="bin-label">Perceivable</span></div>
-  <div class="bin" data-letter="O"><span class="bin-label">Operable</span></div>
-  <div class="bin" data-letter="U"><span class="bin-label">Understandable</span></div>
-  <div class="bin" data-letter="R"><span class="bin-label">Robust</span></div>
-</div>
+<div class="answer-panel" id="answerPanel">
+  <p class="answer-placeholder" id="answerPlaceholder">Click a numbered zone above to see what's wrong there.</p>
 
-<button type="button" class="check-btn" id="checkBtn" disabled>Check answers</button>
-<div class="result-banner" id="resultBanner"></div>
+  <div id="answerContent" style="display:none;">
+    <span class="answer-title" id="answerTitle"></span>
+    <p class="answer-desc" id="answerDesc"></p>
 
-<div class="fix-section" id="fixSection">
-  <h2>Now Write the Fix</h2>
-  <p>For each issue, write the piece of a prompt you'd add to fix it. Then compare it to a sample.</p>
+    <div class="pour-choice-row" id="pourChoiceRow"></div>
+    <div class="pour-feedback" id="pourFeedback"></div>
+
+    <div class="sample-fix" id="sampleFix"></div>
+  </div>
 </div>
 
 <script>
@@ -238,123 +242,129 @@ function announce(msg) { liveRegion.textContent = msg; }
 
 const issues = {
   "1": {
-    letter: "P",
-    title: "Issue 1: Low-contrast tagline and Shop button",
-    issueText: "The tagline text and the Shop button are both light grey on white, hard to read for many users.",
+    title: "Issue 1: Low-contrast tagline",
+    desc: "The tagline above the Shop button reads \"Stay dry in style with our lightweight, wind-tested umbrellas,\" rendered in light grey text on a white background.",
+    correct: "P",
+    feedback: { P: "Perceivable, low contrast text is hard or impossible for many users to read." },
     sample: "Increase the contrast of the tagline and the Shop button so the text is easy to read against the background, using a dark color instead of light grey."
   },
   "2": {
-    letter: "O",
     title: "Issue 2: Tiny Add buttons",
-    issueText: "Each product's Add button is small and tightly spaced, hard to tap accurately, especially on a touchscreen.",
+    desc: "Each product's Add button is small, with very little space around it or between the three product cards.",
+    correct: "O",
+    feedback: { O: "Operable, small, tightly packed buttons are hard to tap or click accurately." },
     sample: "Make each Add button larger with more padding around it, and add more space between the three product cards so they're easier to tap without hitting the wrong one."
   },
   "3": {
-    letter: "U",
-    title: "Issue 3: Vague, cut-off link text",
-    issueText: "The link in the top right reads \"Click he,\" cut off and vague, it doesn't say where it leads.",
+    title: "Issue 3: Vague link text",
+    desc: "The link in the top-right corner reads only \"Click here,\" with no indication of where it leads.",
+    correct: "U",
+    feedback: { U: "Understandable, vague link text doesn't tell a user what will happen if they click it." },
     sample: "Rewrite the top-right link with clear, complete text that describes where it goes, for example, View All Umbrellas, instead of Click here."
   },
   "4": {
-    letter: "R",
     title: "Issue 4: Name field with no real label",
-    issueText: "The \"Your name\" field only has placeholder text, which disappears once someone starts typing and may not be read reliably by assistive technology.",
+    desc: "The Order section's name field has no visible label above it, just placeholder text reading \"Your name\" inside the box.",
+    correct: "R",
+    feedback: { R: "Robust, placeholder text disappears once typing starts and isn't a reliable label for assistive technology." },
     sample: "Add a permanent label above the name field that stays visible even after the user starts typing, rather than relying only on placeholder text."
   }
 };
 
-let selectedPin = null;
-let placements = {};
-let checked = false;
+const wrongFeedback = {
+  P: "Perceivable is about whether users can see or hear the content, not the issue here.",
+  O: "Operable is about interacting with buttons or controls, not the issue here.",
+  U: "Understandable is about clear instructions and labels, not the issue here.",
+  R: "Robust is about working across devices and assistive technology, not the issue here."
+};
 
-function updateProgress() {
-  const placedCount = Object.keys(placements).length;
-  document.getElementById('progressFill').style.width = (placedCount / 4 * 100) + '%';
-  document.getElementById('checkBtn').disabled = placedCount < 4;
+const answered = {};
+const liveRegionLabels = { P: "Perceivable", O: "Operable", U: "Understandable", R: "Robust" };
+
+function renderProgress() {
+  const row = document.getElementById('progressRow');
+  row.innerHTML = '';
+  ['1', '2', '3', '4'].forEach(num => {
+    const chip = document.createElement('div');
+    chip.className = 'progress-chip' + (answered[num] ? ' explored' : '');
+    chip.innerHTML = '<span class="check">&#10003;</span>Issue ' + num;
+    row.appendChild(chip);
+  });
 }
 
-document.querySelectorAll('.pin').forEach(pin => {
-  pin.addEventListener('click', () => {
-    if (checked) return;
-    document.querySelectorAll('.pin').forEach(p => p.classList.remove('selected'));
-    pin.classList.add('selected');
-    selectedPin = pin.dataset.issue;
-    announce('Issue ' + selectedPin + ' selected. Now click the POUR principle it violates.');
-  });
-});
+function activateIssue(num) {
+  document.querySelectorAll('.zone').forEach(z => z.style.outline = 'none');
+  document.getElementById('zone-' + num).style.outline = '3px solid #1F1976';
 
-document.querySelectorAll('.bin').forEach(bin => {
-  bin.addEventListener('click', () => {
-    if (checked || !selectedPin) {
-      if (!selectedPin) announce('Select a numbered pin first.');
-      return;
+  document.getElementById('answerPlaceholder').style.display = 'none';
+  document.getElementById('answerContent').style.display = 'block';
+
+  const issue = issues[num];
+  document.getElementById('answerTitle').textContent = issue.title;
+  document.getElementById('answerDesc').textContent = issue.desc;
+
+  const choiceRow = document.getElementById('pourChoiceRow');
+  choiceRow.innerHTML = '';
+  ['P', 'O', 'U', 'R'].forEach(letter => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'pour-choice-btn';
+    btn.textContent = liveRegionLabels[letter];
+    btn.addEventListener('click', () => chooseAnswer(num, letter));
+    choiceRow.appendChild(btn);
+  });
+
+  document.getElementById('pourFeedback').style.display = 'none';
+  document.getElementById('sampleFix').style.display = 'none';
+
+  if (answered[num] && answered[num].letter) {
+    chooseAnswer(num, answered[num].letter, true);
+  }
+
+  announce(issue.title + '. ' + issue.desc);
+}
+
+function chooseAnswer(num, letter, silent) {
+  const issue = issues[num];
+  const isCorrect = letter === issue.correct;
+
+  document.querySelectorAll('.pour-choice-btn').forEach(b => {
+    b.classList.remove('chosen', 'correct', 'incorrect');
+    if (b.textContent === liveRegionLabels[letter]) {
+      b.classList.add('chosen', isCorrect ? 'correct' : 'incorrect');
     }
-    placements[selectedPin] = bin.dataset.letter;
-    document.getElementById('pin-' + selectedPin).classList.remove('selected');
-
-    let tag = bin.querySelector('.placed-pin-num[data-for="' + selectedPin + '"]');
-    document.querySelectorAll('.placed-pin-num[data-for="' + selectedPin + '"]').forEach(t => t.remove());
-    const span = document.createElement('span');
-    span.className = 'placed-pin-num';
-    span.dataset.for = selectedPin;
-    span.textContent = selectedPin;
-    bin.appendChild(span);
-
-    announce('Issue ' + selectedPin + ' placed under ' + bin.querySelector('.bin-label').textContent + '.');
-    selectedPin = null;
-    updateProgress();
-  });
-});
-
-document.getElementById('checkBtn').addEventListener('click', () => {
-  checked = true;
-  let correctCount = 0;
-  document.querySelectorAll('.bin').forEach(bin => bin.classList.remove('correct', 'incorrect'));
-
-  Object.keys(placements).forEach(issueNum => {
-    const placedLetter = placements[issueNum];
-    const correctLetter = issues[issueNum].letter;
-    const pin = document.getElementById('pin-' + issueNum);
-    const isCorrect = placedLetter === correctLetter;
-    if (isCorrect) correctCount++;
-    pin.classList.add('placed', isCorrect ? 'correct' : 'incorrect');
-
-    const bin = document.querySelector('.bin[data-letter="' + placedLetter + '"]');
-    bin.classList.add(isCorrect ? 'correct' : 'incorrect');
   });
 
-  const banner = document.getElementById('resultBanner');
-  banner.style.display = 'block';
-  banner.textContent = correctCount + ' of 4 matched correctly.';
-  announce(correctCount + ' of 4 matched correctly.');
+  const feedback = document.getElementById('pourFeedback');
+  feedback.style.display = 'block';
+  feedback.className = 'pour-feedback ' + (isCorrect ? 'correct' : 'incorrect');
+  feedback.textContent = isCorrect ? issue.feedback[issue.correct] : wrongFeedback[letter];
 
-  document.getElementById('checkBtn').disabled = true;
-  buildFixSection();
-});
+  document.getElementById('sampleFix').style.display = 'block';
+  document.getElementById('sampleFix').innerHTML = '<span class="fix-label">Sample fix:</span>' + issue.sample;
 
-function buildFixSection() {
-  const section = document.getElementById('fixSection');
-  section.style.display = 'block';
+  const zoneEl = document.getElementById('zone-' + num);
+  zoneEl.classList.add('answered');
+  zoneEl.classList.toggle('wrong', !isCorrect);
 
-  Object.keys(issues).forEach(num => {
-    const issue = issues[num];
-    const item = document.createElement('div');
-    item.className = 'fix-item';
-    item.innerHTML = `
-      <span class="fix-title">${issue.title}</span>
-      <div class="fix-issue">${issue.issueText}</div>
-      <textarea placeholder="Write the prompt language you'd add to fix this..." id="textarea-${num}"></textarea>
-      <button type="button" class="reveal-btn" id="reveal-${num}">Show a sample fix</button>
-      <div class="sample-fix" id="sample-${num}">${issue.sample}</div>
-    `;
-    section.appendChild(item);
+  answered[num] = { letter: letter };
+  renderProgress();
 
-    item.querySelector('#reveal-' + num).addEventListener('click', () => {
-      document.getElementById('sample-' + num).style.display = 'block';
-      announce('Sample fix shown for ' + issue.title);
-    });
-  });
+  if (!silent) announce((isCorrect ? 'Correct. ' : 'Not quite. ') + feedback.textContent);
 }
+
+['1', '2', '3', '4'].forEach(num => {
+  const zone = document.getElementById('zone-' + num);
+  zone.addEventListener('click', () => activateIssue(num));
+  zone.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      activateIssue(num);
+    }
+  });
+});
+
+renderProgress();
 </script>
 
 </body>
