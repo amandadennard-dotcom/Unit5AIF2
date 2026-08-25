@@ -452,7 +452,7 @@ function activate(key) {
   const activeIds = sections[key].ids || ['hotspot-' + key];
   activeIds.forEach(id => document.getElementById(id).classList.add('active'));
 
-  document.getElementById('detailPlaceholder').style.display = 'none';
+  
   const panel = document.getElementById('detailPanel');
   panel.style.display = 'block';
   document.getElementById('detailTitle').textContent = sections[key].title;
