@@ -23,7 +23,7 @@ h1 {
 }
 
 p.directions {
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.5;
   margin: 0 0 20px 0;
   background-color: #D5EFFF;
@@ -44,20 +44,6 @@ p.directions {
   border: 0;
 }
 
-.progress-track {
-  width: 100%;
-  height: 10px;
-  background-color: #E4E2F8;
-  border-radius: 5px;
-  overflow: hidden;
-  margin-bottom: 20px;
-}
-.progress-fill {
-  height: 100%;
-  width: 0%;
-  background-color: #4C42CF;
-}
-
 .chip-bank {
   display: flex;
   flex-wrap: wrap;
@@ -72,17 +58,19 @@ p.directions {
 
 .chip {
   font-family: 'Geist', system-ui, sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   background-color: #FFFFFF;
   color: #1F1976;
   border: 1.5px solid #ACA8EA;
   border-radius: 8px;
   padding: 8px 14px;
-  cursor: pointer;
+  cursor: grab;
 }
+.chip:active { cursor: grabbing; }
 .chip:hover { background-color: #E4E2F8; }
 .chip.selected { background-color: #4C42CF; color: #FFFFFF; border-color: #4C42CF; }
 .chip:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 2px; }
+.chip.dragging { opacity: 0.4; }
 
 .zones {
   display: grid;
@@ -103,9 +91,10 @@ p.directions {
   background-color: #FFFFFF;
 }
 .zone:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 2px; }
+.zone.drag-over { background-color: #F0F0FA; border-color: #4C42CF; }
 .zone-label {
   font-weight: 700;
-  font-size: 14px;
+  font-size: 16px;
   color: #1F1976;
   margin-bottom: 8px;
   display: block;
@@ -115,7 +104,7 @@ p.directions {
 .zone.incorrect .chip.checked { background-color: #FFE3CE; color: #510000; border-color: #FFA868; }
 
 .hint {
-  font-size: 13px;
+  font-size: 14px;
   color: #510000;
   margin-top: 6px;
   font-style: italic;
@@ -128,7 +117,7 @@ p.directions {
 }
 button.primary {
   font-family: 'Geist', system-ui, sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   background-color: #4C42CF;
   color: #FFFFFF;
@@ -140,7 +129,7 @@ button.primary {
 button.primary:hover { background-color: #1F1976; }
 button.secondary {
   font-family: 'Geist', system-ui, sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   background-color: transparent;
   color: #4C42CF;
@@ -152,7 +141,7 @@ button.secondary {
 button.secondary:hover { background-color: #E4E2F8; }
 
 .result-banner {
-  font-size: 14px;
+  font-size: 16px;
   color: #06338D;
   background-color: #D5EFFF;
   border-radius: 10px;
@@ -162,7 +151,7 @@ button.secondary:hover { background-color: #E4E2F8; }
 }
 
 .bridge-note {
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.5;
   background-color: #E4E2F8;
   color: #1F1976;
@@ -176,20 +165,19 @@ button.secondary:hover { background-color: #E4E2F8; }
 <body>
 
 <h1>Sort: Actions or Parts of the Page?</h1>
-<p class="directions">Click a term below, then click the category it belongs to. Place all eight before checking your answers.</p>
+<p class="directions">Drag a term into the category it belongs to, or click a term then click a category. Place all eight before checking your answers.</p>
 
-<div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
 <div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
 
-<div class="chip-bank" role="list" aria-label="Unsorted terms">
-  <button type="button" class="chip" role="listitem" data-id="c1" data-correct="action">Click</button>
-  <button type="button" class="chip" role="listitem" data-id="c2" data-correct="part">Button</button>
-  <button type="button" class="chip" role="listitem" data-id="c3" data-correct="action">Type</button>
-  <button type="button" class="chip" role="listitem" data-id="c4" data-correct="part">Image</button>
-  <button type="button" class="chip" role="listitem" data-id="c5" data-correct="action">Scroll</button>
-  <button type="button" class="chip" role="listitem" data-id="c6" data-correct="part">Text</button>
-  <button type="button" class="chip" role="listitem" data-id="c7" data-correct="action">Hover</button>
-  <button type="button" class="chip" role="listitem" data-id="c8" data-correct="part">Heading</button>
+<div class="chip-bank" id="chipBank" role="list" aria-label="Unsorted terms">
+  <div class="chip" role="listitem" tabindex="0" draggable="true" data-id="c1" data-correct="action">Click</div>
+  <div class="chip" role="listitem" tabindex="0" draggable="true" data-id="c2" data-correct="part">Button</div>
+  <div class="chip" role="listitem" tabindex="0" draggable="true" data-id="c3" data-correct="action">Type</div>
+  <div class="chip" role="listitem" tabindex="0" draggable="true" data-id="c4" data-correct="part">Image</div>
+  <div class="chip" role="listitem" tabindex="0" draggable="true" data-id="c5" data-correct="action">Scroll</div>
+  <div class="chip" role="listitem" tabindex="0" draggable="true" data-id="c6" data-correct="part">Text</div>
+  <div class="chip" role="listitem" tabindex="0" draggable="true" data-id="c7" data-correct="action">Hover</div>
+  <div class="chip" role="listitem" tabindex="0" draggable="true" data-id="c8" data-correct="part">Heading</div>
 </div>
 
 <div class="zones">
@@ -207,54 +195,92 @@ button.secondary:hover { background-color: #E4E2F8; }
 </div>
 
 <div class="result-banner" id="resultBanner"></div>
-<div class="bridge-note" id="bridgeNote">Elements and Events are exactly what the DOM keeps track of. Next, you'll see how that actually works under the hood.</div>
+<div class="bridge-note" id="bridgeNote">A web page keeps track of every element on it, and listens for every action a user takes. Next, you'll see exactly how a page manages all of that behind the scenes, and what it's called.</div>
 
 <script>
 let selectedChip = null;
+let draggedChip = null;
 const liveRegion = document.getElementById('liveRegion');
-const progressFill = document.getElementById('progressFill');
-const totalChips = 8;
 
 function announce(msg) { liveRegion.textContent = msg; }
 
-function updateProgress() {
-  const placed = document.querySelectorAll('.zone .chip').length;
-  progressFill.style.width = Math.round((placed / totalChips) * 100) + '%';
-}
-
-document.querySelectorAll('.chip-bank .chip').forEach(chip => {
+function wireChip(chip) {
   chip.addEventListener('click', () => {
     document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
     chip.classList.add('selected');
     selectedChip = chip;
-    announce(chip.textContent + ' selected. Now click a category to place it.');
+    announce(chip.textContent + ' selected. Now click a category to place it, or drag it directly.');
   });
-});
+
+  chip.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      chip.click();
+    }
+  });
+
+  chip.addEventListener('dragstart', (e) => {
+    draggedChip = chip;
+    chip.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  });
+
+  chip.addEventListener('dragend', () => {
+    chip.classList.remove('dragging');
+    draggedChip = null;
+  });
+}
+
+document.querySelectorAll('.chip-bank .chip').forEach(wireChip);
 
 document.querySelectorAll('.zone').forEach(zone => {
-  function placeChip() {
+  function placeChip(chip) {
+    if (!chip) return;
+    chip.classList.remove('selected');
+    chip.style.cursor = 'default';
+    zone.appendChild(chip);
+    announce(chip.textContent + ' placed in ' + zone.querySelector('.zone-label').textContent + '.');
+    selectedChip = null;
+  }
+
+  zone.addEventListener('click', () => {
     if (!selectedChip) {
-      announce('Select a term first, then click a category.');
+      announce('Select a term first, then click a category, or drag a term directly.');
       return;
     }
-    selectedChip.classList.remove('selected');
-    zone.appendChild(selectedChip);
-    selectedChip.style.cursor = 'default';
-    announce(selectedChip.textContent + ' placed in ' + zone.querySelector('.zone-label').textContent + '.');
-    selectedChip = null;
-    updateProgress();
-  }
-  zone.addEventListener('click', placeChip);
+    placeChip(selectedChip);
+  });
+
   zone.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      placeChip();
+      if (!selectedChip) {
+        announce('Select a term first, then press Enter on a category.');
+        return;
+      }
+      placeChip(selectedChip);
     }
+  });
+
+  zone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    zone.classList.add('drag-over');
+  });
+
+  zone.addEventListener('dragleave', () => {
+    zone.classList.remove('drag-over');
+  });
+
+  zone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    placeChip(draggedChip);
   });
 });
 
 document.getElementById('checkBtn').addEventListener('click', () => {
   let correctCount = 0;
+  const totalChips = 8;
   document.querySelectorAll('.zone').forEach(zone => {
     const zoneType = zone.dataset.zone;
     let hasIncorrect = false;
@@ -293,13 +319,12 @@ document.getElementById('checkBtn').addEventListener('click', () => {
 document.getElementById('resetBtn').addEventListener('click', () => {
   document.querySelectorAll('.zone .chip').forEach(chip => {
     chip.classList.remove('checked');
-    document.querySelector('.chip-bank').appendChild(chip);
+    document.getElementById('chipBank').appendChild(chip);
   });
   document.querySelectorAll('.zone').forEach(zone => zone.classList.remove('correct', 'incorrect'));
   document.querySelectorAll('.hint').forEach(h => h.remove());
   document.getElementById('resultBanner').style.display = 'none';
   document.getElementById('bridgeNote').style.display = 'none';
-  updateProgress();
   announce('Board reset. All terms returned to the bank.');
 });
 </script>
