@@ -23,7 +23,7 @@ h1 {
 }
 
 p.directions {
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.5;
   margin: 0 0 20px 0;
   background-color: #D5EFFF;
@@ -54,7 +54,7 @@ p.directions {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: 16px;
   color: #555555;
 }
 .legend-chip .swatch {
@@ -67,13 +67,12 @@ p.directions {
 .code-block {
   background-color: #2B2745;
   border-radius: 10px;
-  padding: 22px 24px;
+  padding: 20px 22px;
   font-family: 'Courier New', monospace;
   font-size: 16px;
   color: #E4E2F8;
   margin-bottom: 18px;
-  line-height: 2;
-  white-space: pre-wrap;
+  line-height: 1.9;
 }
 
 .token {
@@ -102,7 +101,7 @@ p.directions {
   color: #1F1976;
   border-radius: 10px;
   padding: 16px 18px;
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.5;
   margin-bottom: 18px;
   display: none;
@@ -112,12 +111,6 @@ p.directions {
   display: block;
   margin-bottom: 4px;
 }
-.explanation-placeholder {
-  font-size: 14px;
-  color: #888888;
-  font-style: italic;
-  margin-bottom: 18px;
-}
 
 .progress-row {
   display: flex;
@@ -126,23 +119,28 @@ p.directions {
   flex-wrap: wrap;
 }
 .progress-chip {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   background-color: #F7F7FB;
   border: 1.5px solid #E4E2F8;
-  border-radius: 20px;
+  border-radius: 6px;
   padding: 5px 12px;
   color: #4C42CF;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 .progress-chip.explored {
   background-color: #CCF1D0;
   border-color: #7CDB87;
   color: #003F25;
 }
+.progress-chip .check { display: none; font-weight: 700; }
+.progress-chip.explored .check { display: inline; }
 
 .reveal-btn {
   font-family: 'Geist', system-ui, sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   background-color: #4C42CF;
   color: #FFFFFF;
@@ -151,9 +149,9 @@ p.directions {
   padding: 10px 20px;
   cursor: pointer;
   margin-bottom: 18px;
+  display: none;
 }
 .reveal-btn:hover { background-color: #1F1976; }
-.reveal-btn:disabled { background-color: #ACA8EA; cursor: not-allowed; }
 
 .demo-frame {
   border: 1px solid #E4E2F8;
@@ -184,7 +182,7 @@ p.directions {
   color: #FFFFFF;
   border: none;
   font-family: 'Geist', system-ui, sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   padding: 10px 22px;
   border-radius: 8px;
@@ -196,7 +194,7 @@ p.directions {
   border: 1px solid #E4E2F8;
   border-radius: 8px;
   padding: 12px;
-  font-size: 14px;
+  font-size: 16px;
   color: #555555;
   min-height: 20px;
 }
@@ -204,14 +202,15 @@ p.directions {
 </head>
 <body>
 
+<h1>Reading an Event Handler in Code</h1>
 <p class="directions">Click each highlighted part of the code to find out which job it's doing: interact, listen, or respond.</p>
 
 <div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
 
 <div class="legend-row">
-<div class="legend-chip"><span class="swatch" style="background-color:#34BD43;"></span>Interact</div>
-<div class="legend-chip"><span class="swatch" style="background-color:#E11970;"></span>Listen</div>
-<div class="legend-chip"><span class="swatch" style="background-color:#0099F3;"></span>Respond</div>
+  <div class="legend-chip"><span class="swatch" style="background-color:#34BD43;"></span>Interact</div>
+  <div class="legend-chip"><span class="swatch" style="background-color:#E11970;"></span>Listen</div>
+  <div class="legend-chip"><span class="swatch" style="background-color:#0099F3;"></span>Respond</div>
 </div>
 
 <div class="code-block">const btn = document.getElementById(<button type="button" class="token interact" id="tok-interact">"buttonID"</button>);
@@ -222,13 +221,12 @@ btn.<button type="button" class="token listen" id="tok-listen">addEventListener(
 
 <div class="progress-row" id="progressRow" aria-hidden="true"></div>
 
-<p class="explanation-placeholder" id="explanationPlaceholder">Click a highlighted line above to learn what it does.</p>
 <div class="explanation" id="explanation">
   <span class="exp-title" id="expTitle"></span>
   <span id="expText"></span>
 </div>
 
-<button type="button" class="reveal-btn" id="revealBtn" disabled>Try it yourself</button>
+<button type="button" class="reveal-btn" id="revealBtn">See It In Action</button>
 
 <div class="demo-frame" id="demoFrame">
   <div class="demo-browser-bar"><span></span><span></span><span></span></div>
@@ -262,10 +260,10 @@ const explored = { interact: false, listen: false, respond: false };
 function renderProgress() {
   const row = document.getElementById('progressRow');
   row.innerHTML = '';
-  ['interact', 'listen', 'respond'].forEach(part => {
+  Object.keys(explored).forEach(part => {
     const chip = document.createElement('div');
     chip.className = 'progress-chip' + (explored[part] ? ' explored' : '');
-    chip.textContent = part.charAt(0).toUpperCase() + part.slice(1);
+    chip.innerHTML = '<span class="check">&#10003;</span>' + part.charAt(0).toUpperCase() + part.slice(1);
     row.appendChild(chip);
   });
 }
@@ -274,7 +272,6 @@ function selectToken(part) {
   document.querySelectorAll('.token').forEach(t => t.classList.remove('active'));
   document.getElementById('tok-' + part).classList.add('active');
 
-  document.getElementById('explanationPlaceholder').style.display = 'none';
   const exp = document.getElementById('explanation');
   exp.style.display = 'block';
   document.getElementById('expTitle').textContent = explanations[part].title;
@@ -285,13 +282,13 @@ function selectToken(part) {
   renderProgress();
 
   if (explored.interact && explored.listen && explored.respond) {
-    document.getElementById('revealBtn').disabled = false;
+    document.getElementById('revealBtn').style.display = 'inline-block';
   }
 }
 
-['interact', 'listen', 'respond'].forEach(part => {
-  document.getElementById('tok-' + part).addEventListener('click', () => selectToken(part));
-});
+document.getElementById('tok-interact').addEventListener('click', () => selectToken('interact'));
+document.getElementById('tok-listen').addEventListener('click', () => selectToken('listen'));
+document.getElementById('tok-respond').addEventListener('click', () => selectToken('respond'));
 
 document.getElementById('revealBtn').addEventListener('click', () => {
   document.getElementById('demoFrame').style.display = 'block';
