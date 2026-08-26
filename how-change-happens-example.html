@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>How Change Happens: A Worked Example</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Geist', system-ui, sans-serif;
+  background-color: #FFFFFF;
+  color: #222222;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.carousel-box {
+  position: relative;
+  border: 1px solid #E4E2F8;
+  border-radius: 12px;
+  overflow: hidden;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.mock-browser-bar {
+  background-color: #F7F7FB;
+  padding: 8px 12px;
+  border-bottom: 1px solid #E4E2F8;
+  display: flex;
+  gap: 6px;
+}
+.mock-browser-bar span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: #E4E2F8;
+  display: inline-block;
+}
+
+.mock-page {
+  padding: 34px 50px;
+  text-align: center;
+  min-height: 150px;
+}
+.mock-page h3 {
+  font-size: 15px;
+  margin: 0 0 16px 0;
+  color: #1F1976;
+}
+.mock-zip-input {
+  border: 1.5px solid #CCCCCC;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  width: 130px;
+  margin-right: 8px;
+  color: #999999;
+  display: inline-block;
+}
+.mock-zip-input.filled { border-color: #4C42CF; color: #1F1976; font-weight: 600; }
+.mock-check-btn {
+  display: inline-block;
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 9px 16px;
+  border-radius: 6px;
+  position: relative;
+}
+.click-ring {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid #FFA868;
+  background-color: rgba(255,168,104,0.2);
+}
+.event-tag {
+  display: inline-block;
+  background-color: #E4E2F8;
+  color: #1F1976;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 20px;
+  margin-top: 16px;
+}
+.dom-update-box {
+  display: inline-block;
+  background-color: #F7F7FB;
+  border: 1.5px dashed #ACA8EA;
+  border-radius: 8px;
+  padding: 8px 14px;
+  margin-top: 14px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #4C42CF;
+}
+.result-message {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 7px 14px;
+  border-radius: 6px;
+  background-color: #CCF1D0;
+  color: #003F25;
+}
+
+.caption-row {
+  text-align: center;
+  padding: 14px 50px 18px 50px;
+  border-top: 1px solid #E4E2F8;
+}
+.step-label {
+  font-weight: 700;
+  font-size: 13px;
+  color: #4C42CF;
+  margin-bottom: 4px;
+}
+.step-caption {
+  font-size: 14px;
+  color: #555555;
+}
+
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #F7F7FB;
+  border: 1px solid #E4E2F8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  color: #4C42CF;
+}
+.carousel-arrow:hover { background-color: #E4E2F8; }
+.carousel-arrow.left { left: 10px; }
+.carousel-arrow.right { right: 10px; }
+.carousel-arrow:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+}
+.carousel-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #E4E2F8;
+  display: inline-block;
+}
+.carousel-dots span.active { background-color: #4C42CF; }
+</style>
+</head>
+<body>
+
+<div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
+
+<div class="carousel-box">
+  <button type="button" class="carousel-arrow left" id="backBtn" aria-label="Previous step">&#8249;</button>
+  <button type="button" class="carousel-arrow right" id="nextBtn" aria-label="Next step">&#8250;</button>
+
+  <div class="mock-browser-bar"><span></span><span></span><span></span></div>
+  <div class="mock-page" id="mockPage"></div>
+
+  <div class="caption-row">
+    <div class="step-label" id="stepLabel"></div>
+    <div class="step-caption" id="stepCaption"></div>
+  </div>
+</div>
+
+<div class="carousel-dots" id="dots" aria-hidden="true"></div>
+
+<script>
+const steps = [
+  {
+    label: "1. Initial Page",
+    caption: "Nothing has happened yet.",
+    render: () => `
+      <h3>Wireless Headphones &mdash; $79</h3>
+      <div class="mock-zip-input">Enter zip code</div>
+      <div class="mock-check-btn">Check Availability</div>
+    `
+  },
+  {
+    label: "2. User Action",
+    caption: "They type a zip code and click.",
+    render: () => `
+      <h3>Wireless Headphones &mdash; $79</h3>
+      <div class="mock-zip-input filled">90210</div>
+      <div class="mock-check-btn">Check Availability<div class="click-ring"></div></div>
+    `
+  },
+  {
+    label: "3. JavaScript Detects Event",
+    caption: "JS notices the click.",
+    render: () => `
+      <h3>Wireless Headphones &mdash; $79</h3>
+      <div class="mock-zip-input filled">90210</div>
+      <div class="mock-check-btn">Check Availability</div>
+      <div class="event-tag">Event detected: click</div>
+    `
+  },
+  {
+    label: "4. JavaScript Updates DOM",
+    caption: "JS writes the result into the page.",
+    render: () => `
+      <h3>Wireless Headphones &mdash; $79</h3>
+      <div class="mock-zip-input filled">90210</div>
+      <div class="mock-check-btn">Check Availability</div>
+      <div class="dom-update-box">stockMessage.textContent = "In Stock!"</div>
+    `
+  },
+  {
+    label: "5. Browser Renders Update",
+    caption: "The message appears instantly.",
+    render: () => `
+      <h3>Wireless Headphones &mdash; $79</h3>
+      <div class="mock-zip-input filled">90210</div>
+      <div class="mock-check-btn">Check Availability</div>
+      <div class="result-message">In Stock &ndash; 1 left!</div>
+    `
+  }
+];
+
+let currentStep = 0;
+const liveRegion = document.getElementById('liveRegion');
+function announce(msg) { liveRegion.textContent = msg; }
+
+function renderDots() {
+  const container = document.getElementById('dots');
+  container.innerHTML = '';
+  steps.forEach((_, i) => {
+    const d = document.createElement('span');
+    if (i === currentStep) d.classList.add('active');
+    container.appendChild(d);
+  });
+}
+
+function renderStep() {
+  const step = steps[currentStep];
+  document.getElementById('mockPage').innerHTML = step.render();
+  document.getElementById('stepLabel').textContent = step.label;
+  document.getElementById('stepCaption').textContent = step.caption;
+  document.getElementById('backBtn').disabled = currentStep === 0;
+  document.getElementById('nextBtn').disabled = currentStep === steps.length - 1;
+  renderDots();
+  announce(step.label + '. ' + step.caption);
+}
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  if (currentStep < steps.length - 1) {
+    currentStep++;
+    renderStep();
+  }
+});
+document.getElementById('backBtn').addEventListener('click', () => {
+  if (currentStep > 0) {
+    currentStep--;
+    renderStep();
+  }
+});
+
+renderStep();
+</script>
+
+</body>
+</html>
