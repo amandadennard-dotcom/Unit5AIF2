@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Building a Function, Piece by Piece</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Geist', system-ui, sans-serif;
+  background-color: #FFFFFF;
+  color: #222222;
+}
+
+h1 {
+  font-size: 20px;
+  color: #1F1976;
+  margin: 0 0 8px 0;
+}
+
+p.directions {
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  background-color: #D5EFFF;
+  color: #06338D;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.legend-row {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.legend-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  color: #555555;
+}
+.legend-chip .swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.code-block {
+  background-color: #2B2745;
+  border-radius: 10px;
+  padding: 20px 22px;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  color: #E4E2F8;
+  margin-bottom: 18px;
+  line-height: 1.9;
+}
+
+.token {
+  background: none;
+  border: none;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  color: #FFFFFF;
+  cursor: pointer;
+  padding: 2px 3px;
+  border-bottom: 3px solid transparent;
+}
+.token:hover, .token:focus-visible {
+  outline: none;
+  background-color: rgba(255,255,255,0.08);
+}
+.token.name { border-bottom-color: #34BD43; }
+.token.arrow { border-bottom-color: #E11970; }
+.token.body { border-bottom-color: #0099F3; }
+.token.call { border-bottom-color: #4C42CF; }
+.token.active.name { background-color: #34BD43; color: #FFFFFF; }
+.token.active.arrow { background-color: #E11970; color: #FFFFFF; }
+.token.active.body { background-color: #0099F3; color: #FFFFFF; }
+.token.active.call { background-color: #4C42CF; color: #FFFFFF; }
+
+.brace-highlight {
+  border-bottom: 3px solid #E4E2F8;
+  padding-bottom: 1px;
+}
+
+.explanation {
+  background-color: #E4E2F8;
+  color: #1F1976;
+  border-radius: 10px;
+  padding: 16px 18px;
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 18px;
+  display: none;
+}
+.explanation .exp-title {
+  font-weight: 700;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.progress-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.progress-chip {
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #F7F7FB;
+  border: 1.5px solid #E4E2F8;
+  border-radius: 6px;
+  padding: 5px 12px;
+  color: #4C42CF;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.progress-chip.explored {
+  background-color: #CCF1D0;
+  border-color: #7CDB87;
+  color: #003F25;
+}
+.progress-chip .check { display: none; font-weight: 700; }
+.progress-chip.explored .check { display: inline; }
+
+.reveal-btn {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  margin-bottom: 18px;
+  display: none;
+}
+.reveal-btn:hover { background-color: #1F1976; }
+
+.demo-frame {
+  border: 1px solid #E4E2F8;
+  border-radius: 10px;
+  overflow: hidden;
+  display: none;
+}
+.demo-browser-bar {
+  background-color: #F7F7FB;
+  padding: 8px 12px;
+  border-bottom: 1px solid #E4E2F8;
+  display: flex;
+  gap: 6px;
+}
+.demo-browser-bar span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: #E4E2F8;
+  display: inline-block;
+}
+.demo-page {
+  padding: 24px;
+  text-align: center;
+}
+.demo-score {
+  font-size: 15px;
+  color: #555555;
+  margin-bottom: 14px;
+}
+.demo-score-value {
+  font-weight: 700;
+  color: #1F1976;
+  font-size: 18px;
+}
+.demo-btn {
+  background-color: #4C42CF;
+  color: #FFFFFF;
+  border: none;
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 10px 22px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.demo-btn:hover { background-color: #1F1976; }
+</style>
+</head>
+<body>
+
+<h1>Building a Function, Piece by Piece</h1>
+<p class="directions">Click each highlighted part of the code to find out what it does.</p>
+
+<div class="sr-only" aria-live="polite" aria-atomic="true" id="liveRegion"></div>
+
+<div class="legend-row">
+  <div class="legend-chip"><span class="swatch" style="background-color:#34BD43;"></span>Name</div>
+  <div class="legend-chip"><span class="swatch" style="background-color:#E11970;"></span>Arrow</div>
+  <div class="legend-chip"><span class="swatch" style="background-color:#0099F3;"></span>Body</div>
+  <div class="legend-chip"><span class="swatch" style="background-color:#4C42CF;"></span>Call</div>
+</div>
+
+<div class="code-block">const <button type="button" class="token name" id="tok-name">addPoints</button> = <button type="button" class="token arrow" id="tok-arrow">() =&gt;</button> <span class="brace-highlight">{</span><br>
+&nbsp;&nbsp;<button type="button" class="token body" id="tok-body">score = score + 10;<br>&nbsp;&nbsp;scoreDisplay.textContent = score;</button><br>
+<span class="brace-highlight">};</span><br>
+<br>
+checkoutButton.addEventListener("click", <button type="button" class="token call" id="tok-call">addPoints</button>);</div>
+
+<div class="progress-row" id="progressRow" aria-hidden="true"></div>
+
+<div class="explanation" id="explanation">
+  <span class="exp-title" id="expTitle"></span>
+  <span id="expText"></span>
+</div>
+
+<button type="button" class="reveal-btn" id="revealBtn">See It In Action</button>
+
+<div class="demo-frame" id="demoFrame">
+  <div class="demo-browser-bar"><span></span><span></span><span></span></div>
+  <div class="demo-page">
+    <div class="demo-score">Score: <span class="demo-score-value" id="demoScore">0</span></div>
+    <button type="button" class="demo-btn" id="demoBtn">Checkout</button>
+  </div>
+</div>
+
+<script>
+const liveRegion = document.getElementById('liveRegion');
+function announce(msg) { liveRegion.textContent = msg; }
+
+const explanations = {
+  name: {
+    title: "addPoints — Name",
+    text: "This is where the function gets its name. A named function can be called anywhere it's needed, the same way addNotification could be called from more than one button earlier in this unit."
+  },
+  arrow: {
+    title: "() => — Arrow",
+    text: "The empty parentheses and the arrow mark this as an arrow function. Everything after the arrow is the function's behavior. The parentheses are empty because this function doesn't need any information to run."
+  },
+  body: {
+    title: "The Code Inside the Braces — Body",
+    text: "This is the actual logic, the part that runs each time the function is called. Defining it here doesn't run it yet, it just makes the behavior available for later."
+  },
+  call: {
+    title: "addPoints — Call",
+    text: "This is the function actually being used. It's passed by name only, no parentheses, addPoints, not addPoints(). That's what lets the button call it later, instead of running it immediately."
+  }
+};
+
+const explored = { name: false, arrow: false, body: false, call: false };
+
+function renderProgress() {
+  const row = document.getElementById('progressRow');
+  row.innerHTML = '';
+  Object.keys(explored).forEach(part => {
+    const chip = document.createElement('div');
+    chip.className = 'progress-chip' + (explored[part] ? ' explored' : '');
+    const label = part.charAt(0).toUpperCase() + part.slice(1);
+    chip.innerHTML = '<span class="check">&#10003;</span>' + label;
+    row.appendChild(chip);
+  });
+}
+
+function selectToken(part) {
+  document.querySelectorAll('.token').forEach(t => t.classList.remove('active'));
+  document.getElementById('tok-' + part).classList.add('active');
+
+  const exp = document.getElementById('explanation');
+  exp.style.display = 'block';
+  document.getElementById('expTitle').textContent = explanations[part].title;
+  document.getElementById('expText').textContent = explanations[part].text;
+  announce(explanations[part].title + ': ' + explanations[part].text);
+
+  explored[part] = true;
+  renderProgress();
+
+  if (explored.name && explored.arrow && explored.body && explored.call) {
+    document.getElementById('revealBtn').style.display = 'inline-block';
+  }
+}
+
+document.getElementById('tok-name').addEventListener('click', () => selectToken('name'));
+document.getElementById('tok-arrow').addEventListener('click', () => selectToken('arrow'));
+document.getElementById('tok-body').addEventListener('click', () => selectToken('body'));
+document.getElementById('tok-call').addEventListener('click', () => selectToken('call'));
+
+document.getElementById('revealBtn').addEventListener('click', () => {
+  document.getElementById('demoFrame').style.display = 'block';
+  announce('Live demo revealed. Click Checkout to see the function run for real.');
+});
+
+let currentScore = 0;
+document.getElementById('demoBtn').addEventListener('click', () => {
+  currentScore += 10;
+  document.getElementById('demoScore').textContent = currentScore;
+  announce('Checkout clicked. addPoints ran, score is now ' + currentScore + '.');
+});
+
+renderProgress();
+</script>
+
+</body>
+</html>
