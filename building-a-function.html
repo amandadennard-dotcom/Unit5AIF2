@@ -223,7 +223,8 @@ p.directions {
 </div>
 
 <div class="code-block">const <button type="button" class="token name" id="tok-name">addPoints</button> = <button type="button" class="token arrow" id="tok-arrow">() =&gt;</button> <span class="brace-highlight">{</span><br>
-&nbsp;&nbsp;<button type="button" class="token body" id="tok-body">score = score + 10;<br>&nbsp;&nbsp;scoreDisplay.textContent = score;</button><br>
+&nbsp;&nbsp;<button type="button" class="token body" id="tok-body-1">score = score + 10;</button><br>
+&nbsp;&nbsp;<button type="button" class="token body" id="tok-body-2">scoreDisplay.textContent = score;</button><br>
 <span class="brace-highlight">};</span><br>
 <br>
 checkoutButton.addEventListener("click", <button type="button" class="token call" id="tok-call">addPoints</button>);</div>
@@ -284,7 +285,12 @@ function renderProgress() {
 
 function selectToken(part) {
   document.querySelectorAll('.token').forEach(t => t.classList.remove('active'));
-  document.getElementById('tok-' + part).classList.add('active');
+  if (part === 'body') {
+    document.getElementById('tok-body-1').classList.add('active');
+    document.getElementById('tok-body-2').classList.add('active');
+  } else {
+    document.getElementById('tok-' + part).classList.add('active');
+  }
 
   const exp = document.getElementById('explanation');
   exp.style.display = 'block';
@@ -302,7 +308,8 @@ function selectToken(part) {
 
 document.getElementById('tok-name').addEventListener('click', () => selectToken('name'));
 document.getElementById('tok-arrow').addEventListener('click', () => selectToken('arrow'));
-document.getElementById('tok-body').addEventListener('click', () => selectToken('body'));
+document.getElementById('tok-body-1').addEventListener('click', () => selectToken('body'));
+document.getElementById('tok-body-2').addEventListener('click', () => selectToken('body'));
 document.getElementById('tok-call').addEventListener('click', () => selectToken('call'));
 
 document.getElementById('revealBtn').addEventListener('click', () => {
