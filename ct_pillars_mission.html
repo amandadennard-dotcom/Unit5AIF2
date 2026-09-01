@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Computational Thinking Mission</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Geist:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; font-family: 'Geist', sans-serif; background: #F7F7FB; color: #222222; overflow: hidden; }
+
+.skip-link { position: absolute; top: -999px; left: -999px; background: #4C42CF; color: #fff; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 1rem; z-index: 9999; text-decoration: none; }
+.skip-link:focus { top: 12px; left: 12px; }
+
+.screen { display: none; width: 100%; height: 100vh; flex-direction: column; overflow-y: auto; align-items: center; }
+.screen.active { display: flex; }
+
+h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+
+/* ══ INTRO SCREEN ══ */
+#screen-intro { padding: 36px 24px 60px; }
+.intro-page, .activity-page, .summary-page { max-width: 680px; width: 100%; display: flex; flex-direction: column; gap: 20px; }
+
+.hero { background: #4C42CF; border-radius: 16px; padding: 28px 32px; color: #fff; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; top: -50px; right: -50px; width: 180px; height: 180px; background: rgba(255,255,255,0.06); border-radius: 50%; pointer-events: none; }
+.hero-eyebrow { font-size: 1rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.7); margin-bottom: 8px; position: relative; z-index: 1; }
+.hero-title { font-size: 1.5rem; font-weight: 700; color: #fff; line-height: 1.25; margin-bottom: 8px; position: relative; z-index: 1; }
+.hero-sub { font-size: 1rem; color: rgba(255,255,255,0.85); line-height: 1.6; position: relative; z-index: 1; }
+
+.scenario-card { background: #fff; border: 1.5px solid #E4E2F8; border-radius: 14px; overflow: hidden; }
+.scenario-header { background: #1F1976; padding: 10px 18px; display: flex; align-items: center; gap: 10px; }
+.scenario-header-label { font-size: 1rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.6); }
+.scenario-header-title { font-size: 1rem; font-weight: 700; color: #fff; }
+.scenario-body { padding: 18px 20px; }
+.scenario-quote { font-size: 1rem; color: #1F1976; line-height: 1.65; font-style: italic; border-left: 3px solid #4C42CF; padding-left: 12px; margin-bottom: 10px; }
+.scenario-body-text { font-size: 1rem; color: #444; line-height: 1.65; }
+.scenario-body-text strong { color: #222; font-weight: 700; }
+
+.mission-box { background: #fff; border: 1.5px solid #E4E2F8; border-radius: 14px; padding: 18px 20px; }
+.mission-label { font-size: 1rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #4C42CF; margin-bottom: 12px; }
+.mission-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; }
+.mission-step { background: #F7F7FB; border: 1.5px solid #E4E2F8; border-radius: 8px; padding: 10px 12px; font-size: 1rem; font-weight: 600; color: #333; display: flex; align-items: center; gap: 8px; }
+.mission-step-num { width: 28px; height: 28px; border-radius: 50%; background: #4C42CF; color: #fff; font-size: 1rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.mission-divider { height: 1px; background: #E4E2F8; margin-bottom: 14px; }
+.mission-desc { font-size: 1rem; color: #444; line-height: 1.65; }
+.mission-desc strong { color: #222; }
+
+.btn-start { background: #4C42CF; color: #fff; border: none; border-radius: 10px; padding: 14px 36px; font-family: 'Geist', sans-serif; font-size: 1rem; font-weight: 700; cursor: pointer; width: 100%; transition: background 0.15s; }
+.btn-start:hover { background: #1F1976; }
+.btn-start:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 3px; }
+.start-note { text-align: center; font-size: 1rem; color: #888; font-weight: 500; margin-top: -10px; }
+
+/* ══ ACTIVITY SCREEN ══ */
+#screen-activity { padding: 30px 24px 60px; }
+
+.progress-wrap { background: #fff; border: 1.5px solid #E4E2F8; border-radius: 12px; padding: 14px 18px; }
+.progress-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.progress-check-label { font-size: 1rem; font-weight: 700; color: #4C42CF; }
+.progress-unit-label  { font-size: 1rem; font-weight: 500; color: #888; }
+.progress-track { height: 6px; background: #E4E2F8; border-radius: 999px; overflow: hidden; }
+.progress-fill  { height: 100%; background: #4C42CF; border-radius: 999px; transition: width 0.5s ease; }
+
+.pillar-badge { display: inline-flex; align-items: center; gap: 8px; background: #E4E2F8; color: #1F1976; font-weight: 700; font-size: 1rem; padding: 8px 16px; border-radius: 999px; align-self: flex-start; }
+.pillar-badge-icon { font-size: 1rem; }
+
+.char-area { display: flex; align-items: flex-start; gap: 12px; background: #fff; border: 1.5px solid #E4E2F8; border-radius: 14px; padding: 16px 18px; }
+.char-icon { width: 40px; height: 40px; border-radius: 10px; background: #ACA8EA; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 700; flex-shrink: 0; }
+.char-name { font-size: 1rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; color: #555; }
+.char-bubble-text { font-size: 1rem; color: #222; line-height: 1.6; }
+
+.question-card { background: #fff; border: 1.5px solid #E4E2F8; border-radius: 14px; overflow: hidden; }
+.question-card-header { background: #4C42CF; padding: 10px 18px; }
+.question-card-title { font-size: 1rem; font-weight: 700; color: #fff; }
+.question-card-body { padding: 16px 18px; }
+.question-text { font-size: 1rem; color: #333; line-height: 1.6; margin-bottom: 14px; }
+
+.option-list { display: flex; flex-direction: column; gap: 8px; }
+.option-btn { text-align: left; background: #F7F7FB; border: 1.5px solid #E4E2F8; color: #222; border-radius: 10px; padding: 12px 14px; font-family: 'Geist', sans-serif; font-size: 1rem; font-weight: 600; line-height: 1.5; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+.option-btn:hover:not(:disabled) { background: #E4E2F8; border-color: #ACA8EA; }
+.option-btn:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 2px; }
+.option-btn:disabled { cursor: default; }
+.option-btn.correct { background: #CCF1D0; border-color: #7CDB87; color: #003F25; font-weight: 700; }
+.option-btn.incorrect { background: #FFE3CE; border-color: #FFA868; color: #611D00; font-weight: 700; }
+.option-btn.dimmed { opacity: 0.55; }
+
+.feedback-banner { display: none; margin-top: 14px; border-radius: 10px; padding: 14px 16px; gap: 10px; align-items: flex-start; }
+.feedback-banner.show { display: flex; }
+.feedback-banner.correct { background: #CCF1D0; }
+.feedback-banner.incorrect { background: #FFE3CE; }
+.feedback-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+.feedback-label { font-size: 1rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; }
+.feedback-banner.correct .feedback-label { color: #003F25; }
+.feedback-banner.incorrect .feedback-label { color: #611D00; }
+.feedback-body { font-size: 1rem; line-height: 1.6; }
+.feedback-banner.correct .feedback-body { color: #003F25; }
+.feedback-banner.incorrect .feedback-body { color: #611D00; }
+
+.btn-next { display: none; background: #4C42CF; color: #fff; border: none; border-radius: 10px; padding: 13px 20px; font-family: 'Geist', sans-serif; font-size: 1rem; font-weight: 700; cursor: pointer; width: 100%; }
+.btn-next:hover { background: #1F1976; }
+.btn-next:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 3px; }
+.btn-next.show { display: block; }
+
+/* ══ SUMMARY SCREEN ══ */
+#screen-summary { padding: 36px 24px 60px; }
+
+.completion-header { background: #4C42CF; border-radius: 16px; padding: 28px 32px; color: #fff; position: relative; overflow: hidden; }
+.completion-header::before { content: ''; position: absolute; top: -50px; right: -50px; width: 180px; height: 180px; background: rgba(255,255,255,0.06); border-radius: 50%; pointer-events: none; }
+.completion-eyebrow { font-size: 1rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.7); margin-bottom: 8px; position: relative; z-index: 1; }
+.completion-title { font-size: 1.4rem; font-weight: 700; color: #fff; line-height: 1.25; margin-bottom: 8px; position: relative; z-index: 1; }
+.completion-sub { font-size: 1rem; color: rgba(255,255,255,0.8); line-height: 1.6; position: relative; z-index: 1; }
+
+.recap-card { background: #fff; border: 1.5px solid #E4E2F8; border-radius: 14px; overflow: hidden; }
+.recap-header { padding: 12px 18px; border-bottom: 1px solid #E4E2F8; }
+.recap-title { font-size: 1rem; font-weight: 700; color: #222; }
+.recap-list { padding: 4px 0; }
+.recap-row { display: flex; align-items: flex-start; gap: 12px; padding: 12px 18px; border-bottom: 1px solid #F7F7FB; }
+.recap-row:last-child { border-bottom: none; }
+.recap-indicator { width: 32px; height: 32px; border-radius: 50%; background: #E4E2F8; color: #4C42CF; border: 1.5px solid #ACA8EA; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+.recap-content { flex: 1; }
+.recap-check-name { font-size: 1rem; font-weight: 700; color: #222; margin-bottom: 3px; }
+.recap-note { font-size: 1rem; color: #555; line-height: 1.55; }
+
+.takeaway-card { background: #fff; border: 1.5px solid #E4E2F8; border-radius: 14px; padding: 16px 18px; display: flex; gap: 14px; align-items: flex-start; }
+.takeaway-icon { width: 44px; height: 44px; border-radius: 10px; background: #ACA8EA; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 700; flex-shrink: 0; }
+.takeaway-name { font-size: 1rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #4C42CF; margin-bottom: 6px; }
+.takeaway-quote { font-size: 1rem; color: #222; line-height: 1.65; border-left: 3px solid #4C42CF; padding-left: 12px; font-style: italic; }
+
+.classroom-box { background: #E4E2F8; border-radius: 14px; padding: 16px 20px; }
+.classroom-label { font-size: 1rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #1F1976; margin-bottom: 8px; }
+.classroom-text { font-size: 1rem; color: #1F1976; line-height: 1.65; }
+.classroom-text strong { font-weight: 700; }
+
+.btn-restart { background: transparent; border: 1.5px solid #ACA8EA; color: #4C42CF; border-radius: 10px; padding: 12px 32px; font-family: 'Geist', sans-serif; font-size: 1rem; font-weight: 700; cursor: pointer; width: 100%; transition: background 0.15s; }
+.btn-restart:hover { background: #E4E2F8; }
+.btn-restart:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 3px; }
+.restart-note { text-align: center; font-size: 1rem; color: #888; margin-top: -10px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<div aria-live="polite" aria-atomic="true" id="liveRegion" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;"></div>
+
+<!-- ══ SCREEN 1: INTRO ══ -->
+<div id="screen-intro" class="screen active" role="main" aria-label="Computational thinking mission introduction">
+  <div class="intro-page" id="main-content">
+
+    <h1 style="position:absolute;left:-9999px;">Computational Thinking Mission</h1>
+
+    <div class="hero">
+      <div class="hero-eyebrow" id="heroEyebrow"></div>
+      <div class="hero-title" id="heroTitle"></div>
+      <div class="hero-sub" id="heroSub"></div>
+    </div>
+
+    <div class="scenario-card" role="region" aria-label="Scenario">
+      <div class="scenario-header">
+        <span class="scenario-header-label" id="scenarioLabel"></span>
+        <span class="scenario-header-title" id="scenarioHeader"></span>
+      </div>
+      <div class="scenario-body">
+        <div class="scenario-quote" id="scenarioQuote"></div>
+        <div class="scenario-body-text" id="scenarioBodyText"></div>
+      </div>
+    </div>
+
+    <div class="mission-box" role="region" aria-label="Your mission">
+      <div class="mission-label" id="missionLabel"></div>
+      <div class="mission-grid" id="missionGrid" role="list" aria-label="The four pillars"></div>
+      <div class="mission-divider"></div>
+      <div class="mission-desc" id="missionDesc"></div>
+    </div>
+
+    <button class="btn-start" id="startBtn" onclick="startActivity()"></button>
+    <div class="start-note" id="startNote"></div>
+
+  </div>
+</div>
+
+<!-- ══ SCREEN 2: ACTIVITY ══ -->
+<div id="screen-activity" class="screen" role="main" aria-label="Computational thinking activity">
+  <div class="activity-page">
+
+    <div class="progress-wrap">
+      <div class="progress-top">
+        <span class="progress-check-label" id="progressCheckLabel"></span>
+        <span class="progress-unit-label" id="progressUnitLabel"></span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+
+    <div class="pillar-badge" id="pillarBadge" tabindex="-1">
+      <span class="pillar-badge-icon" aria-hidden="true">&#9673;</span>
+      <span id="pillarBadgeText"></span>
+    </div>
+
+    <div class="char-area">
+      <div class="char-icon" aria-hidden="true">A</div>
+      <div>
+        <div class="char-name" id="charName"></div>
+        <div class="char-bubble-text" id="charText"></div>
+      </div>
+    </div>
+
+    <div class="question-card">
+      <div class="question-card-header">
+        <span class="question-card-title" id="questionTitle"></span>
+      </div>
+      <div class="question-card-body">
+        <div class="question-text" id="questionText"></div>
+        <div class="option-list" id="optionList" role="list" aria-label="Pillar options"></div>
+        <div class="feedback-banner" id="feedbackBanner">
+          <div class="feedback-icon" id="feedbackIcon" aria-hidden="true"></div>
+          <div>
+            <div class="feedback-label" id="feedbackLabel"></div>
+            <div class="feedback-body" id="feedbackBody"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-next" id="btnNext" onclick="nextStep()"></button>
+
+  </div>
+</div>
+
+<!-- ══ SCREEN 3: SUMMARY ══ -->
+<div id="screen-summary" class="screen" role="main" aria-label="Mission summary">
+  <div class="summary-page">
+
+    <div class="completion-header">
+      <div class="completion-eyebrow" id="summaryEyebrow"></div>
+      <div class="completion-title" id="summaryTitle" tabindex="-1"></div>
+      <div class="completion-sub" id="summarySub"></div>
+    </div>
+
+    <div class="recap-card">
+      <div class="recap-header"><span class="recap-title" id="recapTitle"></span></div>
+      <div class="recap-list" id="recapList" role="list" aria-label="All four pillars recap"></div>
+    </div>
+
+    <div class="takeaway-card">
+      <div class="takeaway-icon" aria-hidden="true">&#9998;</div>
+      <div>
+        <div class="takeaway-name" id="takeawayName"></div>
+        <div class="takeaway-quote" id="takeawayQuote"></div>
+      </div>
+    </div>
+
+    <div class="classroom-box">
+      <div class="classroom-label" id="classroomLabel"></div>
+      <div class="classroom-text" id="classroomText"></div>
+    </div>
+
+    <button class="btn-restart" onclick="restartActivity()" id="btnRestart"></button>
+    <div class="restart-note" id="restartNote"></div>
+
+  </div>
+</div>
+
+<script>
+const PILLARS = ["Decomposition", "Pattern Recognition", "Abstraction", "Algorithm Design"];
+
+const LANG = {
+  heroEyebrow: "Interactive Scenario",
+  heroTitle: "Help Alex Solve the Maze",
+  heroSub: "Alex is coding a maze navigating character in The Neighborhood and keeps getting stuck. Read what Alex is stuck on, then diagnose which pillar of computational thinking would help right now.",
+
+  scenarioLabel: "Scenario",
+  scenarioHeader: "Your Classroom, Right Now",
+  scenarioQuote: "I don't even know where to start. There's so much going on in this maze, I can't figure out how to code all of it at once.",
+  scenarioBodyText: "You are helping <strong>Alex</strong>, one of your students, through a real coding challenge. At each step, read what Alex is stuck on and pick the pillar of computational thinking that would help Alex move forward.",
+
+  missionLabel: "Your Mission",
+  missionSteps: PILLARS,
+  missionDesc: "You'll see four different moments where Alex gets stuck. For each one, diagnose which of the <strong>four pillars of computational thinking</strong> would help. The moments appear in a different order every time, so think through each one on its own.",
+  startBtn: "Start the Mission &rarr;",
+  startNote: "4 steps, approximately 6 minutes",
+
+  progressUnit: "Computational Thinking Mission",
+  progressOf: "Step {n} of 4",
+
+  charName: "Alex, a student",
+  pillarBadgeText: "Diagnose the Moment",
+  questionTitle: "What would help Alex now?",
+  question: "Which pillar of computational thinking would help Alex move forward right now?",
+  btnNext: "Next Step &rarr;",
+  btnSeeResults: "See Results &rarr;",
+
+  scenarios: [
+    {
+      pillar: "Decomposition",
+      studentLine: "I don't even know where to start. There's so much going on in this maze, I can't figure out how to code all of it at once.",
+      feedback: {
+        "Decomposition": "Alex is overwhelmed by the whole maze at once. Breaking it into smaller pieces, getting to the first turn, following the walls, reaching the goal, gives Alex a place to start.",
+        "Pattern Recognition": "Alex hasn't written any code yet, so there's nothing repeating to spot a pattern in. Alex needs the problem broken into pieces first.",
+        "Abstraction": "Alex isn't buried in unnecessary detail yet. The problem is that Alex hasn't split the maze into pieces at all, there's no detail to hide yet.",
+        "Algorithm Design": "There's no sequence to arrange yet because Alex hasn't identified the pieces of the problem. Ordering steps comes after the pieces exist."
+      }
+    },
+    {
+      pillar: "Pattern Recognition",
+      studentLine: "Every time the character reaches a corner, I'm rewriting the same check the wall, then turn logic from scratch. It's getting messy.",
+      feedback: {
+        "Pattern Recognition": "Alex is repeating the same check wall, then turn logic at every corner. Naming that repetition as a pattern means it only needs to be written once.",
+        "Decomposition": "Alex has already broken the maze into pieces, corners, walls, turns. The problem now is repeated code, not an unbroken problem.",
+        "Abstraction": "Alex isn't struggling with too much irrelevant detail right now. The issue is repeated logic, not detail that needs hiding.",
+        "Algorithm Design": "The steps themselves aren't out of order, they're just being rewritten over and over at every corner. Reordering steps won't fix repetition."
+      }
+    },
+    {
+      pillar: "Abstraction",
+      studentLine: "Now I'm stuck tracking the exact pixel position of the character after every single move. It's a lot to keep track of.",
+      feedback: {
+        "Abstraction": "Alex is drowning in a detail, exact pixel position, that doesn't matter for solving the maze. Hiding that detail inside the move function and focusing on wall, turn, move is abstraction.",
+        "Decomposition": "The maze problem is already broken into pieces. The issue now is which details to track, not how to split the problem up.",
+        "Pattern Recognition": "There's no repeated logic causing the problem here. Alex is stuck on how much detail to track, not on rewriting the same code.",
+        "Algorithm Design": "The steps aren't out of order, Alex just has too much low level detail to manage. Reordering steps won't reduce that detail."
+      }
+    },
+    {
+      pillar: "Algorithm Design",
+      studentLine: "I have all the pieces now: checking walls, turning, moving, but my code is out of order and the character isn't actually solving the maze.",
+      feedback: {
+        "Algorithm Design": "Alex already has all the pieces, checking walls, turning, moving, and just needs them arranged into a clear step by step sequence. That's algorithm design.",
+        "Decomposition": "The pieces already exist, checking walls, turning, moving. The problem now is putting them in order, not identifying them.",
+        "Pattern Recognition": "There's no repeated code to simplify here. The pieces are already written, they're just in the wrong order.",
+        "Abstraction": "Alex isn't overwhelmed by unnecessary detail. The pieces are already at the right level of detail, they just need sequencing."
+      }
+    }
+  ],
+
+  recapNotes: {
+    "Decomposition": "Alex was overwhelmed by the whole maze at once. Breaking it into smaller pieces gave Alex a place to start.",
+    "Pattern Recognition": "Alex was rewriting the same check wall, then turn logic at every corner. Naming that repetition meant it only needed to be written once.",
+    "Abstraction": "Alex was buried in exact pixel tracking. Focusing on wall, turn, move and hiding the pixel detail let Alex move forward.",
+    "Algorithm Design": "Alex had all the pieces but no order. Arranging them into a clear sequence finally solved the maze."
+  },
+
+  summaryEyebrow: "Mission Complete",
+  summaryTitle: "All Four Pillars Applied",
+  summarySub: "You diagnosed all four of Alex's stuck moments and matched each one to the pillar of computational thinking that helped Alex move forward.",
+  recapTitle: "All 4 Pillars",
+  takeawayName: "Classroom Takeaway",
+  takeawayQuote: "Alex did not need a computer science vocabulary lesson in the moment. Alex needed you to recognize which pillar fit the moment and name it out loud.",
+  classroomLabel: "Classroom Connection",
+  classroomText: "When students say a problem feels too big, they are usually missing <strong>decomposition</strong> or <strong>abstraction</strong>, not motivation. Practicing the diagnosis yourself, is this a decomposition moment or an abstraction moment, gives you a faster read on what your students actually need.",
+  btnRestart: "Run the Mission Again",
+  restartNote: "Getting Ready for the Curriculum &middot; Computational Thinking"
+};
+
+let current = 0;
+let answered = false;
+let sessionOrder = [];
+let currentOptions = [];
+
+function shuffleArray(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function announce(msg) {
+  const el = document.getElementById('liveRegion');
+  el.textContent = '';
+  setTimeout(() => { el.textContent = msg; }, 50);
+}
+
+function applyLang() {
+  document.getElementById('heroEyebrow').textContent = LANG.heroEyebrow;
+  document.getElementById('heroTitle').textContent = LANG.heroTitle;
+  document.getElementById('heroSub').textContent = LANG.heroSub;
+
+  document.getElementById('scenarioLabel').textContent = LANG.scenarioLabel;
+  document.getElementById('scenarioHeader').textContent = LANG.scenarioHeader;
+  document.getElementById('scenarioQuote').textContent = '\u201C' + LANG.scenarioQuote + '\u201D';
+  document.getElementById('scenarioBodyText').innerHTML = LANG.scenarioBodyText;
+
+  document.getElementById('missionLabel').textContent = LANG.missionLabel;
+  const grid = document.getElementById('missionGrid');
+  grid.innerHTML = '';
+  LANG.missionSteps.forEach((s, i) => {
+    const d = document.createElement('div');
+    d.className = 'mission-step';
+    d.setAttribute('role','listitem');
+    d.innerHTML = '<span class="mission-step-num" aria-hidden="true">' + (i+1) + '</span><span>' + s + '</span>';
+    grid.appendChild(d);
+  });
+  document.getElementById('missionDesc').innerHTML = LANG.missionDesc;
+  document.getElementById('startBtn').innerHTML = LANG.startBtn;
+  document.getElementById('startNote').textContent = LANG.startNote;
+
+  document.getElementById('progressUnitLabel').textContent = LANG.progressUnit;
+  document.getElementById('btnNext').innerHTML = LANG.btnNext;
+
+  document.getElementById('summaryEyebrow').textContent = LANG.summaryEyebrow;
+  document.getElementById('summaryTitle').textContent = LANG.summaryTitle;
+  document.getElementById('summarySub').textContent = LANG.summarySub;
+  document.getElementById('recapTitle').textContent = LANG.recapTitle;
+
+  const recap = document.getElementById('recapList');
+  recap.innerHTML = '';
+  PILLARS.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'recap-row';
+    row.setAttribute('role','listitem');
+    row.innerHTML = '<div class="recap-indicator" aria-hidden="true">' + (i+1) + '</div>' +
+      '<div class="recap-content"><div class="recap-check-name">' + p + '</div>' +
+      '<div class="recap-note">' + LANG.recapNotes[p] + '</div></div>';
+    recap.appendChild(row);
+  });
+
+  document.getElementById('takeawayName').textContent = LANG.takeawayName;
+  document.getElementById('takeawayQuote').textContent = '\u201C' + LANG.takeawayQuote + '\u201D';
+  document.getElementById('classroomLabel').textContent = LANG.classroomLabel;
+  document.getElementById('classroomText').innerHTML = LANG.classroomText;
+  document.getElementById('btnRestart').textContent = LANG.btnRestart;
+  document.getElementById('restartNote').innerHTML = LANG.restartNote;
+}
+
+function startActivity() {
+  sessionOrder = shuffleArray(LANG.scenarios);
+  document.getElementById('screen-intro').classList.remove('active');
+  document.getElementById('screen-activity').classList.add('active');
+  renderStep(0);
+  announce(LANG.progressOf.replace('{n}', 1));
+  document.getElementById('pillarBadge').focus();
+}
+
+function renderStep(idx) {
+  answered = false;
+  const s = sessionOrder[idx];
+
+  document.getElementById('progressCheckLabel').textContent = LANG.progressOf.replace('{n}', idx + 1);
+  document.getElementById('progressFill').style.width = ((idx + 1) / sessionOrder.length * 100) + '%';
+
+  document.getElementById('pillarBadgeText').textContent = LANG.pillarBadgeText;
+  document.getElementById('charName').textContent = LANG.charName;
+  document.getElementById('charText').textContent = s.studentLine;
+
+  document.getElementById('questionTitle').textContent = LANG.questionTitle;
+  document.getElementById('questionText').textContent = LANG.question;
+
+  currentOptions = shuffleArray(PILLARS);
+
+  const list = document.getElementById('optionList');
+  list.innerHTML = '';
+  currentOptions.forEach((pillarName, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.setAttribute('role','listitem');
+    btn.textContent = pillarName;
+    btn.onclick = () => selectOption(i);
+    list.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedbackBanner');
+  fb.className = 'feedback-banner';
+
+  const btnNext = document.getElementById('btnNext');
+  btnNext.className = 'btn-next';
+  btnNext.innerHTML = idx < sessionOrder.length - 1 ? LANG.btnNext : LANG.btnSeeResults;
+}
+
+function selectOption(i) {
+  if (answered) return;
+  answered = true;
+  const s = sessionOrder[current];
+  const chosenPillar = currentOptions[i];
+  const isCorrect = (chosenPillar === s.pillar);
+  const buttons = document.querySelectorAll('.option-btn');
+
+  buttons.forEach((b, idx2) => {
+    b.disabled = true;
+    if (currentOptions[idx2] === s.pillar) {
+      b.classList.add('correct');
+    } else if (idx2 === i) {
+      b.classList.add('incorrect');
+    } else {
+      b.classList.add('dimmed');
+    }
+  });
+
+  const feedbackText = s.feedback[chosenPillar];
+
+  const fb = document.getElementById('feedbackBanner');
+  fb.className = 'feedback-banner show ' + (isCorrect ? 'correct' : 'incorrect');
+  document.getElementById('feedbackIcon').textContent = isCorrect ? '\u{1F4A1}' : '\u{1F50D}';
+  document.getElementById('feedbackLabel').textContent = isCorrect ? 'Correct: ' + s.pillar : 'Not quite, this was a ' + s.pillar + ' moment';
+  document.getElementById('feedbackBody').textContent = feedbackText;
+
+  announce((isCorrect ? 'Correct. ' : 'Not quite. ') + feedbackText);
+
+  const btnNext = document.getElementById('btnNext');
+  btnNext.classList.add('show');
+  btnNext.focus();
+}
+
+function nextStep() {
+  current++;
+  if (current >= sessionOrder.length) {
+    showSummary();
+  } else {
+    renderStep(current);
+    announce(LANG.progressOf.replace('{n}', current + 1));
+    document.getElementById('pillarBadge').focus();
+  }
+}
+
+function showSummary() {
+  document.getElementById('screen-activity').classList.remove('active');
+  document.getElementById('screen-summary').classList.add('active');
+  announce(LANG.summaryTitle);
+  setTimeout(() => document.getElementById('summaryTitle').focus(), 100);
+}
+
+function restartActivity() {
+  current = 0; answered = false;
+  document.getElementById('screen-summary').classList.remove('active');
+  document.getElementById('screen-activity').classList.add('active');
+  sessionOrder = shuffleArray(LANG.scenarios);
+  renderStep(0);
+  announce('Mission restarted. Step 1 of 4.');
+}
+
+applyLang();
+</script>
+</body>
+</html>
