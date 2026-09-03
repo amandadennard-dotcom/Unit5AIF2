@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to Code a While Loop</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; font-family: 'Geist', sans-serif; background: #F7F7FB; color: #222222; }
+h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+
+.wrap { max-width: 780px; margin: 0 auto; padding: 28px 24px 40px; display: flex; flex-direction: column; gap: 20px; }
+
+.page-title { font-size: 1.25rem; font-weight: 700; color: #1F1976; }
+
+.progress-row { display: flex; gap: 8px; }
+.progress-chip { flex: 1; text-align: center; padding: 8px 4px; border-radius: 6px; font-size: 1rem; font-weight: 700; background: #FFFFFF; color: #ACA8EA; border: 1.5px solid #E4E2F8; transition: background 0.2s, color 0.2s, border-color 0.2s; }
+.progress-chip.current { background: #4C42CF; color: #FFFFFF; border-color: #4C42CF; }
+.progress-chip.explored { background: #E4E2F8; color: #1F1976; border-color: #ACA8EA; }
+.progress-chip .check { margin-left: 4px; }
+
+.step-card { background: #FFFFFF; border: 1.5px solid #E4E2F8; border-radius: 14px; overflow: hidden; }
+.step-header { background: #4C42CF; padding: 14px 20px; }
+.step-eyebrow { font-size: 1rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.65); margin-bottom: 4px; }
+.step-title { font-size: 1.15rem; font-weight: 700; color: #FFFFFF; }
+.step-body-wrap { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.step-desc { font-size: 1rem; color: #333333; line-height: 1.65; }
+
+.ide-frame { border-radius: 10px; overflow: hidden; border: 1px solid #333; }
+.ide-tab { background: #2A2E3D; color: #ACA8EA; font-family: 'Courier New', Courier, monospace; font-size: 1rem; font-weight: 700; padding: 8px 16px; }
+.ide-body { background: #1C1F2A; padding: 16px 4px; font-family: 'Courier New', Courier, monospace; font-size: 1rem; line-height: 2.1; }
+.code-row { display: flex; align-items: center; padding: 0 16px; }
+.line-num { width: 26px; flex-shrink: 0; color: #6B7080; user-select: none; text-align: right; margin-right: 16px; }
+.line-code { color: #FFFFFF; white-space: pre; }
+.tok-kw   { color: #4C42CF; background: #E4E2F8; padding: 1px 4px; border-radius: 4px; }
+.tok-var  { color: #34BD43; }
+.tok-fn   { color: #E11970; }
+.tok-val  { color: #0099F3; }
+.highlight-block { border: 2px solid #FFFFFF; border-radius: 8px; margin: 4px 16px; padding: 2px 0; }
+.highlight-block .code-row { padding: 0 12px; }
+.highlight-inline { display: inline-block; border: 2px solid #FFFFFF; border-radius: 6px; padding: 0px 6px; }
+
+.nav-row { display: flex; gap: 12px; }
+.btn-nav { flex: 1; font-family: 'Geist', sans-serif; font-size: 1rem; font-weight: 700; border-radius: 10px; padding: 13px 18px; cursor: pointer; transition: background 0.15s; }
+.btn-prev { background: #FFFFFF; border: 1.5px solid #ACA8EA; color: #4C42CF; }
+.btn-prev:hover:not(:disabled) { background: #E4E2F8; }
+.btn-prev:disabled { opacity: 0.4; cursor: default; }
+.btn-next { background: #4C42CF; border: none; color: #FFFFFF; }
+.btn-next:hover { background: #1F1976; }
+.btn-nav:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 2px; }
+
+.done-note { text-align: center; font-size: 1rem; color: #666666; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div aria-live="polite" aria-atomic="true" id="liveRegion" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;"></div>
+
+<div class="wrap">
+  <h1 class="page-title">How to Code a While Loop</h1>
+
+  <div class="progress-row" id="progressRow" role="list" aria-label="Steps"></div>
+
+  <div class="step-card" role="region" aria-label="Current step">
+    <div class="step-header">
+      <div class="step-eyebrow" id="stepEyebrow"></div>
+      <div class="step-title" id="stepTitle" tabindex="-1"></div>
+    </div>
+    <div class="step-body-wrap">
+      <div class="step-desc" id="stepDesc"></div>
+      <div class="ide-frame">
+        <div class="ide-tab">loop_practice.py</div>
+        <div class="ide-body" id="codeBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn-nav btn-prev" id="btnPrev" onclick="goPrev()">&larr; Back</button>
+    <button class="btn-nav btn-next" id="btnNext" onclick="goNext()">Next &rarr;</button>
+  </div>
+  <div class="done-note" id="doneNote" style="display:none;">You've walked through all four steps. Use Back to review any step again.</div>
+</div>
+
+<script>
+const STEPS = [
+  {
+    title: "Read through your code",
+    desc: "Before writing a loop, look at what the code is doing line by line. Right now, the painter moves once and then paints white four separate times.",
+    code: [
+      '<span class="tok-var">painter</span>.<span class="tok-fn">move</span>()',
+      '<span class="tok-var">painter</span>.<span class="tok-fn">paint</span>(<span class="tok-val">"white"</span>)',
+      '<span class="tok-var">painter</span>.<span class="tok-fn">paint</span>(<span class="tok-val">"white"</span>)',
+      '<span class="tok-var">painter</span>.<span class="tok-fn">paint</span>(<span class="tok-val">"white"</span>)',
+      '<span class="tok-var">painter</span>.<span class="tok-fn">paint</span>(<span class="tok-val">"white"</span>)'
+    ],
+    highlightRows: []
+  },
+  {
+    title: "Recognize patterns",
+    desc: "Notice that lines 2 through 5 repeat the exact same instruction. That repetition is a signal a loop could replace it.",
+    code: [
+      '<span class="tok-var">painter</span>.<span class="tok-fn">move</span>()',
+      '<span class="tok-var">painter</span>.<span class="tok-fn">paint</span>(<span class="tok-val">"white"</span>)',
+      '<span class="tok-var">painter</span>.<span class="tok-fn">paint</span>(<span class="tok-val">"white"</span>)',
+      '<span class="tok-var">painter</span>.<span class="tok-fn">paint</span>(<span class="tok-val">"white"</span>)',
+      '<span class="tok-var">painter</span>.<span class="tok-fn">paint</span>(<span class="tok-val">"white"</span>)'
+    ],
+    highlightRows: [1,2,3,4]
+  },
+  {
+    title: "Put repeated code inside a loop",
+    desc: "Once you spot the pattern, move the repeated line inside a while loop so it only needs to be written once.",
+    code: [
+      '<span class="tok-var">painter</span>.<span class="tok-fn">move</span>()',
+      '<span class="tok-kw">while</span>',
+      '&nbsp;&nbsp;&nbsp;&nbsp;<span class="tok-var">painter</span>.<span class="tok-fn">paint</span>(<span class="tok-val">"white"</span>)',
+      ''
+    ],
+    highlightRows: [2]
+  },
+  {
+    title: "Set a condition",
+    desc: "A while loop needs a condition to know when to stop. Here, the condition checks whether the painter still has paint left.",
+    code: [
+      '<span class="tok-var">painter</span>.<span class="tok-fn">move</span>()',
+      '<span class="tok-kw">while</span> <span class="highlight-inline"><span class="tok-var">painter</span>.<span class="tok-fn">has_paint</span>():</span>',
+      '&nbsp;&nbsp;&nbsp;&nbsp;<span class="tok-var">painter</span>.<span class="tok-fn">paint</span>(<span class="tok-val">"white"</span>)'
+    ],
+    highlightRows: []
+  }
+];
+
+let current = 0;
+let furthest = 0;
+
+function announce(msg) {
+  const el = document.getElementById('liveRegion');
+  el.textContent = '';
+  setTimeout(() => { el.textContent = msg; }, 50);
+}
+
+function renderProgress() {
+  const row = document.getElementById('progressRow');
+  row.innerHTML = '';
+  STEPS.forEach((s, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'progress-chip';
+    chip.setAttribute('role', 'listitem');
+    if (i === current) chip.classList.add('current');
+    else if (i < furthest) chip.classList.add('explored');
+    chip.innerHTML = 'Step ' + (i + 1) + (i < furthest && i !== current ? '<span class="check">&#10003;</span>' : '');
+    row.appendChild(chip);
+  });
+}
+
+function renderCode(step) {
+  const body = document.getElementById('codeBody');
+  body.innerHTML = '';
+
+  let i = 0;
+  while (i < step.code.length) {
+    if (step.highlightRows.includes(i)) {
+      const block = document.createElement('div');
+      block.className = 'highlight-block';
+      while (i < step.code.length && step.highlightRows.includes(i)) {
+        block.appendChild(makeRow(i, step.code[i]));
+        i++;
+      }
+      body.appendChild(block);
+    } else {
+      body.appendChild(makeRow(i, step.code[i]));
+      i++;
+    }
+  }
+}
+
+function makeRow(idx, codeHtml) {
+  const row = document.createElement('div');
+  row.className = 'code-row';
+  row.innerHTML = '<span class="line-num" aria-hidden="true">' + (idx + 1) + '</span><span class="line-code">' + (codeHtml || '&nbsp;') + '</span>';
+  return row;
+}
+
+function renderStep() {
+  const step = STEPS[current];
+  document.getElementById('stepEyebrow').textContent = 'Step ' + (current + 1) + ' of ' + STEPS.length;
+  document.getElementById('stepTitle').textContent = step.title;
+  document.getElementById('stepDesc').textContent = step.desc;
+  renderCode(step);
+  renderProgress();
+
+  document.getElementById('btnPrev').disabled = (current === 0);
+  document.getElementById('btnNext').textContent = current === STEPS.length - 1 ? 'Restart from the top' : 'Next \u2192';
+  document.getElementById('doneNote').style.display = (current === STEPS.length - 1) ? 'block' : 'none';
+
+  announce('Step ' + (current + 1) + ' of ' + STEPS.length + ': ' + step.title);
+  document.getElementById('stepTitle').focus();
+}
+
+function goNext() {
+  if (current === STEPS.length - 1) {
+    current = 0;
+  } else {
+    current++;
+    if (current > furthest) furthest = current;
+  }
+  renderStep();
+}
+
+function goPrev() {
+  if (current > 0) current--;
+  renderStep();
+}
+
+renderStep();
+</script>
+</body>
+</html>
