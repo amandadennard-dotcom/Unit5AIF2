@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Conditionals Work</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; font-family: 'Geist', sans-serif; background: #F7F7FB; color: #222222; }
+h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+
+.wrap { max-width: 780px; margin: 0 auto; padding: 28px 24px 40px; display: flex; flex-direction: column; gap: 20px; }
+
+.page-title { font-size: 1.25rem; font-weight: 700; color: #1F1976; }
+
+.progress-row { display: flex; gap: 8px; }
+.progress-chip { flex: 1; text-align: center; padding: 8px 4px; border-radius: 6px; font-size: 1rem; font-weight: 700; background: #FFFFFF; color: #ACA8EA; border: 1.5px solid #E4E2F8; transition: background 0.2s, color 0.2s, border-color 0.2s; }
+.progress-chip.current { background: #4C42CF; color: #FFFFFF; border-color: #4C42CF; }
+.progress-chip.explored { background: #E4E2F8; color: #1F1976; border-color: #ACA8EA; }
+.progress-chip .check { margin-left: 4px; }
+
+.step-card { background: #FFFFFF; border: 1.5px solid #E4E2F8; border-radius: 14px; overflow: hidden; }
+.step-header { background: #4C42CF; padding: 14px 20px; }
+.step-eyebrow { font-size: 1rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.65); margin-bottom: 4px; }
+.step-title { font-size: 1.15rem; font-weight: 700; color: #FFFFFF; }
+.step-body-wrap { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.step-desc { font-size: 1rem; color: #333333; line-height: 1.65; }
+.step-notes { display: flex; flex-direction: column; gap: 8px; }
+.step-note { font-size: 1rem; color: #333333; line-height: 1.5; }
+.step-note b { color: #1F1976; }
+
+.ide-frame { border-radius: 10px; overflow: hidden; border: 1px solid #333; }
+.ide-tab { background: #2A2E3D; color: #ACA8EA; font-family: 'Courier New', Courier, monospace; font-size: 1rem; font-weight: 700; padding: 8px 16px; }
+.ide-body { background: #1C1F2A; padding: 16px 4px; font-family: 'Courier New', Courier, monospace; font-size: 1rem; line-height: 2.1; }
+.code-row { display: flex; align-items: center; padding: 0 16px; }
+.line-num { width: 26px; flex-shrink: 0; color: #6B7080; user-select: none; text-align: right; margin-right: 16px; }
+.line-code { color: #FFFFFF; white-space: pre; }
+.tok-kw   { color: #4C42CF; background: #E4E2F8; padding: 1px 4px; border-radius: 4px; }
+.tok-var  { color: #34BD43; }
+.tok-fn   { color: #E11970; }
+.tok-val  { color: #0099F3; }
+.tok-punc { color: #FFFFFF; }
+.highlight-block { border: 2px solid #FFFFFF; border-radius: 8px; margin: 4px 16px; padding: 2px 0; }
+.highlight-block .code-row { padding: 0 12px; }
+.highlight-inline { display: inline-block; border: 2px solid #FFFFFF; border-radius: 6px; padding: 0px 6px; }
+
+.scenario-block { margin-bottom: 8px; }
+.scenario-label { display: inline-flex; align-items: center; gap: 8px; font-family: 'Geist', sans-serif; font-size: 1rem; font-weight: 700; padding: 5px 12px; border-radius: 999px; margin: 12px 16px 8px 16px; }
+.scenario-label.runs { background: #CCF1D0; color: #003F25; }
+.scenario-label.skipped { background: #F0F0F0; color: #555555; }
+.dimmed-lines .line-code, .dimmed-lines .line-num { opacity: 0.4; }
+.divider-line { height: 1px; background: #333; margin: 4px 16px; }
+
+.nav-row { display: flex; gap: 12px; }
+.btn-nav { flex: 1; font-family: 'Geist', sans-serif; font-size: 1rem; font-weight: 700; border-radius: 10px; padding: 13px 18px; cursor: pointer; transition: background 0.15s; }
+.btn-prev { background: #FFFFFF; border: 1.5px solid #ACA8EA; color: #4C42CF; }
+.btn-prev:hover:not(:disabled) { background: #E4E2F8; }
+.btn-prev:disabled { opacity: 0.4; cursor: default; }
+.btn-next { background: #4C42CF; border: none; color: #FFFFFF; }
+.btn-next:hover { background: #1F1976; }
+.btn-nav:focus-visible { outline: 3px solid #ACA8EA; outline-offset: 2px; }
+
+.done-note { text-align: center; font-size: 1rem; color: #666666; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div aria-live="polite" aria-atomic="true" id="liveRegion" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;"></div>
+
+<div class="wrap">
+  <h1 class="page-title">How Conditionals Work</h1>
+
+  <div class="progress-row" id="progressRow" role="list" aria-label="Steps"></div>
+
+  <div class="step-card" role="region" aria-label="Current step">
+    <div class="step-header">
+      <div class="step-eyebrow" id="stepEyebrow"></div>
+      <div class="step-title" id="stepTitle" tabindex="-1"></div>
+    </div>
+    <div class="step-body-wrap">
+      <div class="step-desc" id="stepDesc"></div>
+      <div class="step-notes" id="stepNotes"></div>
+      <div class="ide-frame">
+        <div class="ide-tab">loop_practice.py</div>
+        <div class="ide-body" id="codeBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn-nav btn-prev" id="btnPrev" onclick="goPrev()">&larr; Back</button>
+    <button class="btn-nav btn-next" id="btnNext" onclick="goNext()">Next &rarr;</button>
+  </div>
+  <div class="done-note" id="doneNote" style="display:none;">You've walked through all three steps. Use Back to review any step again.</div>
+</div>
+
+<script>
+const IF_LINE = '<span class="tok-kw">if</span> <span class="tok-var">painter</span>.<span class="tok-fn">can_move</span>(<span class="tok-val">"south"</span>)<span class="tok-punc">:</span>';
+const MOVE_LINE = '&nbsp;&nbsp;&nbsp;&nbsp;<span class="tok-var">painter</span>.<span class="tok-fn">move</span>()';
+const PAINT_LINE = '&nbsp;&nbsp;&nbsp;&nbsp;<span class="tok-var">painter</span>.<span class="tok-fn">paint</span>(<span class="tok-val">"blue"</span>)';
+
+const IF_LINE_HL_IF   = '<span class="highlight-inline"><span class="tok-kw">if</span></span> <span class="tok-var">painter</span>.<span class="tok-fn">can_move</span>(<span class="tok-val">"south"</span>)<span class="highlight-inline"><span class="tok-punc">:</span></span>';
+
+const STEPS = [
+  {
+    title: "Read the conditional",
+    desc: "This is the same code from the previous level. Before breaking it down, just read what it says: if the painter can move south, then move and paint blue.",
+    notes: [],
+    codeType: "plain",
+    code: [IF_LINE, MOVE_LINE, PAINT_LINE],
+    highlightRows: []
+  },
+  {
+    title: "Learn the syntax",
+    desc: "A conditional statement is a command that runs only if a certain condition is true, allowing a program to make decisions. Here's what makes up its syntax.",
+    notes: [
+      "Every conditional starts with the key term <b>if</b>.",
+      "The line ends with a <b>colon ( : )</b>.",
+      "<b>Indentation matters!</b> Only the indented lines belong to the conditional."
+    ],
+    codeType: "custom",
+    code: [IF_LINE_HL_IF, null, null],
+    highlightRows: [1, 2],
+    rawIndentedLines: [MOVE_LINE, PAINT_LINE]
+  },
+  {
+    title: "See it decide true or false",
+    desc: "A conditional checks a method that returns true or false. If true, the indented code runs. If false, it's skipped completely.",
+    notes: [],
+    codeType: "scenario",
+    scenarios: [
+      { label: "Path is clear \u2192 condition is True \u2192 code runs", labelClass: "runs", dim: false, code: [IF_LINE, MOVE_LINE, PAINT_LINE] },
+      { label: "A truck blocks the path \u2192 condition is False \u2192 code is skipped", labelClass: "skipped", dim: true, code: [IF_LINE, MOVE_LINE, PAINT_LINE] }
+    ]
+  }
+];
+
+let current = 0;
+let furthest = 0;
+
+function announce(msg) {
+  const el = document.getElementById('liveRegion');
+  el.textContent = '';
+  setTimeout(() => { el.textContent = msg; }, 50);
+}
+
+function renderProgress() {
+  const row = document.getElementById('progressRow');
+  row.innerHTML = '';
+  STEPS.forEach((s, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'progress-chip';
+    chip.setAttribute('role', 'listitem');
+    if (i === current) chip.classList.add('current');
+    else if (i < furthest) chip.classList.add('explored');
+    chip.innerHTML = 'Step ' + (i + 1) + (i < furthest && i !== current ? '<span class="check">&#10003;</span>' : '');
+    row.appendChild(chip);
+  });
+}
+
+function makeRow(idx, codeHtml) {
+  const row = document.createElement('div');
+  row.className = 'code-row';
+  row.innerHTML = '<span class="line-num" aria-hidden="true">' + (idx + 1) + '</span><span class="line-code">' + (codeHtml || '&nbsp;') + '</span>';
+  return row;
+}
+
+function renderPlainOrCustom(step) {
+  const body = document.getElementById('codeBody');
+  body.innerHTML = '';
+  const lines = step.code[0] ? [step.code[0]] : [];
+  const fullLines = [step.code[0], step.rawIndentedLines ? step.rawIndentedLines[0] : step.code[1], step.rawIndentedLines ? step.rawIndentedLines[1] : step.code[2]];
+
+  let i = 0;
+  while (i < fullLines.length) {
+    if (step.highlightRows.includes(i)) {
+      const block = document.createElement('div');
+      block.className = 'highlight-block';
+      while (i < fullLines.length && step.highlightRows.includes(i)) {
+        block.appendChild(makeRow(i, fullLines[i]));
+        i++;
+      }
+      body.appendChild(block);
+    } else {
+      body.appendChild(makeRow(i, fullLines[i]));
+      i++;
+    }
+  }
+}
+
+function renderScenarios(step) {
+  const body = document.getElementById('codeBody');
+  body.innerHTML = '';
+  step.scenarios.forEach((sc, sIdx) => {
+    const label = document.createElement('div');
+    label.className = 'scenario-label ' + sc.labelClass;
+    label.textContent = sc.label;
+    body.appendChild(label);
+
+    const group = document.createElement('div');
+    if (sc.dim) group.className = 'dimmed-lines';
+    sc.code.forEach((line, i) => {
+      group.appendChild(makeRow(i, line));
+    });
+    body.appendChild(group);
+
+    if (sIdx === 0) {
+      const div = document.createElement('div');
+      div.className = 'divider-line';
+      body.appendChild(div);
+    }
+  });
+}
+
+function renderNotes(step) {
+  const notesEl = document.getElementById('stepNotes');
+  notesEl.innerHTML = '';
+  step.notes.forEach(n => {
+    const p = document.createElement('div');
+    p.className = 'step-note';
+    p.innerHTML = '\u2022 ' + n;
+    notesEl.appendChild(p);
+  });
+}
+
+function renderStep() {
+  const step = STEPS[current];
+  document.getElementById('stepEyebrow').textContent = 'Step ' + (current + 1) + ' of ' + STEPS.length;
+  document.getElementById('stepTitle').textContent = step.title;
+  document.getElementById('stepDesc').textContent = step.desc;
+  renderNotes(step);
+
+  if (step.codeType === 'scenario') {
+    renderScenarios(step);
+  } else {
+    renderPlainOrCustom(step);
+  }
+
+  renderProgress();
+
+  document.getElementById('btnPrev').disabled = (current === 0);
+  document.getElementById('btnNext').textContent = current === STEPS.length - 1 ? 'Restart from the top' : 'Next \u2192';
+  document.getElementById('doneNote').style.display = (current === STEPS.length - 1) ? 'block' : 'none';
+
+  announce('Step ' + (current + 1) + ' of ' + STEPS.length + ': ' + step.title);
+  document.getElementById('stepTitle').focus();
+}
+
+function goNext() {
+  if (current === STEPS.length - 1) {
+    current = 0;
+  } else {
+    current++;
+    if (current > furthest) furthest = current;
+  }
+  renderStep();
+}
+
+function goPrev() {
+  if (current > 0) current--;
+  renderStep();
+}
+
+renderStep();
+</script>
+</body>
+</html>
